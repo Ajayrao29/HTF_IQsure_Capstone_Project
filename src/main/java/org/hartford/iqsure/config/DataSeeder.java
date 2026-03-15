@@ -48,6 +48,7 @@ public class DataSeeder {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final org.hartford.iqsure.repository.EducationContentRepository educationContentRepository;
+    private final org.hartford.iqsure.repository.QuizRepository quizRepository;
     private final org.hartford.iqsure.repository.QuestionRepository questionRepository;
     private final org.hartford.iqsure.repository.AnswerRepository answerRepository;
     private final org.hartford.iqsure.repository.PolicyRepository policyRepository;
@@ -58,7 +59,8 @@ public class DataSeeder {
     // This method runs automatically after the bean is created and dependencies are injected
     @PostConstruct
     public void seedAdmin() {
-        if (userRepository.count() == 0) {
+        // Seed Admin if not exists
+        if (userRepository.findByEmail("admin@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
                     .name("Admin")
                     .email("admin@iqsure.com")
@@ -67,10 +69,11 @@ public class DataSeeder {
                     .role(User.Role.ROLE_ADMIN)
                     .userPoints(0)
                     .build());
-
             log.info("Admin user created: admin@iqsure.com / admin123");
+        }
 
-            // Create a default Underwriter
+        // Seed Underwriter if not exists
+        if (userRepository.findByEmail("alice@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
                     .name("Alice Underwriter")
                     .email("alice@iqsure.com")
@@ -82,8 +85,10 @@ public class DataSeeder {
                     .status("ACTIVE")
                     .build());
             log.info("Underwriter created: alice@iqsure.com / uw123");
+        }
 
-            // Create a default Claims Officer
+        // Seed Claims Officer if not exists
+        if (userRepository.findByEmail("bob@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
                     .name("Bob Claims")
                     .email("bob@iqsure.com")
@@ -95,8 +100,10 @@ public class DataSeeder {
                     .status("ACTIVE")
                     .build());
             log.info("Claims Officer created: bob@iqsure.com / claims123");
+        }
 
-            // Create a default Customer/User
+        // Seed Default User if not exists
+        if (userRepository.findByEmail("user@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
                     .name("John Doe")
                     .email("user@iqsure.com")
@@ -125,6 +132,10 @@ public class DataSeeder {
 
         if (rewardRepository.count() == 0) {
             seedRewards();
+        }
+
+        if (quizRepository.count() == 0) {
+            seedQuizzes();
         }
     }
     private void seedEducationContent() {
@@ -215,6 +226,60 @@ public class DataSeeder {
         rewardRepository.save(org.hartford.iqsure.entity.Reward.builder().rewardType("DISCOUNT").discountValue(15.0).reqPoints(400).description("15% Discount on any health policy").expiryDate(nextYear).build());
         rewardRepository.save(org.hartford.iqsure.entity.Reward.builder().rewardType("GIFT_CARD").discountValue(500.0).reqPoints(600).description("₹500 Health Pharmacy Gift Card").expiryDate(nextYear).build());
         log.info("Rewards seeded.");
+    }
+
+    private void seedQuizzes() {
+        // Quiz 1: Health Insurance Basics
+        org.hartford.iqsure.entity.Quiz healthBasics = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
+                .title("Health Insurance Fundamentals")
+                .category("HEALTH")
+                .difficulty(org.hartford.iqsure.entity.Quiz.Difficulty.EASY)
+                .build());
+
+        addQuestion(healthBasics, "What is a 'premium' in insurance?", 
+                "A free gift,The monthly/annual payment to keep coverage,The amount you pay when a claim is made,A type of policy",
+                1, "A premium is the amount paid periodically (monthly or annually) to keep the insurance policy active.");
+
+        addQuestion(healthBasics, "Which of these is NOT typically covered by standard health insurance?", 
+                "Hospitalization,Emergency surgery,Cosmetic surgery,Doctor visits",
+                2, "Most standard health insurance plans exclude cosmetic procedures that are not medically necessary.");
+
+        addQuestion(healthBasics, "What does 'Network Hospital' mean?", 
+                "A hospital with internet,A hospital where you can get cashless treatment,A government hospital,A private clinic",
+                1, "Network hospitals have partner agreements with insurers to provide cashless settlement or discounted rates.");
+
+        // Quiz 2: Life Insurance
+        org.hartford.iqsure.entity.Quiz lifeIns = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
+                .title("Life Insurance Essentials")
+                .category("LIFE")
+                .difficulty(org.hartford.iqsure.entity.Quiz.Difficulty.MEDIUM)
+                .build());
+
+        addQuestion(lifeIns, "Which type of life insurance provides coverage for a specific period?", 
+                "Whole Life,Term Life,Universal Life,Variable Life",
+                1, "Term insurance provides coverage for a specific term (e.g., 20 years). If the insured stays alive, there is typically no payout.");
+
+        addQuestion(lifeIns, "Who is a 'Beneficiary'?", 
+                "The person who sells the insurance,The person who receives the money if the insured dies,The doctor,The insurance company manager",
+                1, "The beneficiary is the person or entity designated to receive the death benefit payout.");
+
+        log.info("Quizzes and questions seeded.");
+    }
+
+    private void addQuestion(org.hartford.iqsure.entity.Quiz quiz, String text, String options, int rightOptionIdx, String explanation) {
+        org.hartford.iqsure.entity.Question q = questionRepository.save(org.hartford.iqsure.entity.Question.builder()
+                .quiz(quiz)
+                .text(text)
+                .options(options)
+                .explanation(explanation)
+                .build());
+
+        String[] optArr = options.split(",");
+        answerRepository.save(org.hartford.iqsure.entity.Answer.builder()
+                .question(q)
+                .text(optArr[rightOptionIdx])
+                .rightOption(rightOptionIdx)
+                .build());
     }
 }
 
