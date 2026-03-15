@@ -27,6 +27,9 @@ export class FileClaimComponent implements OnInit {
     description: ''
   };
 
+  successMessage = '';
+  errorMessage = '';
+
   constructor(
     private api: ApiService,
     private auth: AuthService,
@@ -48,18 +51,21 @@ export class FileClaimComponent implements OnInit {
 
   submitClaim(): void {
     if (!this.formData.userPolicyId || !this.formData.amount) {
-      alert('Please select a policy and enter an amount.');
+      this.errorMessage = 'Please select a policy and enter an amount.';
+      this.successMessage = '';
       return;
     }
 
     const userId = this.auth.getUserId()!;
     this.api.fileClaim(userId, this.formData.userPolicyId, this.formData).subscribe({
       next: () => {
-        alert('Claim filed successfully! Our officer will review it.');
-        this.router.navigate(['/my-claims']);
+        this.successMessage = 'Claim filed successfully! Our officer will review it.';
+        this.errorMessage = '';
+        setTimeout(() => this.router.navigate(['/my-claims']), 3000);
       },
       error: (err) => {
-        alert('Error filing claim: ' + (err.error?.message || 'Unknown error'));
+        this.errorMessage = 'Error filing claim: ' + (err.error?.message || 'Unknown error');
+        this.successMessage = '';
       }
     });
   }

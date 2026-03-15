@@ -235,6 +235,18 @@
         </section>
       }
 
+      <!-- Notification Messages -->
+      @if (successMessage) {
+        <div class="alert alert-success">
+          <span class="icon">✅</span> {{ successMessage }}
+        </div>
+      }
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          <span class="icon">⚠️</span> {{ errorMessage }}
+        </div>
+      }
+
       <!-- Submit Footer -->
       <div class="form-footer">
         <button class="btn-submit-app" (click)="submitRequest()">

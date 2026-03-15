@@ -35,6 +35,8 @@ export class ApplyPolicyComponent implements OnInit {
   userProfile: any = null;
   preview: any = null;
   loadingPreview = false;
+  successMessage = '';
+  errorMessage = '';
 
   activeCategory = 'ALL';
 
@@ -179,11 +181,13 @@ export class ApplyPolicyComponent implements OnInit {
 
     this.api.purchasePolicy(userId, request, this.formData.rewardIds).subscribe({
       next: () => {
-        alert('Application submitted successfully! Our underwriter will review it soon.');
-        this.router.navigate(['/dashboard']);
+        this.successMessage = 'Application submitted successfully! Our underwriter will review it soon.';
+        this.errorMessage = '';
+        setTimeout(() => this.router.navigate(['/dashboard']), 3000);
       },
       error: (err) => {
-        alert('Error submitting application: ' + (err.error?.message || 'Unknown error'));
+        this.errorMessage = 'Error submitting application: ' + (err.error?.message || 'Unknown error');
+        this.successMessage = '';
       }
     });
   }

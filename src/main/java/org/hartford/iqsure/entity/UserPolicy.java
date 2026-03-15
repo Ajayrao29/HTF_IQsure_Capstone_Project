@@ -90,7 +90,7 @@ public class UserPolicy {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private PolicyStatus status = PolicyStatus.PENDING;
+    private PolicyStatus status = PolicyStatus.PENDING_UNDERWRITING;
 
     // ============================================================
     // PIPELINE FIELDS
@@ -129,11 +129,12 @@ public class UserPolicy {
 
     // Possible statuses for a purchased policy
     public enum PolicyStatus {
-        PENDING,            // Awaiting assignment to underwriter
-        UNDER_EVALUATION,   // Assigned to underwriter, being reviewed
-        QUOTES_SENT,        // Underwriter has sent a quote, awaiting user payment
-        ACTIVE,             // Policy is currently in effect
-        EXPIRED,            // Policy duration has ended
-        CANCELLED           // User cancelled the policy
+        PENDING_UNDERWRITING, // Awaiting assignment to underwriter
+        UNDER_EVALUATION,    // Assigned to underwriter, being reviewed
+        QUOTES_SENT,         // Underwriter has sent a quote
+        ACTIVE,              // Policy is currently in effect
+        EXPIRED,             // Policy duration has ended
+        CANCELLED,           // User cancelled the policy
+        REJECTED             // Underwriter or Admin rejected the application
     }
 }

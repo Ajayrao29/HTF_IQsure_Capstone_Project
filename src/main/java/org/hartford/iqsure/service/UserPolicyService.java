@@ -59,7 +59,7 @@ public class UserPolicyService {
                 .finalPremium(breakdown.getFinalPremium())
                 .discountApplied(breakdown.getTotalDiscountPercent())
                 .purchaseDate(LocalDateTime.now())
-                .status(UserPolicy.PolicyStatus.PENDING) // Default to PENDING for the new pipeline flow
+                .status(UserPolicy.PolicyStatus.PENDING_UNDERWRITING) // Default to PENDING_UNDERWRITING for the pipeline flow
                 .remainingCoverage(java.math.BigDecimal.valueOf(policy.getCoverageAmount()))
                 .nomineeName(dto.getNomineeName())
                 .nomineeRelationship(dto.getNomineeRelationship())

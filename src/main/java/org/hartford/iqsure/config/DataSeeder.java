@@ -54,6 +54,7 @@ public class DataSeeder {
     private final org.hartford.iqsure.repository.PolicyRepository policyRepository;
     private final org.hartford.iqsure.repository.BadgeRepository badgeRepository;
     private final org.hartford.iqsure.repository.RewardRepository rewardRepository;
+    private final org.hartford.iqsure.repository.DiscountRuleRepository discountRuleRepository;
     private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
     // This method runs automatically after the bean is created and dependencies are injected
@@ -134,8 +135,13 @@ public class DataSeeder {
             seedRewards();
         }
 
-        if (quizRepository.count() == 0) {
+        // Always seed quizzes if questions are missing or if we want to ensure the 3 default quizzes exist
+        if (quizRepository.count() < 3 || questionRepository.count() == 0) {
             seedQuizzes();
+        }
+
+        if (discountRuleRepository.count() == 0) {
+            seedDiscountRules();
         }
     }
     private void seedEducationContent() {
@@ -229,6 +235,11 @@ public class DataSeeder {
     }
 
     private void seedQuizzes() {
+        // Clear existing to avoid duplicates or empty quizzes
+        answerRepository.deleteAll();
+        questionRepository.deleteAll();
+        quizRepository.deleteAll();
+
         // Quiz 1: Health Insurance Basics
         org.hartford.iqsure.entity.Quiz healthBasics = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
                 .title("Health Insurance Fundamentals")
@@ -263,7 +274,30 @@ public class DataSeeder {
                 "The person who sells the insurance,The person who receives the money if the insured dies,The doctor,The insurance company manager",
                 1, "The beneficiary is the person or entity designated to receive the death benefit payout.");
 
-        log.info("Quizzes and questions seeded.");
+        addQuestion(lifeIns, "What is a 'Nominee' in insurance?", 
+                "The person who pays the premium,The person designated to receive benefits,The insurance agent,The policy issuer",
+                1, "A nominee is the person appointed by the policyholder to receive the sum assured in case of the policyholder's death.");
+
+        // Quiz 3: Claims & Coverage
+        org.hartford.iqsure.entity.Quiz claimsQuiz = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
+                .title("Claims & Policy Coverage")
+                .category("CLAIMS")
+                .difficulty(org.hartford.iqsure.entity.Quiz.Difficulty.HARD)
+                .build());
+
+        addQuestion(claimsQuiz, "What does 'Deductible' mean?", 
+                "The amount the insurer pays,The amount you pay out-of-pocket before insurance kicks in,The total coverage amount,A discount on the premium",
+                1, "A deductible is the fixed amount you must pay before your insurance company starts to pay for a covered loss.");
+
+        addQuestion(claimsQuiz, "What is 'Cashless Settlement'?", 
+                "Paying in cash at the hospital,The insurer paying the hospital directly,Getting a refund after paying,A type of banking service",
+                1, "In cashless settlement, the insurance company settles the bill directly with the network hospital, so you don't have to pay from your pocket.");
+
+        addQuestion(claimsQuiz, "What is 'Sum Insured'?", 
+                "The number of people covered,The maximum amount the insurer will pay in a year,The total premium paid,The value of the hospital building",
+                1, "Sum Insured is the maximum amount an insurance company will pay for a covered loss in a policy year.");
+
+        log.info("3 Quizzes and their questions seeded successfully.");
     }
 
     private void addQuestion(org.hartford.iqsure.entity.Quiz quiz, String text, String options, int rightOptionIdx, String explanation) {
@@ -280,6 +314,54 @@ public class DataSeeder {
                 .text(optArr[rightOptionIdx])
                 .rightOption(rightOptionIdx)
                 .build());
+    }
+
+    private void seedDiscountRules() {
+        discountRuleRepository.save(org.hartford.iqsure.entity.DiscountRule.builder()
+                .ruleName("Beginner Learner Discount")
+                .description("Get 5% off for starting your learning journey. Req: 100 points.")
+                .minUserPoints(100)
+                .discountPercentage(5.0)
+                .isActive(true)
+                .build());
+
+        discountRuleRepository.save(org.hartford.iqsure.entity.DiscountRule.builder()
+                .ruleName("Quiz Whiz Reward")
+                .description("Get 10% off for scoring 80%+ on any quiz and having 200 points.")
+                .minQuizScorePercent(80.0)
+                .minUserPoints(200)
+                .discountPercentage(10.0)
+                .isActive(true)
+                .build());
+
+        discountRuleRepository.save(org.hartford.iqsure.entity.DiscountRule.builder()
+                .ruleName("Badge Collector Bonus")
+                .description("Get 15% off for earning 3 badges and 500 points.")
+                .minBadgesEarned(3)
+                .minUserPoints(500)
+                .discountPercentage(15.0)
+                .isActive(true)
+                .build());
+
+        discountRuleRepository.save(org.hartford.iqsure.entity.DiscountRule.builder()
+                .ruleName("Health Policy Expert")
+                .description("Get 20% off Health Policies. Req: 90% quiz score.")
+                .minQuizScorePercent(90.0)
+                .applicablePolicyType(org.hartford.iqsure.entity.Policy.PolicyType.HEALTH)
+                .discountPercentage(20.0)
+                .isActive(true)
+                .build());
+
+        discountRuleRepository.save(org.hartford.iqsure.entity.DiscountRule.builder()
+                .ruleName("Elite Insurance Protector")
+                .description("Top-tier 25% discount for 1000+ points and all 4 badges.")
+                .minUserPoints(1000)
+                .minBadgesEarned(4)
+                .discountPercentage(25.0)
+                .isActive(true)
+                .build());
+
+        log.info("Discount rules seeded.");
     }
 }
 
