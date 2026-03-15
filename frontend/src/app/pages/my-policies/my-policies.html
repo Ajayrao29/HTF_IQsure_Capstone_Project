@@ -1,0 +1,60 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>My Policies</h1>
+      <p>Your purchased insurance policies</p>
+    </div>
+    <a routerLink="/policies" class="btn-primary">Browse More Policies</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading your policies…</div>
+  }
+
+  @if (!loading && policies.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No policies yet</h3>
+      <p>Browse our policies and use your quiz points for discounts!</p>
+      <a routerLink="/policies" class="btn-primary">Browse Policies</a>
+    </div>
+  }
+
+  @if (!loading && policies.length > 0) {
+    <div class="policy-list">
+      @for (p of policies; track p) {
+        <div class="policy-card">
+          <div class="card-left">
+            <div class="type-icon">{{ getPolicyIcon(p.policyType) }}</div>
+            <div>
+              <h3>{{ p.policyTitle }}</h3>
+              <div class="policy-meta">
+                <span class="type-tag">{{ p.policyType }}</span>
+                <span class="status-tag" [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right">
+            <div class="premium-info">
+              <div class="final-premium">₹{{ p.finalPremium }}/yr</div>
+              @if (p.savedAmount > 0) {
+                <div class="base-info">
+                  <span class="original">₹{{ p.basePremium }}</span>
+                  <span class="saved">You saved ₹{{ p.savedAmount }}!</span>
+                </div>
+              }
+            </div>
+            <div class="extra-details">
+              <span>Coverage: ₹{{ p.coverageAmount | number }}</span>
+              <span>{{ p.durationMonths }} months</span>
+              @if (p.discountApplied > 0) {
+                <span class="discount-applied">{{ p.discountApplied }}% discount</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+

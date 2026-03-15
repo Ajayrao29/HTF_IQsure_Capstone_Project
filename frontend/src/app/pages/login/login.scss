@@ -1,0 +1,96 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  padding: 2rem;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(233, 30, 99, 0.15);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(233, 30, 99, 0.1);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 100%;
+  max-width: 480px;
+  padding: 4rem;
+  border-top: 6px solid #E91E63;
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  .auth-logo {
+    font-size: 2.8rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #8B003F;
+    letter-spacing: -1.5px;
+    span { color: #E91E63; }
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #4A154B;
+    text-align: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #8A4B6B;
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .error-msg {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #DC2626;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    &::before { content: '⚠️'; }
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 1.15rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .switch-link {
+    text-align: center;
+    margin-top: 2rem;
+    color: #8A4B6B;
+    font-size: 1rem;
+    font-weight: 500;
+
+    a {
+      color: #E91E63;
+      font-weight: 800;
+      text-decoration: none;
+      transition: color 0.2s;
+      &:hover { color: #8B003F; text-decoration: underline; }
+    }
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+    color: #4A154B;
+    font-weight: 700;
+  }
+}

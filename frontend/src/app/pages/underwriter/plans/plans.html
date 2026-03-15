@@ -1,0 +1,60 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>🛡️ Available Plans</h1>
+      <p>Insurance plans you can reference when evaluating policy applications.</p>
+    </div>
+    <a routerLink="/underwriter/dashboard" class="btn-secondary">← Dashboard</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading plans...</p>
+    </div>
+  } @else {
+    <div class="plans-grid">
+      @for (p of plans; track p.policyId) {
+        <div class="plan-card">
+          <div class="plan-card-header">
+            <span class="plan-type-badge">{{ p.planType }}</span>
+          </div>
+          <div class="plan-card-body">
+            <h3>{{ p.title }}</h3>
+            <p class="plan-desc">{{ p.description }}</p>
+            
+            <div class="plan-details-grid">
+              <div class="detail-item">
+                <span class="label">BASE PREMIUM</span>
+                <span class="value">₹{{ p.basePremium | number }}/yr</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">COVERAGE</span>
+                <span class="value">₹{{ getCoverageInLakhs(p.coverageAmount) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">AGE LIMIT</span>
+                <span class="value">{{ p.ageRange }} yrs</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">WAITING PERIOD</span>
+                <span class="value">{{ p.waitingPeriod }}</span>
+              </div>
+            </div>
+
+            <ul class="features-list">
+              <li>
+                <span class="feature-icon" [class.no]="!p.hasMaternityCover">{{ p.hasMaternityCover ? '✅' : '❌' }}</span>
+                <span class="feature-text" [class.no]="!p.hasMaternityCover">Maternity Cover</span>
+              </li>
+              <li>
+                <span class="feature-icon" [class.no]="!p.hasPreExistingCover">{{ p.hasPreExistingCover ? '✅' : '❌' }}</span>
+                <span class="feature-text" [class.no]="!p.hasPreExistingCover">Pre-existing Diseases</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

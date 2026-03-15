@@ -1,0 +1,90 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Claims Officer Management</h1>
+      <p>Manage claims processing team</p>
+    </div>
+    <button class="btn-primary" (click)="showForm = !showForm">
+      {{ showForm ? 'Cancel' : '+ Add Officer' }}
+    </button>
+  </div>
+
+  @if (error) { <div class="alert alert-danger">{{ error }}</div> }
+  @if (success) { <div class="alert alert-success">{{ success }}</div> }
+
+  @if (showForm) {
+    <div class="form-card fade-in">
+      <h3>Register New Claims Officer</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name*</label>
+          <input type="text" [(ngModel)]="newOfficer.name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+          <label>Email Address*</label>
+          <input type="email" [(ngModel)]="newOfficer.email" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <label>Password*</label>
+          <input type="password" [(ngModel)]="newOfficer.password" placeholder="Enter password">
+        </div>
+        <div class="form-group">
+          <label>Employee ID*</label>
+          <input type="text" [(ngModel)]="newOfficer.employeeId" placeholder="Enter EMP ID">
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" [(ngModel)]="newOfficer.department">
+        </div>
+        <div class="form-group">
+          <label>Approval Limit ($)</label>
+          <input type="number" [(ngModel)]="newOfficer.approvalLimit">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="addOfficer()">Save Officer</button>
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading">Loading officers...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>EMP ID</th>
+            <th>Dept</th>
+            <th>Limit</th>
+            <th>Processed</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of officers; track o.userId) {
+            <tr>
+              <td>#{{ o.userId }}</td>
+              <td><strong>{{ o.name }}</strong></td>
+              <td>{{ o.email }}</td>
+              <td><code>{{ o.employeeId }}</code></td>
+              <td>{{ o.department }}</td>
+              <td>${{ (o.approvalLimit || 0).toLocaleString() }}</td>
+              <td><span class="count-badge">{{ o.totalClaimsProcessed || 0 }}</span></td>
+              <td>
+                <button class="btn-sm btn-danger" (click)="deleteOfficer(o.userId)">Remove</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center">No claims officers found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

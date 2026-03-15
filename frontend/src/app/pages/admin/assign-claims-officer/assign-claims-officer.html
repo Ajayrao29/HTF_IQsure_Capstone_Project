@@ -1,0 +1,58 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Assign Claims Officer</h1>
+      <p>Assign submitted claims to the claims processing team</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading submitted claims...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Claim #</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Hospital</th>
+            <th>Incident Date</th>
+            <th>Status</th>
+            <th>Assign To</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of pendingClaims; track c.id) {
+            <tr>
+              <td><code>{{ c.claimNumber }}</code></td>
+              <td>{{ c.type }}</td>
+              <td>${{ (c.amount || 0).toLocaleString() }}</td>
+              <td>{{ c.hospitalName || '—' }}</td>
+              <td>{{ c.incidentDate | date:'shortDate' }}</td>
+              <td><span class="status-badge submitted">SUBMITTED</span></td>
+              <td>
+                <select #officerSelect class="form-select-sm">
+                  <option value="">Select Officer</option>
+                  @for (o of officers; track o.userId) {
+                    <option [value]="o.userId">{{ o.name }} (Lmt: ${{ o.approvalLimit?.toLocaleString() }})</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <button class="btn-primary btn-sm" (click)="assign(c.id, officerSelect.value)" [disabled]="!officerSelect.value">
+                  Assign
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center">No submitted claims awaiting assignment.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

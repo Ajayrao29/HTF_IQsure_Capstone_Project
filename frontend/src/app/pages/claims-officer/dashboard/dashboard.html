@@ -1,0 +1,85 @@
+<div class="page fade-in">
+  <!-- Top Banner -->
+  <div class="officer-banner">
+    <div class="banner-content">
+      <div class="welcome-text">
+        <h1>Claims Officer Dashboard</h1>
+        <p>Welcome back, {{ userName }} — manage and process insurance claims</p>
+      </div>
+      <div class="employee-badge">{{ employeeId }}</div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Row -->
+  <div class="key-metrics-card">
+    <div class="metric">
+        <span class="metric-label">DEPARTMENT</span>
+        <span class="metric-value">{{ stats.department }}</span>
+    </div>
+    <div class="metric">
+        <span class="metric-label">APPROVAL LIMIT</span>
+        <span class="metric-value pink">₹{{ stats.approvalLimit | number }}</span>
+    </div>
+    <div class="metric">
+        <span class="metric-label">APPROVAL RATE</span>
+        <span class="metric-value pink">{{ stats.approvalRate }}</span>
+    </div>
+  </div>
+
+  <!-- Status Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-icon yellow">⚠️</div>
+      <div class="stat-info">
+        <h3>{{ stats.claimsInQueue }}</h3>
+        <p>Claims in Queue</p>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-icon blue">🕒</div>
+      <div class="stat-info">
+        <h3>{{ stats.underReview }}</h3>
+        <p>Under My Review</p>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-icon green-glow">🔄</div>
+      <div class="stat-info">
+        <h3>{{ stats.totalProcessed }}</h3>
+        <p>Total Processed</p>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-info">
+        <h3>{{ stats.approved }}</h3>
+        <p>Approved</p>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-icon red">❌</div>
+      <div class="stat-info">
+        <h3>{{ stats.rejected }}</h3>
+        <p>Rejected</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h2 class="section-title">Quick Actions</h2>
+    <div class="action-grid">
+      <a routerLink="/claims-officer/claims" class="action-card">
+        <div class="action-icon">📥</div>
+        <div class="action-info">
+          <h3>My Assigned Claims</h3>
+          <p>Review assigned claims</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

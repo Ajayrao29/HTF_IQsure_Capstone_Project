@@ -1,0 +1,113 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h1 { font-size: 2rem; font-weight: 800; color: var(--claret); margin: 0; }
+  p { color: #64748b; font-weight: 600; margin-top: 0.5rem; }
+}
+
+.filter-bar {
+  display: flex;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 12px;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.05);
+  overflow-x: auto;
+
+  button {
+    background: transparent;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #64748b;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+
+    &.active {
+      background: #FFF0F5;
+      color: var(--claret);
+    }
+    &:hover:not(.active) { background: #f8fafc; }
+  }
+}
+
+.table-container {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  th {
+    background: #f8fafc;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 700;
+    border-bottom: 1px solid #edf2f7;
+  }
+
+  td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.95rem;
+    vertical-align: middle;
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+
+  &.status-approved { background: #E6FFF0; color: #16A34A; }
+  &.status-rejected { background: #FEF2F2; color: #EF4444; }
+  &.status-submitted { background: #FFF9E6; color: #D97706; }
+  &.status-review { background: #E6F3FF; color: #0EA5E9; }
+}
+
+.type-tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--claret);
+    color: var(--claret);
+    font-weight: 700;
+    &:hover { background: var(--claret); color: white; }
+}
+
+.empty-state {
+  background: white;
+  padding: 5rem 2rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+
+  .empty-icon { font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.5; }
+  h3 { font-size: 1.5rem; font-weight: 800; color: var(--claret); margin: 0; }
+  p { color: #64748b; margin-top: 0.75rem; font-weight: 600; }
+}

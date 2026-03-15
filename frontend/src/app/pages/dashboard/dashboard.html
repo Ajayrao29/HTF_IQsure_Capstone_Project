@@ -1,0 +1,333 @@
+<!-- ═══════════════════ LOADING STATE ═══════════════════ -->
+<div class="loading" *ngIf="loading">
+  <p>Loading dashboard…</p>
+</div>
+
+<!-- ═══════════════════ ADMIN DASHBOARD ═══════════════════ -->
+<ng-container *ngIf="!loading && auth.isAdmin()">
+<div class="page">
+
+  <!-- Welcome Banner -->
+  <div class="welcome-banner admin-banner">
+    <div class="banner-text">
+      <h1>Welcome back, <span>Admin</span> 👋</h1>
+      <p>Manage the IQsure platform. Monitor users, quizzes, and policies from here.</p>
+    </div>
+    <div class="points-badge">
+      <div class="points-number">{{stats.totalUsers}}</div>
+      <div class="points-label">TOTAL USERS</div>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card admin-stat">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value">{{stats.totalUsers}}</div>
+      <div class="stat-label">REGISTERED USERS</div>
+    </div>
+
+    <div class="stat-card admin-stat">
+      <div class="stat-icon">🧩</div>
+      <div class="stat-value">{{stats.totalQuizzes}}</div>
+      <div class="stat-label">TOTAL QUIZZES</div>
+    </div>
+
+    <div class="stat-card admin-stat">
+      <div class="stat-icon">📋</div>
+      <div class="stat-value">{{stats.totalPolicies}}</div>
+      <div class="stat-label">POLICIES</div>
+    </div>
+
+    <div class="stat-card admin-stat">
+      <div class="stat-icon">🎁</div>
+      <div class="stat-value">{{stats.totalRewards}}</div>
+      <div class="stat-label">REWARDS ISSUED</div>
+    </div>
+  </div>
+
+  <!-- Two-Column: Platform Overview + Admin Actions -->
+  <div class="two-col admin-panels">
+
+    <div class="card admin-summary-card">
+      <div class="card-header">
+        <h2>Platform Overview</h2>
+      </div>
+
+      <div class="summary-list">
+        <div class="summary-row">
+          <span>Total Admins</span>
+          <strong>{{stats.totalAdmins}}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Total Customers</span>
+          <strong>{{stats.totalCustomers}}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Active Policies</span>
+          <strong>{{stats.activePolicies}}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Inactive Policies</span>
+          <strong>{{stats.inactivePolicies}}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Discount Rules</span>
+          <strong>{{stats.discountRules}}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Admin Actions</h2>
+      </div>
+
+      <div class="admin-actions-list">
+        <a routerLink="/admin/users" class="mini-action">
+          👥 Manage Users
+        </a>
+        <a routerLink="/admin/quiz-mgmt" class="mini-action">
+          🧩 Manage Quizzes
+        </a>
+        <a routerLink="/admin/policy-mgmt" class="mini-action">
+          📋 Manage Policies
+        </a>
+        <a routerLink="/admin/badge-mgmt" class="mini-action">
+          🏅 Manage Badges
+        </a>
+        <a routerLink="/admin/reward-mgmt" class="mini-action">
+          🎁 Manage Rewards
+        </a>
+        <a routerLink="/admin/discount-rules" class="mini-action">
+          💰 Discount Rules
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Recent Users + Platform Health -->
+  <div class="two-col admin-panels">
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Recent Users</h2>
+        <a routerLink="/admin/users" class="card-link">View All →</a>
+      </div>
+
+      <div class="recent-users-list" *ngIf="recentUsers.length > 0; else noUsers">
+        <div class="recent-user-row" *ngFor="let u of recentUsers">
+          <div class="user-avatar">{{ u.name?.charAt(0) || '?' }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ u.name }}</div>
+            <div class="user-email">{{ u.email }}</div>
+          </div>
+          <span class="role-badge" [class.admin-role]="u.role === 'ROLE_ADMIN'">
+            {{ u.role === 'ROLE_ADMIN' ? 'Admin' : 'Customer' }}
+          </span>
+        </div>
+      </div>
+
+      <ng-template #noUsers>
+        <p class="empty-msg">No users found.</p>
+      </ng-template>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Platform Health</h2>
+      </div>
+
+      <div class="health-grid">
+        <div class="health-item">
+          <div class="health-icon good">✓</div>
+          <div class="health-text">
+            <strong>{{stats.totalQuizzes}} Quizzes</strong>
+            <span>Available for users</span>
+          </div>
+        </div>
+        <div class="health-item">
+          <div class="health-icon" [class.good]="stats.activePolicies > 0" [class.warn]="stats.activePolicies === 0">
+            {{ stats.activePolicies > 0 ? '✓' : '!' }}
+          </div>
+          <div class="health-text">
+            <strong>{{stats.activePolicies}} Active Policies</strong>
+            <span>{{ stats.inactivePolicies }} inactive</span>
+          </div>
+        </div>
+        <div class="health-item">
+          <div class="health-icon good">✓</div>
+          <div class="health-text">
+            <strong>{{stats.totalRewards}} Rewards</strong>
+            <span>Configured in system</span>
+          </div>
+        </div>
+        <div class="health-item">
+          <div class="health-icon good">✓</div>
+          <div class="health-text">
+            <strong>{{stats.discountRules}} Discount Rules</strong>
+            <span>Active rules</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</ng-container>
+
+
+<!-- ═══════════════════ USER DASHBOARD ═══════════════════ -->
+<ng-container *ngIf="!loading && !auth.isAdmin()">
+<div class="page">
+
+  <!-- Welcome Banner -->
+  <div class="welcome-banner user-new-banner">
+    <div class="banner-text">
+      <h1>Welcome back, <span>{{user?.name}}</span>!</h1>
+      <p>Here's an overview of your health insurance portfolio</p>
+    </div>
+    <div class="banner-actions">
+      <a routerLink="/apply-policy" class="btn-browse-plans">Browse Plans</a>
+    </div>
+  </div>
+
+  <!-- Key Metrics Row -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon green">📖</div>
+      <div class="metric-info">
+        <h3>{{ userStats.totalPolicies }}</h3>
+        <p>Total Policies</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon blue">🛡️</div>
+      <div class="metric-info">
+        <h3>{{ userStats.activePolicies }}</h3>
+        <p>Active Policies</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon yellow">⏳</div>
+      <div class="metric-info">
+        <h3>{{ userStats.awaitingQuote }}</h3>
+        <p>Awaiting Quote / Payment</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon red">⚠️</div>
+      <div class="metric-info">
+        <h3>{{ userStats.pendingClaims }}</h3>
+        <p>Pending Claims</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Section -->
+  <div class="quick-actions-section">
+    <h2 class="section-title">Quick Actions</h2>
+    <div class="action-grid-modern">
+      <a routerLink="/apply-policy" class="action-card-modern">
+        <div class="action-icon-wrapper">🔍</div>
+        <h3>Browse Plans</h3>
+        <p>Explore insurance options</p>
+      </a>
+
+      <a routerLink="/my-policies" class="action-card-modern">
+        <div class="action-icon-wrapper">🗃️</div>
+        <h3>My Policies</h3>
+        <p>View & manage policies</p>
+      </a>
+
+      <a routerLink="/my-claims" class="action-card-modern">
+        <div class="action-icon-wrapper">📋</div>
+        <h3>My Claims</h3>
+        <p>Track claim status</p>
+      </a>
+
+      <a routerLink="/my-claims" class="action-card-modern">
+        <div class="action-icon-wrapper">✏️</div>
+        <h3>File Claim</h3>
+        <p>Submit a new claim</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- Gamification & Recent Activity (Keep existing features) -->
+  <div class="two-col mt-4">
+    <!-- Recent Attempts -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Recent Quiz Attempts</h2>
+        <a routerLink="/quizzes" class="card-link">Take a Quiz →</a>
+      </div>
+      <ng-container *ngIf="recentAttempts.length > 0; else noAttempts">
+        <div class="attempt-item" *ngFor="let attempt of recentAttempts">
+          <span class="attempt-title">{{attempt.quizTitle}}</span>
+          <div class="attempt-stats">
+            <span class="score-badge" [class.good]="attempt.score >= 70" [class.bad]="attempt.score < 50">
+              {{attempt.score}}%
+            </span>
+            <span class="attempt-points">+{{attempt.pointsEarned}} pts</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noAttempts>
+        <p class="empty-msg">No attempts yet. <a routerLink="/quizzes">Take your first quiz!</a></p>
+      </ng-template>
+    </div>
+
+    <!-- Your Badges -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Your Badges</h2>
+        <a routerLink="/badges" class="card-link">View All →</a>
+      </div>
+      <ng-container *ngIf="myBadges.length > 0; else noBadges">
+        <div class="badge-grid">
+          <div class="badge-item" *ngFor="let badge of myBadges">
+            <div class="badge-icon">{{badge.icon || '🏅'}}</div>
+            <div class="badge-name">{{badge.name}}</div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noBadges>
+        <p class="empty-msg">Earn points to unlock badges!</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- 📥 Savings & Rewards Overview (Restored) -->
+  <div class="card mt-4 shadow-sm">
+    <div class="card-header">
+      <h2>🏆 Savings & Rewards</h2>
+    </div>
+    <div class="savings-rewards-panels">
+      <div class="panel-item">
+        <div class="p-icon">💰</div>
+        <div class="p-info">
+          <div class="p-value">₹{{ totalSavings | number }}</div>
+          <div class="p-label">TOTAL MONEY SAVED</div>
+          <p class="p-subtext">Earned through quiz-based discounts</p>
+        </div>
+      </div>
+      <div class="panel-item">
+        <div class="p-icon">⭐</div>
+        <div class="p-info">
+          <div class="p-value">{{ user?.userPoints || 0 }}</div>
+          <div class="p-label">LOYALTY POINTS</div>
+          <p class="p-subtext">Use them to redeem cashback & coupons</p>
+        </div>
+      </div>
+      <div class="panel-actions">
+        <button routerLink="/rewards" class="btn-primary-outline">Go to Rewards Shop</button>
+        <button routerLink="/savings" class="btn-secondary-outline">Analyze Savings</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</ng-container>

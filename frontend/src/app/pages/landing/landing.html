@@ -1,0 +1,229 @@
+<div class="landing-page-premium">
+
+  <!-- Abstract dynamic background elements -->
+  <div class="abstract-bg">
+    <div class="blob magenta"></div>
+    <div class="blob cyber"></div>
+    <div class="blob purple"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <header class="glass-header">
+    <div class="header-container">
+      <div class="brand-logo">
+        <div class="logo-icon">✨</div>
+        <div class="logo-text">IQ<span class="highlight">sure</span></div>
+      </div>
+      <nav class="nav-links">
+        <a routerLink="/about">Platform Overview</a>
+        <a routerLink="/login" class="nav-login">Log In</a>
+        <a routerLink="/register" class="btn-glow"><span>Start Playing Free</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <div class="hero-container">
+        
+        <div class="hero-content">
+          <div class="badge-tag">
+            <span class="tag-icon">🏆</span>
+            <span class="tag-text">Next-Gen Insurance Experience</span>
+          </div>
+          
+          <h1 class="hero-title">
+            Level Up Your <br />
+            <span class="gradient-text">Insurance IQ.</span>
+          </h1>
+          
+          <p class="hero-subtitle">
+            The ultimate gamified literacy platform. Master real-world coverage concepts, earn XP, unlock legendary achievements, and convert them into massive premium discounts.
+          </p>
+          
+          <div class="hero-actions">
+            <a routerLink="/register" class="btn-primary-lg">
+              <span>Enter The Game</span> 
+              <span class="icon-arrow">→</span>
+            </a>
+            <a routerLink="/about" class="btn-outline-glass">
+              <span>See How It Works</span>
+            </a>
+          </div>
+          
+          <div class="hero-metrics">
+            <div class="metric">
+              <span class="m-val">15K+</span>
+              <span class="m-lbl">Active Players</span>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric">
+              <span class="m-val">$2M+</span>
+              <span class="m-lbl">Premiums Saved</span>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric">
+              <span class="m-val">4.9/5</span>
+              <span class="m-lbl">User Rating</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="visual-wrapper">
+             <div class="glass-card main-card">
+                <div class="card-glow"></div>
+                <div class="card-inner">
+                   <div class="user-info">
+                     <div class="avatar"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=E91E63" alt="avatar"/></div>
+                     <div class="u-details">
+                       <div class="u-name">Alex M.</div>
+                       <div class="u-level">Lvl 42 · Rank: Grandmaster</div>
+                     </div>
+                   </div>
+                   
+                   <div class="progress-section">
+                     <div class="p-header">
+                       <span class="p-label">Next Discount Tier</span>
+                       <span class="p-percent">78%</span>
+                     </div>
+                     <div class="p-bar">
+                       <div class="p-fill" style="width:78%">
+                          <div class="p-shine"></div>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   <div class="stats-row">
+                     <div class="s-box">
+                       <div class="s-icn">💎</div>
+                       <div class="s-data"><span class="s-v">12.5k</span><span class="s-l">Total XP</span></div>
+                     </div>
+                     <div class="s-box highlight-box">
+                       <div class="s-icn">🛡️</div>
+                       <div class="s-data"><span class="s-v">-30%</span><span class="s-l">Premium</span></div>
+                     </div>
+                   </div>
+                </div>
+             </div>
+             
+             <!-- Floating Elements -->
+             <div class="float-badge b-1">
+               <div class="b-icn">🔥</div>
+               <div class="b-txt">12 Day Streak!</div>
+             </div>
+             <div class="float-badge b-2">
+               <div class="b-icn">💯</div>
+               <div class="b-txt">Perfect Quiz</div>
+             </div>
+             <div class="float-badge b-3">
+               <div class="b-icn">🏅</div>
+               <div class="b-txt">Badge Unlocked</div>
+             </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="section-header">
+        <h2 class="section-title">Master the <span class="gradient-text">Gameplay Loop</span></h2>
+        <p class="section-subtitle">A seamless journey from absolute beginner to fully insured master.</p>
+      </div>
+      
+      <div class="features-grid">
+        @for (f of features; track f) {
+          <div class="feature-card-glass">
+            <div class="f-icon-wrap">
+              <span class="f-icon">{{ f.icon }}</span>
+              <div class="f-glow"></div>
+            </div>
+            <h3 class="f-title">{{ f.title }}</h3>
+            <p class="f-desc">{{ f.desc }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Interactive Rewards Section -->
+    <section class="rewards-preview-section">
+      <div class="rewards-container">
+        <div class="rewards-text">
+          <h2 class="section-title">The <span class="gradient-text">Loot</span> is Real.</h2>
+          <p class="section-subtitle">
+            Unlike other platforms where points are just numbers on a screen, your IQsure XP translates to genuine real-world savings on auto, life, and health policies.
+          </p>
+          <ul class="rewards-list">
+            <li>
+              <div class="r-check">✓</div>
+              <div class="r-info">
+                <strong>Base Discounts</strong>
+                <span>Score > 80% to instantly shave percentages off your premiums.</span>
+              </div>
+            </li>
+            <li>
+              <div class="r-check">✓</div>
+              <div class="r-info">
+                <strong>Speed Multipliers</strong>
+                <span>Answer quickly to farm bonus points and hit discount tiers faster.</span>
+              </div>
+            </li>
+            <li>
+              <div class="r-check">✓</div>
+              <div class="r-info">
+                <strong>Achievement Tiers</strong>
+                <span>Unlock 'Insurance Expert' status to reach the 50% max discount cap.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="stats-showcase">
+          <div class="showcase-grid">
+            @for (s of stats; track s) {
+              <div class="showcase-item">
+                <div class="showcase-val gradient-text">{{ s.value }}</div>
+                <div class="showcase-lbl">{{ s.label }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="cta-section">
+      <div class="cta-box">
+        <div class="cta-glow"></div>
+        <h2 class="cta-title">Ready to Start Your Quest?</h2>
+        <p class="cta-subtitle">Join the ranks of thousands saving big on their insurance policies today.</p>
+        <div class="cta-actions">
+          <a routerLink="/register" class="btn-glow-large">
+            <span>Create Your Avatar</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="glass-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="logo-text">IQ<span class="highlight">sure</span></div>
+        <p>Gamified Insurance Literacy</p>
+      </div>
+      <div class="footer-links">
+        <a routerLink="/about">About Platform</a>
+        <a routerLink="/login">Log In</a>
+        <a routerLink="/register">Register</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 IQsure. Learn Smarter, Save Better.</p>
+    </div>
+  </footer>
+</div>

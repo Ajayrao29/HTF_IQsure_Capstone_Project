@@ -1,0 +1,91 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Policy Management</h1>
+    <button class="btn-primary" (click)="openCreate()">+ New Policy</button>
+  </div>
+
+  @if (showForm) {
+    <div class="form-card">
+      <h2>{{ editingPolicy ? 'Edit Policy' : 'Create Policy' }}</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Title</label><input [(ngModel)]="form.title" placeholder="Policy title" /></div>
+        <div class="form-group">
+          <label>Policy Type</label>
+          <select [(ngModel)]="form.policyType">
+            <option value="HEALTH">Health</option>
+            <option value="LIFE">Life</option>
+            <option value="MOTOR">Motor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Plan Type</label>
+          <select [(ngModel)]="form.planType">
+            <option value="INDIVIDUAL">Individual</option>
+            <option value="FAMILY">Family</option>
+            <option value="SENIOR_CITIZEN">Senior Citizen</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Age Range</label><input [(ngModel)]="form.ageRange" placeholder="e.g. 18-65" /></div>
+        <div class="form-group"><label>Duration (months)</label><input type="number" [(ngModel)]="form.durationMonths" placeholder="12" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea [(ngModel)]="form.description" rows="2" placeholder="Brief description…"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Base Premium (₹)</label><input type="number" [(ngModel)]="form.basePremium" placeholder="5000" /></div>
+        <div class="form-group"><label>Coverage (₹)</label><input type="number" [(ngModel)]="form.coverageAmount" placeholder="300000" /></div>
+      </div>
+      <div class="form-group checkbox-group">
+        <label><input type="checkbox" [(ngModel)]="form.isActive" /> Active</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="save()">{{ editingPolicy ? 'Update' : 'Create' }}</button>
+        <button class="btn-secondary" (click)="showForm = false">Cancel</button>
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading">Loading…</div>
+  }
+
+  @if (!loading) {
+    <div class="policy-grid">
+      @for (p of policies; track p) {
+        <div class="policy-card" [class.inactive]="!p.isActive">
+          <div class="policy-card-top">
+            <span class="policy-type" [ngClass]="p.policyType.toLowerCase()">{{ p.policyType }}</span>
+            <span [class]="p.isActive ? 'active-tag' : 'inactive-tag'">{{ p.isActive ? 'Active' : 'Inactive' }}</span>
+          </div>
+          <h3 class="policy-card-title">{{ p.title }}</h3>
+          <div class="policy-card-stats">
+            <div class="stat-box">
+              <span class="stat-label">Premium</span>
+              <span class="stat-value">₹{{ p.basePremium }}</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Coverage</span>
+              <span class="stat-value">₹{{ p.coverageAmount | number }}</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Age</span>
+              <span class="stat-value">{{ p.ageRange }}</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Type</span>
+              <span class="stat-value">{{ p.planType }}</span>
+            </div>
+          </div>
+          <div class="policy-card-actions">
+            <button class="btn-sm" (click)="openEdit(p)">Edit</button>
+            <button class="btn-danger btn-sm" (click)="delete(p.policyId)">Delete</button>
+          </div>
+        </div>
+      }
+      @if (policies.length === 0) {
+        <div class="empty-msg">No policies yet. Create one above.</div>
+      }
+    </div>
+  }
+</div>
+

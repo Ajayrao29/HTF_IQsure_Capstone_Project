@@ -1,0 +1,26 @@
+.pts-badge {
+  background: #FFF0F5;
+  color: #E91E63;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.35rem 0.85rem;
+  border-radius: 30px;
+  border: 1px solid rgba(233, 30, 99, 0.1);
+}
+
+.role-badge {
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.85rem;
+  border-radius: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  &.admin {
+    background: #FFF0F5;
+    color: #8B003F;
+    border: 1px solid rgba(139, 0, 63, 0.1);
+  }
+}

@@ -1,0 +1,191 @@
+<div class="page">
+  <div class="rewards-hero">
+    <div class="hero-text">
+      <h1>My Reward Coupons</h1>
+      <p>Earned automatically when you qualify for discount rules through quiz performance. Apply them when buying a policy to save instantly.</p>
+    </div>
+    @if (!loading) {
+      <div class="hero-stat">
+        <span class="stat-num">{{ availableRewards.length }}</span>
+        <span class="stat-label">Available</span>
+      </div>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="loading-wrapper">
+      <div class="loading-spinner"></div>
+      <p>Loading your rewards…</p>
+    </div>
+  }
+
+  @if (!loading && rewards.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🎯</div>
+      <h3>No Rewards Yet</h3>
+      <p>Complete quizzes and improve your score to automatically earn discount coupons!</p>
+      <div class="empty-hint">
+        <span>💡</span> Go to <strong>Policies → How to Get Discounts</strong> to see what you need to qualify.
+      </div>
+    </div>
+  }
+
+  @if (!loading && rewards.length > 0) {
+
+    <!-- ── Available Coupons ─────────────────── -->
+    @if (availableRewards.length > 0) {
+      <section class="reward-section">
+        <div class="section-header">
+          <div class="section-label">
+            <span class="status-dot available"></span>
+            <h2>Available Coupons</h2>
+            <span class="badge-count">{{ availableRewards.length }}</span>
+          </div>
+          <p>Ready to apply when purchasing a policy</p>
+        </div>
+
+        <div class="coupons-grid">
+          @for (r of availableRewards; track r.userRewardId) {
+            <div class="coupon-card available">
+              <!-- Left accent strip -->
+              <div class="coupon-strip">
+                <span class="strip-text">COUPON</span>
+              </div>
+
+              <!-- Coupon body -->
+              <div class="coupon-body">
+                <div class="coupon-top">
+                  <div class="coupon-icon">{{ getRewardIcon(r.rewardType) }}</div>
+                  <div class="coupon-info">
+                    <div class="coupon-name">{{ r.rewardType }}</div>
+                    <div class="coupon-dates">
+                      <span>Earned {{ r.earnedOn }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="coupon-divider">
+                  <div class="notch left"></div>
+                  <div class="dashes"></div>
+                  <div class="notch right"></div>
+                </div>
+                <div class="coupon-bottom">
+                  <div class="discount-block">
+                    <span class="discount-num">{{ r.discountValue }}%</span>
+                    <span class="discount-label">OFF</span>
+                  </div>
+                  <div class="expiry-block">
+                    <span class="expiry-label">VALID TILL</span>
+                    <span class="expiry-date">{{ r.expiryDate }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right use-it tip -->
+              <div class="coupon-action">
+                <span>🛒</span>
+                <span>Use at<br>Policies</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ── Used Coupons ──────────────────────── -->
+    @if (usedRewards.length > 0) {
+      <section class="reward-section">
+        <div class="section-header">
+          <div class="section-label">
+            <span class="status-dot used"></span>
+            <h2>Used Coupons</h2>
+            <span class="badge-count used">{{ usedRewards.length }}</span>
+          </div>
+          <p>Applied to a policy purchase</p>
+        </div>
+
+        <div class="coupons-grid">
+          @for (r of usedRewards; track r.userRewardId) {
+            <div class="coupon-card used">
+              <div class="coupon-strip used">
+                <span class="strip-text">USED</span>
+              </div>
+              <div class="coupon-body">
+                <div class="coupon-top">
+                  <div class="coupon-icon muted">{{ getRewardIcon(r.rewardType) }}</div>
+                  <div class="coupon-info">
+                    <div class="coupon-name muted">{{ r.rewardType }}</div>
+                    <div class="coupon-dates">Earned {{ r.earnedOn }}</div>
+                  </div>
+                </div>
+                <div class="coupon-divider">
+                  <div class="notch left"></div>
+                  <div class="dashes"></div>
+                  <div class="notch right"></div>
+                </div>
+                <div class="coupon-bottom">
+                  <div class="discount-block muted">
+                    <span class="discount-num">{{ r.discountValue }}%</span>
+                    <span class="discount-label">OFF</span>
+                  </div>
+                  <div class="used-stamp">✅ Applied</div>
+                </div>
+              </div>
+              <div class="coupon-action used">
+                <span>✔</span>
+                <span>Saved</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ── Expired Coupons ───────────────────── -->
+    @if (expiredRewards.length > 0) {
+      <section class="reward-section">
+        <div class="section-header">
+          <div class="section-label">
+            <span class="status-dot expired"></span>
+            <h2>Expired Coupons</h2>
+            <span class="badge-count expired">{{ expiredRewards.length }}</span>
+          </div>
+          <p>These coupons have expired</p>
+        </div>
+
+        <div class="coupons-grid">
+          @for (r of expiredRewards; track r.userRewardId) {
+            <div class="coupon-card expired">
+              <div class="coupon-strip expired">
+                <span class="strip-text">EXPIRED</span>
+              </div>
+              <div class="coupon-body">
+                <div class="coupon-top">
+                  <div class="coupon-icon muted">{{ getRewardIcon(r.rewardType) }}</div>
+                  <div class="coupon-info">
+                    <div class="coupon-name muted">{{ r.rewardType }}</div>
+                    <div class="coupon-dates">Expired {{ r.expiryDate }}</div>
+                  </div>
+                </div>
+                <div class="coupon-divider">
+                  <div class="notch left"></div>
+                  <div class="dashes"></div>
+                  <div class="notch right"></div>
+                </div>
+                <div class="coupon-bottom">
+                  <div class="discount-block muted">
+                    <span class="discount-num">{{ r.discountValue }}%</span>
+                    <span class="discount-label">OFF</span>
+                  </div>
+                  <div class="expired-stamp">❌ Expired</div>
+                </div>
+              </div>
+              <div class="coupon-action expired-action">
+                <span>⏰</span>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

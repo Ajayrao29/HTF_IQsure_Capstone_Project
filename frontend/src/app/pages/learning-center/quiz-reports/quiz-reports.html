@@ -1,0 +1,41 @@
+<div class="page reports-page">
+  <div class="header-section">
+    <h1>Quiz Reports</h1>
+    <p>Review your past quiz performances here.</p>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading reports...</div>
+  } @else if (attempts.length === 0) {
+    <div class="no-content">
+      You haven't taken any quizzes yet. <a routerLink="/quizzes">Take a quiz</a> to see your reports!
+    </div>
+  } @else {
+    <div class="reports-grid">
+      @for (attempt of attempts; track attempt.attemptId) {
+        <div class="report-card">
+          <div class="card-header">
+            <h3>{{ attempt.quizTitle }}</h3>
+            <span class="score-badge" [class.excellent]="attempt.percentage >= 80" [class.good]="attempt.percentage >= 60 && attempt.percentage < 80" [class.poor]="attempt.percentage < 60">
+              {{ attempt.percentage }}%
+            </span>
+          </div>
+          <div class="card-body">
+            <div class="stat-row">
+              <span class="stat-label">Score:</span>
+              <span class="stat-value font-bold">{{ attempt.score }} / {{ attempt.totalQuestions }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Points Earned:</span>
+              <span class="stat-value points">+{{ attempt.pointsEarned }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Date:</span>
+              <span class="stat-value">{{ attempt.attemptDate | date:'medium' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,52 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Reward Management</h1>
+    <button class="btn-primary" (click)="showForm = !showForm">+ New Reward</button>
+  </div>
+  @if (showForm) {
+    <div class="form-card">
+      <h2>Create Reward</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Reward Type</label><input [(ngModel)]="form.rewardType" placeholder="e.g. Premium Discount" /></div>
+        <div class="form-group"><label>Discount Value (%)</label><input type="number" [(ngModel)]="form.discountValue" placeholder="10" /></div>
+        <div class="form-group"><label>Expiry Date</label><input type="date" [(ngModel)]="form.expiryDate" /></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="save()">Create</button>
+        <button class="btn-secondary" (click)="showForm = false">Cancel</button>
+      </div>
+    </div>
+  }
+  @if (loading) {
+    <div class="loading">Loading…</div>
+  }
+  @if (!loading) {
+    <div class="reward-grid">
+      @for (r of rewards; track r) {
+        <div class="reward-card">
+          <div class="reward-card-top">
+            <span class="reward-id">#{{ r.rewardId }}</span>
+            <span class="reward-expiry">{{ r.expiryDate | date:'mediumDate' }}</span>
+          </div>
+          <h3 class="reward-card-type">{{ r.rewardType }}</h3>
+          <div class="reward-card-value">
+            <div class="discount-info">
+              <span class="discount-number">{{ r.discountValue }}%</span>
+              <span class="discount-label">OFF</span>
+            </div>
+            <div class="discount-bar-track">
+              <div class="discount-bar-fill" [style.width.%]="r.discountValue"></div>
+            </div>
+          </div>
+          <div class="reward-card-actions">
+            <button class="btn-danger btn-sm" (click)="delete(r.rewardId)">Delete</button>
+          </div>
+        </div>
+      }
+      @if (rewards.length === 0) {
+        <div class="empty-msg">No rewards yet. Create one above.</div>
+      }
+    </div>
+  }
+</div>
+

@@ -1,0 +1,66 @@
+<div class="page fade-in">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📋 My Assigned Claims</h1>
+      <p>Claims currently assigned to you for review</p>
+    </div>
+    <a routerLink="/claims-officer/dashboard" class="btn-secondary">← Dashboard</a>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-bar">
+    <button [class.active]="activeFilter === 'ALL'" (click)="applyFilter('ALL')">ALL</button>
+    <button [class.active]="activeFilter === 'UNDER_REVIEW'" (click)="applyFilter('UNDER_REVIEW')">UNDER REVIEW</button>
+    <button [class.active]="activeFilter === 'APPROVED'" (click)="applyFilter('APPROVED')">APPROVED</button>
+    <button [class.active]="activeFilter === 'REJECTED'" (click)="applyFilter('REJECTED')">REJECTED</button>
+    <button [class.active]="activeFilter === 'DOCUMENT_PENDING'" (click)="applyFilter('DOCUMENT_PENDING')">DOCUMENT PENDING</button>
+  </div>
+
+  <!-- Main Content -->
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading claims...</p>
+    </div>
+  } @else if (filteredClaims.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📂</div>
+      <h3>No claims found</h3>
+      <p>No claims match the selected filter.</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Claim ID</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Incident Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of filteredClaims; track c.id) {
+            <tr>
+              <td><strong>#{{ c.claimNumber }}</strong></td>
+              <td>User ID: {{ c.userId }}</td>
+              <td><span class="type-tag">{{ c.type }}</span></td>
+              <td>₹{{ c.amount | number }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(c.status)">{{ c.status }}</span>
+              </td>
+              <td>{{ c.incidentDate | date:'mediumDate' }}</td>
+              <td>
+                <button class="btn-sm btn-outline">Process</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

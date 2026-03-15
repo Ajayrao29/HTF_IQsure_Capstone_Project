@@ -1,0 +1,52 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>🏆 Achievements</h1>
+      <p>Track your learning journey and unlock special achievements</p>
+    </div>
+  </div>
+
+  <div class="achievement-stats">
+    <div class="stat-box">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value">{{ completionRate }}%</div>
+      <div class="stat-label">Completion Rate</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value">{{ streak }}</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value">{{ level }}</div>
+      <div class="stat-label">Current Level</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <h2>Level Progress</h2>
+    <div class="level-bar">
+      <div class="level-fill" [style.width.%]="levelProgress"></div>
+    </div>
+    <p class="level-text">{{ userPoints }} / {{ nextLevelPoints }} points to Level {{ level + 1 }}</p>
+  </div>
+
+  <div class="achievements-grid">
+    @for (a of achievements; track a) {
+      <div class="achievement-card" [class.unlocked]="a.unlocked">
+        <div class="achievement-icon">{{ a.icon }}</div>
+        <div class="achievement-name">{{ a.name }}</div>
+        <div class="achievement-desc">{{ a.description }}</div>
+        @if (a.unlocked) {
+          <div class="achievement-reward">+{{ a.points }} pts</div>
+        }
+        @if (!a.unlocked) {
+          <div class="locked-overlay">
+            <span>🔒 Locked</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

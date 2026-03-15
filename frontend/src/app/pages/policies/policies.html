@@ -1,0 +1,197 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Insurance Policies</h1>
+      <p>Browse policies and see your personalized premium based on your quiz scores</p>
+    </div>
+    <!-- How to Save button -->
+    <button class="btn-secondary how-to-save-btn" (click)="showRulesPanel = !showRulesPanel">
+      💡 {{ showRulesPanel ? 'Hide' : 'How to Get Discounts' }}
+    </button>
+  </div>
+
+  <!-- Discount Rules Info Panel -->
+  @if (showRulesPanel) {
+    <div class="rules-panel">
+      <h2>🎯 Available Discount Rules</h2>
+      <p class="rules-subtitle">Complete these to earn automatic discounts on insurance premiums!</p>
+      <div class="rules-grid">
+        @for (rule of discountRules; track rule.ruleId) {
+          <div class="rule-card" [class.unlocked]="getRuleStatus(rule) === 'unlocked'">
+            <div class="rule-header">
+              <span class="rule-name">{{ rule.ruleName }}</span>
+              <span class="rule-discount">-{{ rule.discountPercentage }}%</span>
+            </div>
+            @if (rule.description) {
+              <p class="rule-desc">{{ rule.description }}</p>
+            }
+            <div class="rule-conditions">
+              @if (rule.minUserPoints > 0) {
+                <span class="condition" [class.met]="userPoints >= rule.minUserPoints">
+                  {{ userPoints >= rule.minUserPoints ? '✅' : '🔒' }} {{ userPoints }}/{{ rule.minUserPoints }} pts
+                </span>
+              }
+              @if (rule.minQuizScorePercent > 0) {
+                <span class="condition" [class.met]="bestScore >= rule.minQuizScorePercent">
+                  {{ bestScore >= rule.minQuizScorePercent ? '✅' : '🔒' }} Quiz score ≥ {{ rule.minQuizScorePercent }}%
+                </span>
+              }
+              @if (rule.minBadgesEarned > 0) {
+                <span class="condition" [class.met]="badgeCount >= rule.minBadgesEarned">
+                  {{ badgeCount >= rule.minBadgesEarned ? '✅' : '🔒' }} {{ badgeCount }}/{{ rule.minBadgesEarned }} badges
+                </span>
+              }
+              @if (!rule.minUserPoints && !rule.minQuizScorePercent && !rule.minBadgesEarned) {
+                <span class="condition met">✅ Always applied</span>
+              }
+              @if (rule.applicablePolicyType) {
+                <span class="condition policy-type">📋 {{ rule.applicablePolicyType }} policies only</span>
+              }
+            </div>
+            <div class="rule-status-badge" [class.unlocked]="getRuleStatus(rule) === 'unlocked'">
+              {{ getRuleStatus(rule) === 'unlocked' ? '🎉 Discount Unlocked!' : '🔐 Not yet unlocked' }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading">Loading policies…</div>
+  }
+
+  @if (!loading) {
+
+    <!-- Available Coupons Row -->
+    @if (availableRewards.length > 0) {
+      <div class="coupons-banner">
+        <div class="coupons-label">🎟️ <strong>You have {{ availableRewards.length }} unused coupon{{ availableRewards.length > 1 ? 's' : '' }}!</strong> Select them when previewing a premium to apply them.</div>
+        <div class="coupons-chips">
+          @for (r of availableRewards; track r.userRewardId) {
+            <span class="coupon-chip">{{ r.rewardType }} — {{ r.discountValue }}% off</span>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="policy-grid">
+      @for (p of policies; track p) {
+        <div class="policy-card">
+          <div class="policy-type-icon">{{ getPolicyIcon(p.policyType) }}</div>
+          <div class="policy-type-tag">{{ p.policyType }}</div>
+          <h3>{{ p.title }}</h3>
+          <p class="policy-desc">{{ p.description }}</p>
+          <div class="policy-details">
+            <div class="detail-item">
+              <span class="detail-label">Base Premium</span>
+              <span class="detail-value">₹{{ p.basePremium }}/yr</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Coverage</span>
+              <span class="detail-value">₹{{ p.coverageAmount | number }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Age Group</span>
+              <span class="detail-value">{{ p.ageRange }} yrs</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Plan Type</span>
+              <span class="detail-value">{{ p.planType }}</span>
+            </div>
+          </div>
+          <button class="btn-primary" (click)="previewPremium(p.policyId)">
+            Preview My Premium →
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Premium Preview Modal -->
+  @if (preview || loadingPreview) {
+    <div class="modal-overlay" (click)="closePreview()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        @if (loadingPreview) {
+          <div class="loading">Calculating your premium…</div>
+        }
+        @if (preview && !loadingPreview) {
+          <div>
+            <div class="modal-header">
+              <h2>Premium Breakdown</h2>
+              <button class="modal-close" (click)="closePreview()">✕</button>
+            </div>
+
+            <!-- Coupon Picker Section -->
+            @if (availableRewards.length > 0) {
+              <div class="coupon-section">
+                <div class="coupon-section-header" (click)="showCouponPicker = !showCouponPicker">
+                  <span>🎟️ Apply Coupons <small>({{ selectedRewardIds.length }} selected)</small></span>
+                  <span class="coupon-toggle">{{ showCouponPicker ? '▲ Hide' : '▼ Show' }}</span>
+                </div>
+                @if (showCouponPicker) {
+                  <div class="coupon-picker">
+                    @for (r of availableRewards; track r.userRewardId) {
+                      <div class="coupon-item" [class.selected]="isRewardSelected(r.userRewardId)" (click)="toggleReward(r.userRewardId)">
+                        <div class="coupon-item-check">{{ isRewardSelected(r.userRewardId) ? '✅' : '⬜' }}</div>
+                        <div class="coupon-item-details">
+                          <strong>{{ r.rewardType }}</strong>
+                          <span class="coupon-discount">-{{ r.discountValue }}% off</span>
+                          <small class="coupon-expiry">Expires: {{ r.expiryDate }}</small>
+                        </div>
+                      </div>
+                    }
+                    <p class="coupon-note">⚠️ Each coupon can only be used once and will be consumed on purchase.</p>
+                  </div>
+                }
+              </div>
+            }
+
+            <div class="breakdown-row">
+              <span>Base Premium</span>
+              <span>₹{{ preview.basePremium }}</span>
+            </div>
+            @if (preview.appliedDiscounts?.length > 0) {
+              <div class="discounts-section">
+                <p class="discounts-title">✅ Your Discounts</p>
+                @for (d of preview.appliedDiscounts; track d) {
+                  <div class="discount-row">
+                    <span>{{ d.ruleName }} <small>({{ d.reason }})</small></span>
+                    <span class="discount-pct">-{{ d.discountPercentage }}%</span>
+                  </div>
+                }
+              </div>
+            }
+            @if (preview.appliedDiscounts?.length === 0) {
+              <div class="no-discounts">
+                <p>No discounts yet. Take more quizzes and redeem rewards to earn discounts! 🎯</p>
+              </div>
+            }
+            <div class="breakdown-row total">
+              <span>Total Discount</span>
+              <span class="green">{{ preview.totalDiscountPercent }}% off</span>
+            </div>
+            <div class="breakdown-row final">
+              <span>Your Final Premium</span>
+              <span class="pink">₹{{ preview.finalPremium }}/yr</span>
+            </div>
+            <div class="modal-stats">
+              <span>{{ preview.userPoints }} pts</span>
+              <span>{{ preview.badgesEarned }} badges</span>
+              <span>{{ preview.bestQuizScorePercent }}% best score</span>
+            </div>
+            @if (message) {
+              <div class="success-msg">{{ message }}</div>
+            }
+            <div class="modal-actions">
+              <button class="btn-primary" (click)="purchase()" [disabled]="purchasing">
+                {{ purchasing ? 'Processing…' : 'Buy This Policy' }}
+              </button>
+              <button class="btn-secondary" (click)="closePreview()">Cancel</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

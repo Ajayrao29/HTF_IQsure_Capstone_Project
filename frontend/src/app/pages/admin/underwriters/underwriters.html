@@ -1,0 +1,93 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Underwriter Management</h1>
+      <p>Manage insurance underwriting team</p>
+    </div>
+    <button class="btn-primary" (click)="showForm = !showForm">
+      {{ showForm ? 'Cancel' : '+ Add Underwriter' }}
+    </button>
+  </div>
+
+  @if (error) { <div class="alert alert-danger">{{ error }}</div> }
+  @if (success) { <div class="alert alert-success">{{ success }}</div> }
+
+  @if (showForm) {
+    <div class="form-card fade-in">
+      <h3>Register New Underwriter</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name*</label>
+          <input type="text" [(ngModel)]="newUW.name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+          <label>Email Address*</label>
+          <input type="email" [(ngModel)]="newUW.email" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <label>Password*</label>
+          <input type="password" [(ngModel)]="newUW.password" placeholder="Enter password">
+        </div>
+        <div class="form-group">
+          <label>License Number*</label>
+          <input type="text" [(ngModel)]="newUW.licenseNumber" placeholder="Enter license #">
+        </div>
+        <div class="form-group">
+          <label>Specialization</label>
+          <select [(ngModel)]="newUW.specialization">
+            <option value="HEALTH">Health</option>
+            <option value="LIFE">Life</option>
+            <option value="MOTOR">Motor</option>
+            <option value="GENERAL">General</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Commission %</label>
+          <input type="number" [(ngModel)]="newUW.commissionPercentage">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="addUnderwriter()">Save Underwriter</button>
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading">Loading underwriters...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>License #</th>
+            <th>Specialization</th>
+            <th>Quotes Sent</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of underwriters; track u.userId) {
+            <tr>
+              <td>#{{ u.userId }}</td>
+              <td><strong>{{ u.name }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td><code>{{ u.licenseNumber }}</code></td>
+              <td>{{ u.specialization }}</td>
+              <td><span class="count-badge">{{ u.totalQuotesSent || 0 }}</span></td>
+              <td>
+                <button class="btn-sm btn-danger" (click)="deleteUnderwriter(u.userId)">Remove</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center">No underwriters found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

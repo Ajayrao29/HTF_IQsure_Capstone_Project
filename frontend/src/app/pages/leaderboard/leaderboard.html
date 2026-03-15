@@ -1,0 +1,76 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>🏆 Leaderboard</h1>
+      <p>Top users ranked by points — take quizzes to climb the ranks!</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading leaderboard…</div>
+  }
+
+  @if (!loading) {
+    <div class="leaderboard-table">
+      <!-- Top 3 podium -->
+      @if (entries.length >= 3) {
+        <div class="podium">
+          @if (entries[1]) {
+            <div class="podium-item second">
+              <div class="podium-medal">🥈</div>
+              <div class="podium-name">{{ entries[1].name }}</div>
+              <div class="podium-pts">{{ entries[1].userPoints }} pts</div>
+            </div>
+          }
+          @if (entries[0]) {
+            <div class="podium-item first">
+              <div class="podium-medal">🥇</div>
+              <div class="podium-name">{{ entries[0].name }}</div>
+              <div class="podium-pts">{{ entries[0].userPoints }} pts</div>
+            </div>
+          }
+          @if (entries[2]) {
+            <div class="podium-item third">
+              <div class="podium-medal">🥉</div>
+              <div class="podium-name">{{ entries[2].name }}</div>
+              <div class="podium-pts">{{ entries[2].userPoints }} pts</div>
+            </div>
+          }
+        </div>
+      }
+      <!-- Full table -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Points</th>
+              <th>Quizzes Taken</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of entries; track e) {
+              <tr [class.top3]="e.rank <= 3">
+                <td>
+                  <span class="rank-cell" [class.medal]="e.rank <= 3">
+                    {{ getMedalIcon(e.rank) }}
+                  </span>
+                </td>
+                <td class="name-cell">{{ e.name }}</td>
+                <td><span class="pts-cell">{{ e.userPoints }}</span></td>
+                <td class="quiz-cell">{{ e.quizzesAttempted }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (entries.length === 0) {
+        <div class="empty-state">
+          <p>No users on the leaderboard yet. Be the first!</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+

@@ -1,0 +1,59 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📂 My Managed Policies</h1>
+      <p>All policy applications assigned and managed by you.</p>
+    </div>
+    <a routerLink="/underwriter/dashboard" class="btn-secondary">← Dashboard</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading policies...</p>
+    </div>
+  } @else if (policies.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📂</div>
+      <h3>No policies yet</h3>
+      <p>Policies assigned to you will appear here once they move past evaluation.</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Application ID</th>
+            <th>Customer</th>
+            <th>Policy & Type</th>
+            <th>Quoted / Premium</th>
+            <th>Status</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of policies; track p.id) {
+            <tr>
+              <td><strong>#{{ p.id }}</strong></td>
+              <td>{{ p.userName }}</td>
+              <td>
+                <span class="plan-name">{{ p.policyTitle }}</span>
+                <span class="type-badge">{{ p.policyType }}</span>
+              </td>
+              <td>
+                <div class="premium-vals">
+                    <span class="quote">₹{{ (p.quoteAmount || p.finalPremium) | number }}</span>
+                    <small>Base: ₹{{ p.basePremium | number }}</small>
+                </div>
+              </td>
+              <td>
+                <span class="status-tag" [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+              </td>
+              <td>{{ (p.assignedAt || p.purchaseDate) | date:'mediumDate' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

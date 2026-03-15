@@ -1,0 +1,45 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Badge Management</h1>
+    <button class="btn-primary" (click)="showForm = !showForm">+ New Badge</button>
+  </div>
+  @if (showForm) {
+    <div class="form-card">
+      <h2>{{ editingBadge ? 'Edit Badge' : 'Create Badge' }}</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Name</label><input [(ngModel)]="form.name" placeholder="Badge name" /></div>
+        <div class="form-group"><label>Points Required</label><input type="number" [(ngModel)]="form.reqPoints" placeholder="100" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><input [(ngModel)]="form.description" placeholder="What this badge represents" /></div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="save()">{{ editingBadge ? 'Update' : 'Create' }}</button>
+        <button class="btn-secondary" (click)="showForm = false; editingBadge = null">Cancel</button>
+      </div>
+    </div>
+  }
+  @if (loading) {
+    <div class="loading">Loading...</div>
+  }
+  @if (!loading) {
+    <div class="badge-grid">
+      @for (b of badges; track b; let i = $index) {
+        <div class="badge-card" [ngClass]="getBadgeLevel(i)">
+          <div class="badge-card-top">
+            <span class="badge-id">#{{ b.badgeId }}</span>
+            <span class="pts-badge">{{ b.reqPoints }} pts</span>
+          </div>
+          <div class="badge-card-icon" [ngClass]="getBadgeLevel(i)">{{ getBadgeIcon(i) }}</div>
+          <h3 class="badge-card-name">{{ b.name }}</h3>
+          <p class="badge-card-desc">{{ b.description }}</p>
+          <div class="badge-card-actions">
+            <button class="btn-sm" (click)="openEdit(b)">Edit</button>
+            <button class="btn-danger btn-sm" (click)="delete(b.badgeId)">Delete</button>
+          </div>
+        </div>
+      }
+      @if (badges.length === 0) {
+        <div class="empty-msg">No badges yet. Create one above.</div>
+      }
+    </div>
+  }
+</div>

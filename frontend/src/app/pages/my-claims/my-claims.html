@@ -1,0 +1,46 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>My Claims</h1>
+      <p>Track your insurance claims and remaining coverage</p>
+    </div>
+    <button class="btn-file-new" routerLink="/file-claim">+ File New Claim</button>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">Loading claims...</div>
+  } @else if (claims.length === 0) {
+    <div class="empty-state-card shadow-premium">
+      <div class="empty-content">
+        <h3 class="no-claims-text">No claims filed</h3>
+        <p>File a claim when you need to use your insurance</p>
+        <button class="btn-primary-claret mt-4" routerLink="/file-claim">File Claim</button>
+      </div>
+    </div>
+  } @else {
+    <div class="claims-list">
+      @for (c of claims; track c.id) {
+        <div class="claim-item-card">
+          <div class="claim-header">
+            <span class="claim-number">Claim #{{ c.claimNumber }}</span>
+            <span class="status-badge" [ngClass]="getStatusClass(c.status)">{{ c.status }}</span>
+          </div>
+          <div class="claim-body">
+            <div class="info-group">
+              <label>TYPE</label>
+              <p>{{ c.type }}</p>
+            </div>
+            <div class="info-group">
+              <label>AMOUNT</label>
+              <p>₹{{ c.amount | number }}</p>
+            </div>
+            <div class="info-group">
+              <label>INCIDENT DATE</label>
+              <p>{{ c.incidentDate | date:'mediumDate' }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

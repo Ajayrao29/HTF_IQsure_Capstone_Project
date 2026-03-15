@@ -1,0 +1,65 @@
+<div class="page education-page">
+  <div class="header-section">
+    <h1>Insurance Education Center</h1>
+    <p>Learn the fundamental concepts of insurance and improve your financial literacy.</p>
+    
+    <div class="language-selector">
+      <label for="langSelect">Select Language:</label>
+      <select id="langSelect" [(ngModel)]="selectedLanguageCode" (change)="onLanguageChange()">
+        @for (lang of languages; track lang.code) {
+          <option [value]="lang.code">{{ lang.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading content...</div>
+  } @else if (contents.length === 0) {
+    <div class="no-content">No education content available for the selected language.</div>
+  } @else {
+    @if (!selectedTopic) {
+      <!-- Master Grid View -->
+      <div class="content-grid">
+        @for (item of contents; track item.id) {
+          <div class="lesson-card clickable" (click)="openLesson(item)">
+            <div class="card-image-placeholder">
+              <span>📚 {{ item.title }}</span>
+            </div>
+            <div class="lesson-header">
+              <h2>{{ item.title }}</h2>
+            </div>
+            <div class="lesson-preview">
+              {{ item.content.substring(0, 100) }}...
+            </div>
+            <div class="card-footer">
+              <span class="read-more">Learn more →</span>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Detail View -->
+      <div class="lesson-detail">
+        <button class="btn-back" (click)="closeLesson()">← Back to Topics</button>
+        
+        <div class="detail-card">
+          <div class="detail-header">
+            <h2>{{ selectedTopic.title }}</h2>
+            <div class="audio-controls">
+              <button class="btn-listen" (click)="listenToLesson(selectedTopic.content)">
+                🔊 Listen to Lesson
+              </button>
+              @if (isPlaying) {
+                <button class="btn-stop" (click)="stopAudio()">
+                  ⏹ Stop Playing
+                </button>
+              }
+            </div>
+          </div>
+          <div class="lesson-body" style="white-space: pre-wrap;">{{ selectedTopic.content }}</div>
+        </div>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,263 @@
+<div class="page">
+  <!-- ─── Header ─── -->
+  <div class="page-header">
+    <div>
+      <h1>⚠️ Risk Awareness Simulator</h1>
+      <p>Test out our real insurance policies against your own worst-case scenarios</p>
+    </div>
+    @if (simulationsRun > 0) {
+      <div class="explored-badge">
+        <span class="explored-count">{{ simulationsRun }}</span>
+        <span class="explored-label">simulations run</span>
+      </div>
+    }
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- INPUT FORM                                                               -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  @if (!result) {
+
+    @if (loading) {
+      <div class="loading">Loading available policies...</div>
+    }
+
+    @if (!loading && policies.length === 0) {
+      <div class="empty-state">
+        <p>No active policies available at the moment to simulate against.</p>
+      </div>
+    }
+
+    @if (!loading && policies.length > 0) {
+      <div class="simulation-form-card">
+        <div class="form-hero-icon">🛡️</div>
+        <h2>Create Your Own Scenario</h2>
+        <p class="form-subtitle">Choose a policy, describe a disaster, and enter its total cost. We'll show you exactly how much the policy would save you.</p>
+
+        <div class="form-grid">
+          
+          <!-- Select Policy -->
+          <div class="form-group">
+            <label for="policySelect">📋 1. Select a Real Policy</label>
+            <div class="select-wrapper">
+              <select id="policySelect" [(ngModel)]="selectedPolicyId">
+                <option value="" disabled selected>-- Choose an available policy --</option>
+                @for (p of policies; track p.policyId) {
+                  <option [value]="p.policyId">
+                    {{ p.title }} ({{ getPolicyIcon(p.policyType) }} {{ p.policyType }})
+                  </option>
+                }
+              </select>
+            </div>
+            @if (activePolicy) {
+              <div class="policy-quick-stats">
+                <div class="stat"><span class="label">Premium:</span> {{ formatCurrency(activePolicy.basePremium) }}/yr</div>
+                <div class="stat"><span class="label">Max Coverage:</span> {{ formatCurrency(activePolicy.coverageAmount) }}</div>
+              </div>
+            }
+          </div>
+
+          <!-- Scenario Name -->
+          <div class="form-group">
+            <label for="scenarioName">📝 2. What's the disaster? <span class="optional">(optional)</span></label>
+            <input
+              type="text"
+              id="scenarioName"
+              [(ngModel)]="scenarioName"
+              placeholder="e.g. Tree falls on the roof, 3-car pileup, Major surgery" />
+          </div>
+
+          <!-- Total Cost -->
+          <div class="form-group full-width">
+            <label for="eventCost">💰 3. How much will it cost to fix? <span class="required">*</span></label>
+            <div class="input-prefix">
+              <span>$</span>
+              <input
+                type="number"
+                id="eventCost"
+                [(ngModel)]="eventCost"
+                placeholder="e.g. 50000"
+                min="1" />
+            </div>
+            <span class="form-hint">Enter the full cost you'd pay if you had NO insurance at all</span>
+          </div>
+          
+        </div>
+
+        <button class="btn-primary btn-simulate" [disabled]="!isFormValid" (click)="simulate()">
+          ⚡ Run Simulation
+        </button>
+      </div>
+    }
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- RESULT: Side-by-Side Comparison                                          -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  @if (result) {
+    <div class="comparison-wrapper" [class.visible]="showResult">
+
+      <!-- Back Button -->
+      <button class="btn-back" (click)="resetSimulation()">
+        ← Edit Scenario
+      </button>
+
+      <!-- Scenario Header -->
+      <div class="scenario-header">
+        <div class="scenario-header-icon">{{ getPolicyIcon(result.policy.policyType) }}</div>
+        <div>
+          <h2>{{ result.scenarioName }}</h2>
+          <p>Tested against: <strong>{{ result.policy.title }}</strong></p>
+        </div>
+        <div class="cost-tag">
+          Disaster Cost: {{ formatCurrency(result.eventCost) }}
+        </div>
+      </div>
+
+      <!-- Question Banner -->
+      <div class="question-banner">
+        <span class="question-icon">❓</span>
+        <span>What happens if you <strong>don't</strong> have this policy when disaster strikes?</span>
+      </div>
+
+      <!-- Side-by-Side Comparison -->
+      <div class="comparison-panels">
+        <!-- WITHOUT Insurance -->
+        <div class="panel panel-danger" [class.animate]="animateNumbers">
+          <div class="panel-header danger">
+            <span class="panel-emoji">🚫</span>
+            <span class="panel-title">WITHOUT Insurance</span>
+          </div>
+          <div class="panel-body">
+            <div class="single-cost-block danger">
+              <div class="cost-block-label">Event Cost</div>
+              <div class="cost-block-amount">{{ formatCurrency(result.eventCost) }}</div>
+            </div>
+            
+            <div class="panel-divider"></div>
+
+            <div class="panel-total">
+              <span class="total-label">Your Out-of-Pocket</span>
+              <span class="total-amount danger">{{ formatCurrency(result.eventCost) }}</span>
+            </div>
+            <div class="pain-indicator">
+              <div class="pain-bar">
+                <div class="pain-fill danger" [style.width]="animateNumbers ? '100%' : '0%'"></div>
+              </div>
+              <span class="pain-text">💸 Your savings are destroyed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VS Divider -->
+        <div class="vs-divider">
+          <div class="vs-circle">VS</div>
+        </div>
+
+        <!-- WITH Insurance -->
+        <div class="panel panel-success" [class.animate]="animateNumbers">
+          <div class="panel-header success">
+            <span class="panel-emoji">✅</span>
+            <span class="panel-title">WITH Insurance</span>
+          </div>
+          <div class="panel-body">
+            
+            <!-- Coverage highlight -->
+            @if (result.insuranceCovers > 0) {
+              <div class="coverage-highlight">
+                <div class="coverage-icon">🛡️</div>
+                <div class="coverage-details">
+                  <span class="coverage-label">Insurance Pays</span>
+                  <span class="coverage-amount">{{ formatCurrency(result.insuranceCovers) }}</span>
+                </div>
+              </div>
+            } @else {
+              <div class="coverage-highlight warning">
+                <div class="coverage-icon">⚠️</div>
+                <div class="coverage-details">
+                  <span class="coverage-label">Not Covered</span>
+                  <span class="coverage-amount">Cost below deductible</span>
+                </div>
+              </div>
+            }
+
+            <div class="breakdown-list">
+              <div class="breakdown-item">
+                <div class="breakdown-left">
+                  <span class="breakdown-label">Annual Premium</span>
+                  <span class="breakdown-explain">What you pay for the policy</span>
+                </div>
+                <span class="breakdown-amount">{{ formatCurrency(result.annualPremium) }}</span>
+              </div>
+              <div class="breakdown-item no-border">
+                <div class="breakdown-left">
+                  <span class="breakdown-label">Event Cost Overage</span>
+                  <span class="breakdown-explain">Amount exceeding the {{ formatCurrency(result.policy.coverageAmount) }} max coverage</span>
+                </div>
+                <span class="breakdown-amount">{{ formatCurrency(result.outOfPocket) }}</span>
+              </div>
+            </div>
+
+            <div class="panel-divider"></div>
+            
+            <div class="panel-total">
+              <span class="total-label">Your Total Cost</span>
+              <span class="total-amount success">{{ formatCurrency(result.totalWithInsurance) }}</span>
+            </div>
+            <div class="pain-indicator">
+              <div class="pain-bar">
+                <div class="pain-fill success" [style.width]="animateNumbers ? (100 - result.savingsPercent) + '%' : '0%'"></div>
+              </div>
+              <span class="pain-text">🎉 You save <strong>{{ result.savingsPercent }}%</strong> of the disaster cost!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Savings Summary Flow -->
+      <div class="savings-summary" [class.animate]="animateNumbers">
+        <div class="summary-item total-bill">
+          <div class="summary-icon">📋</div>
+          <div class="summary-label">Disaster Cost</div>
+          <div class="summary-value">{{ formatCurrency(result.eventCost) }}</div>
+        </div>
+        <div class="summary-arrow">→</div>
+        <div class="summary-item you-save">
+          <div class="summary-icon">💰</div>
+          <div class="summary-label">Net Savings</div>
+          <div class="summary-value green">{{ formatCurrency(result.savings) }}</div>
+        </div>
+        <div class="summary-arrow">→</div>
+        <div class="summary-item you-pay">
+          <div class="summary-icon">🏷️</div>
+          <div class="summary-label">Your Total Cost</div>
+          <div class="summary-value highlight">{{ formatCurrency(result.totalWithInsurance) }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-gray); margin-top: 0.25rem;">(Premium + Extra)</div>
+        </div>
+      </div>
+
+      <!-- Impact Message -->
+      <div class="impact-message" [class.animate]="animateNumbers">
+        <div class="impact-icon">💡</div>
+        <div class="impact-text">
+          @if (result.savings > 0) {
+            Because you paid <strong>{{ formatCurrency(result.annualPremium) }}</strong> for this policy, 
+            insurance covered <strong>{{ formatCurrency(result.insuranceCovers) }}</strong> of the disaster.
+            You've avoided a massive financial hit, saving <strong>{{ result.savingsPercent }}%</strong> of what you would have paid without insurance.
+          } @else {
+            In this scenario, the cost of the event ({{ formatCurrency(result.eventCost) }}) was less than what you paid for the annual premium ({{ formatCurrency(result.annualPremium) }}). But insurance protects you against catastrophic losses that you couldn't afford out of pocket!
+          }
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="simulator-cta" [class.animate]="animateNumbers">
+        <h3>Ready to secure this safety net?</h3>
+        <p>Buy this policy today, or explore other coverage options to protect your future.</p>
+        <div class="cta-buttons">
+          <a routerLink="/policies" class="btn-primary">🛒 View Policies</a>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,123 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Quiz Management</h1>
+    <button class="btn-primary" (click)="openCreate()">+ New Quiz</button>
+  </div>
+
+  <!-- Quiz Form -->
+  @if (showForm) {
+    <div class="form-card">
+      <h2>{{ editingQuiz ? 'Edit Quiz' : 'Create Quiz' }}</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title</label>
+          <input [(ngModel)]="form.title" placeholder="Quiz title" />
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <input [(ngModel)]="form.category" placeholder="e.g. Health, Life, Motor" />
+        </div>
+        <div class="form-group">
+          <label>Difficulty</label>
+          <select [(ngModel)]="form.difficulty">
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="saveQuiz()">{{ editingQuiz ? 'Update' : 'Create' }}</button>
+        <button class="btn-secondary" (click)="showForm = false">Cancel</button>
+      </div>
+    </div>
+  }
+
+  <!-- Quiz List -->
+  @if (loading) {
+    <div class="loading">Loading…</div>
+  }
+
+  @if (!loading && !selectedQuiz) {
+    <div class="quiz-grid">
+      @for (q of quizzes; track q) {
+        <div class="quiz-card">
+          <div class="quiz-card-top">
+            <span class="quiz-id">#{{ q.quizId }}</span>
+            <span class="diff-badge" [ngClass]="q.difficulty.toLowerCase()">{{ q.difficulty }}</span>
+          </div>
+          <h3 class="quiz-card-title">{{ q.title }}</h3>
+          <div class="quiz-card-meta">
+            <span class="meta-tag category-tag">{{ q.category }}</span>
+            <span class="meta-tag questions-tag">{{ q.totalQuestions }} Questions</span>
+          </div>
+          <div class="quiz-card-actions">
+            <button class="btn-sm" (click)="manageQuestions(q)">Questions</button>
+            <button class="btn-sm" (click)="openEdit(q)">Edit</button>
+            <button class="btn-danger btn-sm" (click)="deleteQuiz(q.quizId)">Delete</button>
+          </div>
+        </div>
+      }
+      @if (quizzes.length === 0) {
+        <div class="empty-msg">No quizzes yet. Create one above.</div>
+      }
+    </div>
+  }
+
+  <!-- Questions Manager -->
+  @if (selectedQuiz) {
+    <div class="questions-mgmt">
+      <div class="section-header">
+        <h2>Questions for: {{ selectedQuiz.title }}</h2>
+        <div>
+          <button class="btn-primary" (click)="showQuestionForm = !showQuestionForm">+ Add Question</button>
+          <button class="btn-secondary" (click)="selectedQuiz = null">← Back to Quizzes</button>
+        </div>
+      </div>
+      @if (showQuestionForm) {
+        <div class="form-card">
+          <h3>New Question</h3>
+          <div class="form-group">
+            <label>Question Text</label>
+            <input [(ngModel)]="questionForm.text" placeholder="Enter question…" />
+          </div>
+          <div class="form-group">
+            <label>Options (comma-separated)</label>
+            <input [(ngModel)]="questionForm.options" placeholder="Option A,Option B,Option C,Option D" />
+          </div>
+          <div class="form-group">
+            <label>Explanation (Optional)</label>
+            <textarea [(ngModel)]="questionForm.explanation" placeholder="Provide an explanation for the quiz report..." rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; resize: vertical; margin-top: 5px;"></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" (click)="addQuestion()">Add Question</button>
+            <button class="btn-secondary" (click)="showQuestionForm = false">Cancel</button>
+          </div>
+        </div>
+      }
+      <div class="question-list">
+        @for (q of questions; track q; let i = $index) {
+          <div class="question-item">
+            <div class="q-top">
+              <span class="q-num">Q{{ i+1 }}</span>
+              <div class="q-actions">
+                <button class="btn-sm" (click)="setAnswer(q.questionId)">Set Answer</button>
+                <button class="btn-danger btn-sm" (click)="deleteQuestion(q.questionId)">Delete</button>
+              </div>
+            </div>
+            <p class="q-text">{{ q.text }}</p>
+            <div class="q-options">
+              @for (opt of q.options; track opt; let j = $index) {
+                <span class="opt-pill">{{ 'ABCD'[j] }}: {{ opt }}</span>
+              }
+            </div>
+          </div>
+        }
+        @if (questions.length === 0) {
+          <p class="empty-msg">No questions yet. Add one above.</p>
+        }
+      </div>
+    </div>
+  }
+</div>
+

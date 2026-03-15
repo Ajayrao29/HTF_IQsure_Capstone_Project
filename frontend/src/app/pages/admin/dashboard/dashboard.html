@@ -1,0 +1,101 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>Overview of IQsure operations & platform health</p>
+    </div>
+  </div>
+
+  <div class="pipeline-section">
+    <h2 class="section-title">Policy Pipeline</h2>
+    <div class="stats-grid">
+      <div class="stat-card pending">
+        <div class="stat-info">
+          <small>Pending Applications</small>
+          <h3>{{ stats.pendingApps }}</h3>
+        </div>
+        <div class="stat-icon"><i class="icon">📝</i></div>
+      </div>
+
+      <div class="stat-card evaluation">
+        <div class="stat-info">
+          <small>Under Evaluation</small>
+          <h3>{{ stats.underEvaluation }}</h3>
+        </div>
+        <div class="stat-icon"><i class="icon">📋</i></div>
+      </div>
+
+      <div class="stat-card quotes">
+        <div class="stat-info">
+          <small>Quotes Sent</small>
+          <h3>{{ stats.quotesSent }}</h3>
+        </div>
+        <div class="stat-icon"><i class="icon">💵</i></div>
+      </div>
+
+      <div class="stat-card active">
+        <div class="stat-info">
+          <small>Active Policies</small>
+          <h3>{{ stats.activePolicies }}</h3>
+        </div>
+        <div class="stat-icon"><i class="icon">🛡️</i></div>
+      </div>
+
+      <div class="stat-card expired">
+        <div class="stat-info">
+          <small>Expired</small>
+          <h3>{{ stats.expiredPolicies }}</h3>
+        </div>
+        <div class="stat-icon"><i class="icon">⏱️</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pipeline-section">
+    <h2 class="section-title">Claims Pipeline</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Status</th>
+            <th>Count</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><span class="status-badge submitted">SUBMITTED</span></td>
+            <td>{{ claimStats.submitted }}</td>
+            <td>Awaiting Claims Officer Assignment</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><span class="status-badge review">UNDER_REVIEW</span></td>
+            <td>{{ claimStats.underReview }}</td>
+            <td>Currently being investigated by assigned officer</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><span class="status-badge approved">APPROVED/PARTIAL</span></td>
+            <td>{{ claimStats.approved }}</td>
+            <td>Approved but awaiting final payout (settlement)</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><span class="status-badge settled">SETTLED</span></td>
+            <td>{{ claimStats.settled }}</td>
+            <td>Payout completed and claim closed</td>
+          </tr>
+          <tr>
+            <td>-</td>
+            <td><span class="status-badge rejected">REJECTED</span></td>
+            <td>{{ claimStats.rejected }}</td>
+            <td>Claims denied during evaluation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

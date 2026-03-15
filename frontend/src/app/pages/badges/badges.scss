@@ -1,0 +1,54 @@
+.earned-count {
+  text-align: center;
+  background: white;
+  border: 2px solid var(--fuchsia);
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 12px rgba(254,48,130,0.15);
+  span { display: block; font-size: 2rem; font-weight: 800; color: var(--fuchsia); line-height: 1; }
+  small { color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-top: 0.5rem; display: block; }
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.badge-card {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+  &.earned {
+    opacity: 1;
+    border-color: var(--fuchsia);
+    background: linear-gradient(135deg, #FFF9F5, white);
+    box-shadow: 0 4px 16px rgba(254,48,130,0.15);
+  }
+
+  .badge-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+  .badge-name { color: var(--claret); font-weight: 700; font-size: 1rem; }
+  .badge-desc { color: var(--text-gray); font-size: 0.85rem; line-height: 1.5; }
+  .badge-req  { color: var(--fuchsia); font-size: 0.8rem; font-weight: 700; margin-top: 0.25rem; }
+}
+
+.earned-label {
+  margin-top: 0.5rem;
+  background: #D1FAE5;
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+}
+

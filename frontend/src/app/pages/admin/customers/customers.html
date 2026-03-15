@@ -1,0 +1,56 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Manage Customers</h1>
+      <p>View and manage registered insurance users</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading customers...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>Status</th>
+            <th>Points</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of customers; track c.userId) {
+            <tr>
+              <td>#{{ c.userId }}</td>
+              <td><strong>{{ c.name }}</strong></td>
+              <td>{{ c.email }}</td>
+              <td>{{ c.phone || '—' }}</td>
+              <td>{{ c.city || '—' }}</td>
+              <td>
+                <span class="status-badge" [class.active]="c.status === 'ACTIVE'" [class.inactive]="c.status !== 'ACTIVE'">
+                  {{ c.status || 'ACTIVE' }}
+                </span>
+              </td>
+              <td><span class="pts-badge">{{ c.userPoints }} pts</span></td>
+              <td class="actions">
+                <button class="btn-sm btn-secondary" (click)="updateStatus(c, c.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE')">
+                  {{ c.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button class="btn-sm btn-danger" (click)="deleteCustomer(c.userId)">Delete</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center">No customers found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

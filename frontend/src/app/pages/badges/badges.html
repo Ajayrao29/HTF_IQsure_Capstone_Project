@@ -1,0 +1,33 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Badges</h1>
+      <p>Earn points by taking quizzes to unlock these badges</p>
+    </div>
+    <div class="earned-count">
+      <span>{{ myBadgeIds.size }} / {{ allBadges.length }}</span>
+      <small>Earned</small>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading badges…</div>
+  }
+
+  @if (!loading) {
+    <div class="badges-grid">
+      @for (b of allBadges; track b) {
+        <div class="badge-card" [class.earned]="isEarned(b.badgeId)">
+          <div class="badge-icon">{{ isEarned(b.badgeId) ? '🏅' : '🔒' }}</div>
+          <div class="badge-name">{{ b.name }}</div>
+          <div class="badge-desc">{{ b.description }}</div>
+          <div class="badge-req">{{ b.reqPoints }} pts required</div>
+          @if (isEarned(b.badgeId)) {
+            <div class="earned-label">✓ Earned</div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+

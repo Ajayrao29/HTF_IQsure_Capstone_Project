@@ -1,0 +1,58 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div>
+      <h1>Assign Underwriter</h1>
+      <p>Assign pending policy applications to the underwriting team</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading pending applications...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>App ID</th>
+            <th>Customer</th>
+            <th>Policy</th>
+            <th>Premium</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Assign To</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of pendingPolicies; track p.id) {
+            <tr>
+              <td>#{{ p.id }}</td>
+              <td><strong>{{ p.userName }}</strong></td>
+              <td>{{ p.policyTitle }}</td>
+              <td>${{ p.finalPremium.toLocaleString() }}</td>
+              <td>{{ p.purchaseDate | date:'shortDate' }}</td>
+              <td><span class="status-badge pending">PENDING</span></td>
+              <td>
+                <select #uwSelect class="form-select-sm">
+                  <option value="">Select Underwriter</option>
+                  @for (uw of underwriters; track uw.userId) {
+                    <option [value]="uw.userId">{{ uw.name }} ({{ uw.specialization }})</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <button class="btn-primary btn-sm" (click)="assign(p.id, uwSelect.value)" [disabled]="!uwSelect.value">
+                  Assign
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center">No pending applications found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,0 +1,54 @@
+@if (result) {
+  <div class="page result-page">
+    <!-- Score Card -->
+    <div class="score-card">
+      <div class="score-message">{{ scoreMessage }}</div>
+      <div class="score-circle" [style.border-color]="scoreColor">
+        <span class="score-number" [style.color]="scoreColor">{{ result.percentage }}%</span>
+        <span class="score-sub">{{ result.score }} / {{ result.totalQuestions }} correct</span>
+      </div>
+      <h1>{{ result.quizTitle }}</h1>
+      @if (result.pointsEarned > 0) {
+        <div class="points-earned">
+          +{{ result.pointsEarned }} points earned!
+        </div>
+      }
+      @if (result.speedBonus > 0) {
+        <div class="speed-bonus-display">
+          🚀 Speed Bonus: +{{ result.speedBonus }}% extra points!
+        </div>
+      }
+      @if (result.pointsEarned === 0) {
+        <div class="no-points">
+          Points are awarded when you beat your previous best score. Keep trying!
+        </div>
+      }
+    </div>
+    <!-- New Badges Unlocked -->
+    @if (result.newBadgesUnlocked?.length > 0) {
+      <div class="badges-section">
+        <h2>🏅 New Badges Unlocked!</h2>
+        <div class="badges-grid">
+          @for (b of result.newBadgesUnlocked; track b) {
+            <div class="badge-card">
+              <div class="badge-icon">🏅</div>
+              <div class="badge-name">{{ b.name }}</div>
+              <div class="badge-desc">{{ b.description }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    <!-- Actions -->
+    <div class="result-actions" style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+      <a routerLink="/quizzes" class="btn-primary" style="padding: 0.8rem 2.5rem; font-size: 1.1rem;">Take Another Quiz</a>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a routerLink="/dashboard" class="btn-secondary">Back to Dashboard</a>
+        <a routerLink="/learning-center/education-center" class="btn-secondary">Go to Education Center</a>
+        <a routerLink="/policies" class="btn-secondary">View Policies & Discounts</a>
+      </div>
+    </div>
+  </div>
+}
+

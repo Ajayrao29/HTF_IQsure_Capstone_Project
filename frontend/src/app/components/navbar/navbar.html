@@ -1,0 +1,115 @@
+@if (auth.isLoggedIn()) {
+  <nav class="navbar">
+    <a class="navbar-brand" routerLink="/dashboard">
+      <span>IQ<span class="accent">sure</span></span>
+    </a>
+    <!-- Admin Navigation -->
+    @if (isAdmin) {
+      <div class="navbar-links">
+        <a routerLink="/admin/users" routerLinkActive="active">Users</a>
+        <a routerLink="/admin/dashboard" routerLinkActive="active">Operations</a>
+        <a routerLink="/admin/customers" routerLinkActive="active">Customers</a>
+        <a routerLink="/admin/underwriters" routerLinkActive="active">Underwriters</a>
+        <a routerLink="/admin/claims-officers" routerLinkActive="active">Claims Officers</a>
+        
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-toggle">Pipeline ▾</a>
+          <div class="nav-dropdown-content">
+            <a routerLink="/admin/assign-uw" routerLinkActive="active">Assign Underwriter</a>
+            <a routerLink="/admin/assign-officer" routerLinkActive="active">Assign Claims Officer</a>
+          </div>
+        </div>
+
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-toggle">Management ▾</a>
+          <div class="nav-dropdown-content">
+            <a routerLink="/admin/quiz-mgmt" routerLinkActive="active">Quizzes</a>
+            <a routerLink="/admin/policy-mgmt" routerLinkActive="active">Policies</a>
+            <a routerLink="/admin/badge-mgmt" routerLinkActive="active">Badges</a>
+            <a routerLink="/admin/reward-mgmt" routerLinkActive="active">Rewards</a>
+            <a routerLink="/admin/discount-rules" routerLinkActive="active">Discount Rules</a>
+            <a routerLink="/learning-center/education-center" routerLinkActive="active">Education Center</a>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Underwriter Navigation -->
+    @if (isUnderwriter) {
+      <div class="navbar-links">
+        <a routerLink="/underwriter/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/underwriter/pending" routerLinkActive="active">Pending</a>
+        <a routerLink="/underwriter/plans" routerLinkActive="active">Plans</a>
+        <a routerLink="/underwriter/my-policies" routerLinkActive="active">My Policies</a>
+      </div>
+    }
+
+    <!-- Claims Officer Navigation -->
+    @if (isClaimsOfficer) {
+      <div class="navbar-links">
+        <a routerLink="/claims-officer/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/claims-officer/claims" routerLinkActive="active">My Claims</a>
+      </div>
+    }
+
+    <!-- User Navigation -->
+    @if (!isAdmin && !isUnderwriter && !isClaimsOfficer) {
+      <div class="navbar-links">
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/apply-policy" routerLinkActive="active">Apply Policy</a>
+        <a routerLink="/my-policies" routerLinkActive="active">My Policies</a>
+        <a routerLink="/my-claims" routerLinkActive="active">My Claims</a>
+
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-toggle">Rewards & Badges ▾</a>
+          <div class="nav-dropdown-content">
+            <a routerLink="/rewards" routerLinkActive="active">🎁 My Rewards</a>
+            <a routerLink="/badges" routerLinkActive="active">🏅 My Badges</a>
+            <a routerLink="/achievements" routerLinkActive="active">🏆 Achievements</a>
+            <a routerLink="/leaderboard" routerLinkActive="active">📊 Leaderboard</a>
+          </div>
+        </div>
+
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-toggle">Tools ▾</a>
+          <div class="nav-dropdown-content">
+            <a routerLink="/savings" routerLinkActive="active">💰 Savings Calculator</a>
+            <a routerLink="/risk-simulator" routerLinkActive="active">⚖️ Risk Simulator</a>
+            <a routerLink="/learning-center/education-center" routerLinkActive="active">📚 Learning Center</a>
+            <a routerLink="/quizzes" routerLinkActive="active">🧩 Play Quizzes</a>
+          </div>
+        </div>
+      </div>
+    }
+    <div class="navbar-right">
+      <!-- User/Underwriter Profile Dropdown -->
+      @if (!isAdmin) {
+        @if (!isUnderwriter && !isClaimsOfficer) {
+          <button class="btn-get-quote" routerLink="/apply-policy">Get Quote</button>
+        }
+        <div class="profile-dropdown">
+          <div class="profile-avatar">{{ getInitials() }}</div>
+          <div class="profile-menu">
+            <div class="profile-header">
+              <div class="profile-avatar-large">{{ getInitials() }}</div>
+              <div class="profile-info">
+                <div class="profile-name">{{ userName }}</div>
+                <div class="profile-email">{{ userEmail }}</div>
+                @if (!isUnderwriter && !isClaimsOfficer) {
+                  <div class="profile-points">⭐ {{ userPoints }} points</div>
+                }
+              </div>
+            </div>
+            <div class="profile-divider"></div>
+            <button class="profile-logout" (click)="logout()">Logout</button>
+          </div>
+        </div>
+      }
+      <!-- Admin Simple Display -->
+      @if (isAdmin) {
+        <span class="user-name">👤 {{ userName }}</span>
+      }
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+}

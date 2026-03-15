@@ -1,0 +1,69 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>💰 Savings Calculator</h1>
+      <p>See how much you've saved and can save with IQsure</p>
+    </div>
+  </div>
+
+  <div class="savings-hero">
+    <div class="savings-card total">
+      <div class="savings-icon">💵</div>
+      <div class="savings-amount">${{ totalSavings | number:'1.2-2' }}</div>
+      <div class="savings-label">Total Saved</div>
+      <div class="savings-desc">From {{ policies.length }} purchased policies</div>
+    </div>
+
+    <div class="savings-card potential">
+      <div class="savings-icon">🎯</div>
+      <div class="savings-amount">${{ potentialSavings | number:'1.2-2' }}</div>
+      <div class="savings-label">Potential Savings</div>
+      <div class="savings-desc">Available on all policies</div>
+    </div>
+  </div>
+
+  <div class="comparison-section">
+    <h2>📊 Your Savings Breakdown</h2>
+    <div class="comparison-grid">
+      @for (p of policies; track p) {
+        <div class="comparison-item">
+          <div class="policy-name">{{ p.policyTitle }}</div>
+          <div class="price-comparison">
+            <div class="original-price">${{ p.basePremium }}</div>
+            <div class="arrow">→</div>
+            <div class="final-price">${{ p.finalPremium }}</div>
+          </div>
+          <div class="savings-badge">Saved ${{ p.savedAmount | number:'1.2-2' }} ({{ p.discountApplied }}%)</div>
+        </div>
+      }
+    </div>
+
+    @if (policies.length === 0) {
+      <div class="empty-state">
+        <p>No policies purchased yet. Start taking quizzes to unlock discounts!</p>
+        <a routerLink="/quizzes" class="btn-primary">Take a Quiz</a>
+      </div>
+    }
+  </div>
+
+  <div class="tips-section">
+    <h2>💡 Maximize Your Savings</h2>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-icon">📚</div>
+        <div class="tip-title">Take More Quizzes</div>
+        <div class="tip-desc">Each quiz increases your discount potential</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🏆</div>
+        <div class="tip-title">Unlock Badges</div>
+        <div class="tip-desc">Badges give you access to exclusive discounts</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">⚡</div>
+        <div class="tip-title">Score High</div>
+        <div class="tip-desc">Higher scores = bigger discounts on premiums</div>
+      </div>
+    </div>
+  </div>
+</div>

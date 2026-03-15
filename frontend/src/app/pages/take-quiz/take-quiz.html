@@ -1,0 +1,56 @@
+@if (!loading) {
+  <div class="page">
+    <!-- Quiz Header -->
+    <div class="quiz-header">
+      <div>
+        <h1>{{ quiz?.title }}</h1>
+        <p>{{ quiz?.category }} · {{ quiz?.difficulty }}</p>
+      </div>
+      <div class="quiz-timer">
+        <div class="timer-icon">⏱️</div>
+        <div class="timer-display" [style.color]="timeColor">{{ timeFormatted }}</div>
+        @if (speedBonus > 0) {
+          <div class="speed-bonus">🚀 +{{ speedBonus }}% Speed Bonus!</div>
+        }
+      </div>
+    </div>
+    <!-- Questions -->
+    <div class="questions-list">
+      @for (q of questions; track q; let i = $index) {
+        <div class="question-card">
+          <div class="q-number">Q{{ i + 1 }}</div>
+          <p class="q-text">{{ q.text }}</p>
+          <div class="options-list">
+            @for (opt of q.options; track opt; let j = $index) {
+              <button
+                class="option-btn"
+                [class.selected]="isSelected(q.questionId, j)"
+                (click)="selectOption(q.questionId, j)">
+                <span class="option-letter">{{ 'ABCD'[j] }}</span>
+                <span>{{ opt }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    <!-- Submit -->
+    <div class="submit-section">
+      @if (!allAnswered) {
+        <p class="submit-hint">
+          ⚠️ Please answer all {{ questions.length }} questions before submitting.
+        </p>
+      }
+      <button
+        class="btn-primary btn-lg"
+        [disabled]="!allAnswered || submitting"
+        (click)="submitQuiz()">
+        {{ submitting ? 'Submitting…' : 'Submit Quiz' }}
+      </button>
+    </div>
+  </div>
+}
+
+@if (loading) {
+  <div class="loading">Loading quiz…</div>
+}

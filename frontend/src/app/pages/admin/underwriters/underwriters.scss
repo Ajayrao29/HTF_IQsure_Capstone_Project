@@ -1,0 +1,42 @@
+.form-card {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.count-badge {
+  background: #F3E8FF;
+  color: #9333EA;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.alert-danger { background: #FEF2F2; color: #EF4444; border: 1px solid #FEE2E2; }
+.alert-success { background: #F0FDF4; color: #16A34A; border: 1px solid #DCFCE7; }
+
+.loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px; }

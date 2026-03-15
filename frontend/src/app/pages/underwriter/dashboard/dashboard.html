@@ -1,0 +1,87 @@
+<div class="page fade-in">
+  <div class="welcome-banner">
+    <div class="welcome-text">
+        <h1>Welcome, {{ userName }}</h1>
+        <p>License: {{ licenseNumber }}</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon pending-icon">📋</div>
+      <div class="stat-info">
+        <h3>{{ stats.pendingAssignments }}</h3>
+        <p>Pending Assignments</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon quotes-icon">🚀</div>
+      <div class="stat-info">
+        <h3>{{ stats.quotesSent }}</h3>
+        <p>Quotes Sent</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon active-icon">✅</div>
+      <div class="stat-info">
+        <h3>{{ stats.activePolicies }}</h3>
+        <p>Active Policies</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon customers-icon">👥</div>
+      <div class="stat-info">
+        <h3>{{ stats.customersServed }}</h3>
+        <p>Customers Served</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon premium-icon">💰</div>
+      <div class="stat-info">
+        <h3>₹{{ stats.totalPremium.toLocaleString() }}</h3>
+        <p>Total Premium</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon commission-icon">💸</div>
+        <div class="stat-info">
+          <h3>₹{{ stats.commissionEarned.toLocaleString() }}</h3>
+          <p>Commission Earned</p>
+        </div>
+      </div>
+  </div>
+
+  <div class="quick-actions-section">
+    <h2 class="section-title">Quick Actions</h2>
+    <div class="actions-grid">
+      <a routerLink="/underwriter/pending" class="action-card">
+        <div class="action-icon">📋</div>
+        <div class="action-info">
+          <h3>Pending</h3>
+          <p>View and quote</p>
+        </div>
+      </a>
+
+      <a routerLink="/underwriter/my-policies" class="action-card">
+        <div class="action-icon">🛡️</div>
+        <div class="action-info">
+          <h3>All Policies</h3>
+          <p>View assigned policies</p>
+        </div>
+      </a>
+
+      <a routerLink="/underwriter/plans" class="action-card">
+        <div class="action-icon">🛡️</div>
+        <div class="action-info">
+          <h3>Browse Plans</h3>
+          <p>View insurance products</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

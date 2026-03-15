@@ -1,0 +1,35 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Insurance Quizzes</h1>
+      <p>Test your knowledge and earn points to unlock premium discounts</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading quizzes…</div>
+  }
+
+  @if (!loading) {
+    <div class="quiz-grid">
+      @for (q of quizzes; track q) {
+        <div class="quiz-card">
+          <div class="quiz-top">
+            <span class="category-tag">{{ q.category }}</span>
+            <span class="diff-badge" [ngClass]="getDifficultyClass(q.difficulty)">{{ q.difficulty }}</span>
+          </div>
+          <h3>{{ q.title }}</h3>
+          <p class="quiz-meta">{{ q.totalQuestions }} Questions</p>
+          <button class="btn-primary" (click)="takeQuiz(q.quizId)">Start Quiz →</button>
+        </div>
+      }
+      @if (quizzes.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">🧩</div>
+          <p>No quizzes available yet. Check back soon!</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+

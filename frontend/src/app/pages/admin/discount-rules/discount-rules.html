@@ -1,0 +1,85 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Discount Rules</h1>
+    <button class="btn-primary" (click)="openCreate()">+ New Rule</button>
+  </div>
+  @if (showForm) {
+    <div class="form-card">
+      <h2>{{ editingRule ? 'Edit Rule' : 'Create Rule' }}</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Rule Name</label><input [(ngModel)]="form.ruleName" placeholder="e.g. High Scorer" /></div>
+        <div class="form-group"><label>Discount (%)</label><input type="number" [(ngModel)]="form.discountPercentage" placeholder="10" /></div>
+        <div class="form-group">
+          <label>Policy Type (leave blank for ALL)</label>
+          <select [(ngModel)]="form.applicablePolicyType">
+            <option [ngValue]="null">All Types</option>
+            <option value="HEALTH">Health</option>
+            <option value="LIFE">Life</option>
+            <option value="MOTOR">Motor</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Description</label><input [(ngModel)]="form.description" placeholder="What triggers this rule" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Min Quiz Score (%)</label><input type="number" [(ngModel)]="form.minQuizScorePercent" placeholder="0" /></div>
+        <div class="form-group"><label>Min Points</label><input type="number" [(ngModel)]="form.minUserPoints" placeholder="0" /></div>
+        <div class="form-group"><label>Min Badges</label><input type="number" [(ngModel)]="form.minBadgesEarned" placeholder="0" /></div>
+      </div>
+      <div class="form-group checkbox-group">
+        <label><input type="checkbox" [(ngModel)]="form.isActive" /> Active</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="save()">{{ editingRule ? 'Update' : 'Create' }}</button>
+        <button class="btn-secondary" (click)="showForm = false">Cancel</button>
+      </div>
+    </div>
+  }
+  @if (loading) {
+    <div class="loading">Loading…</div>
+  }
+  @if (!loading) {
+    <div class="rule-grid">
+      @for (r of rules; track r) {
+        <div class="rule-card" [class.inactive]="!r.isActive">
+          <div class="rule-card-top">
+            <span class="rule-policy-type">{{ r.applicablePolicyType || 'ALL' }}</span>
+            <span [class]="r.isActive ? 'active-tag' : 'inactive-tag'">{{ r.isActive ? 'Active' : 'Inactive' }}</span>
+          </div>
+          <h3 class="rule-card-name">{{ r.ruleName }}</h3>
+          <p class="rule-card-desc">{{ r.description }}</p>
+          <div class="rule-card-discount">
+            <div class="discount-info">
+              <span class="discount-number">{{ r.discountPercentage }}%</span>
+              <span class="discount-label">Discount</span>
+            </div>
+            <div class="discount-bar-track">
+              <div class="discount-bar-fill" [style.width.%]="r.discountPercentage"></div>
+            </div>
+          </div>
+          <div class="rule-card-criteria">
+            <div class="criteria-item">
+              <span class="criteria-label">Min Score</span>
+              <span class="criteria-value">{{ r.minQuizScorePercent }}%</span>
+            </div>
+            <div class="criteria-item">
+              <span class="criteria-label">Min Points</span>
+              <span class="criteria-value">{{ r.minUserPoints }}</span>
+            </div>
+            <div class="criteria-item">
+              <span class="criteria-label">Min Badges</span>
+              <span class="criteria-value">{{ r.minBadgesEarned }}</span>
+            </div>
+          </div>
+          <div class="rule-card-actions">
+            <button class="btn-sm" (click)="openEdit(r)">Edit</button>
+            <button class="btn-danger btn-sm" (click)="delete(r.ruleId)">Delete</button>
+          </div>
+        </div>
+      }
+      @if (rules.length === 0) {
+        <div class="empty-msg">No discount rules yet. Create one above.</div>
+      }
+    </div>
+  }
+</div>
+

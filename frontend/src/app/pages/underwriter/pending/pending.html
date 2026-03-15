@@ -1,0 +1,90 @@
+<div class="page fade-in">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Pending Assignments</h1>
+      <p>Policy applications assigned to you — calculate and send your premium quote.</p>
+    </div>
+    <a routerLink="/underwriter/dashboard" class="btn-secondary">← Dashboard</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading assignments...</p>
+    </div>
+  } @else if (applications.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No pending assignments!</h3>
+      <p>You're all caught up. The admin will assign new policy applications to you.</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Application ID</th>
+            <th>Customer</th>
+            <th>Policy Plan</th>
+            <th>Base Premium</th>
+            <th>Assigned Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (app of applications; track app.id) {
+            <tr>
+              <td><strong>#{{ app.id }}</strong></td>
+              <td>{{ app.userName }}</td>
+              <td>
+                <span class="plan-name">{{ app.policyTitle }}</span>
+                <span class="type-badge">{{ app.policyType }}</span>
+              </td>
+              <td>₹{{ app.basePremium | number }}</td>
+              <td>{{ app.assignedAt | date:'mediumDate' }}</td>
+              <td>
+                <button class="btn-primary btn-sm" (click)="openQuoteModal(app)">Send Quote</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Quote Modal -->
+  @if (selectedApp) {
+    <div class="modal-overlay" (click)="selectedApp = null">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Send Premium Quote</h2>
+          <button class="close-btn" (click)="selectedApp = null">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="app-summary">
+            <p><strong>Application:</strong> #{{ selectedApp.id }}</p>
+            <p><strong>Customer:</strong> {{ selectedApp.userName }}</p>
+            <p><strong>Plan:</strong> {{ selectedApp.policyTitle }}</p>
+            <p><strong>Base Premium:</strong> ₹{{ selectedApp.basePremium | number }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Final Quoted Premium (₹)</label>
+            <input type="number" [(ngModel)]="quoteAmount" placeholder="Enter final premium amount">
+          </div>
+
+          <div class="form-group">
+            <label>Underwriter Remarks</label>
+            <textarea [(ngModel)]="remarks" rows="3" placeholder="Add any notes about the risk assessment..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="selectedApp = null">Cancel</button>
+          <button class="btn-primary" (click)="submitQuote()" [disabled]="!quoteAmount || submitting">
+            {{ submitting ? 'Sending...' : 'Confirm & Send Quote' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
