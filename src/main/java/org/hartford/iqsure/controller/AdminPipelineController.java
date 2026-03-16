@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin/pipeline")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AdminPipelineController {
 
     private final UserPolicyService userPolicyService;
@@ -47,7 +46,7 @@ public class AdminPipelineController {
         return ResponseEntity.ok(userPolicyService.assignUnderwriter(id, underwriterId));
     }
 
-    @PostMapping("/policies/{id}/quote")
+    @PutMapping("/policies/{id}/quote")
     public ResponseEntity<UserPolicyResponseDTO> sendQuote(@PathVariable Long id, @RequestParam java.math.BigDecimal quoteAmount, @RequestParam String remarks) {
         return ResponseEntity.ok(userPolicyService.sendQuote(id, quoteAmount, remarks));
     }

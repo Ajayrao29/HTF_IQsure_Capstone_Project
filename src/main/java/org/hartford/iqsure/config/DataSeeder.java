@@ -55,6 +55,8 @@ public class DataSeeder {
     private final org.hartford.iqsure.repository.BadgeRepository badgeRepository;
     private final org.hartford.iqsure.repository.RewardRepository rewardRepository;
     private final org.hartford.iqsure.repository.DiscountRuleRepository discountRuleRepository;
+    private final org.hartford.iqsure.repository.UserPolicyRepository userPolicyRepository;
+    private final org.hartford.iqsure.repository.InsuredMemberRepository insuredMemberRepository;
     private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
     // This method runs automatically after the bean is created and dependencies are injected
@@ -74,18 +76,18 @@ public class DataSeeder {
         }
 
         // Seed Underwriter if not exists
-        if (userRepository.findByEmail("alice@iqsure.com").isEmpty()) {
+        if (userRepository.findByEmail("underwriter@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
                     .name("Alice Underwriter")
-                    .email("alice@iqsure.com")
-                    .password(passwordEncoder.encode("uw123"))
+                    .email("underwriter@iqsure.com")
+                    .password(passwordEncoder.encode("underwriter123"))
                     .role(User.Role.ROLE_UNDERWRITER)
                     .licenseNumber("UW-88990")
                     .specialization("HEALTH")
                     .commissionPercentage(new java.math.BigDecimal("5.5"))
                     .status("ACTIVE")
                     .build());
-            log.info("Underwriter created: alice@iqsure.com / uw123");
+            log.info("Underwriter created: underwriter@iqsure.com / underwriter123");
         }
 
         // Seed Claims Officer if not exists
@@ -116,6 +118,7 @@ public class DataSeeder {
                     .state("NY")
                     .status("ACTIVE")
                     .build());
+            userRepository.flush(); // Ensure user is in DB
             log.info("Default user created: user@iqsure.com / user123");
         }
 
@@ -142,6 +145,72 @@ public class DataSeeder {
 
         if (discountRuleRepository.count() == 0) {
             seedDiscountRules();
+        }
+
+        // Ensure we have sample data for the assignment pipeline
+        if (userPolicyRepository.count() < 3) {
+            seedSampleUserPolicy();
+        }
+    }
+
+    private void seedSampleUserPolicy() {
+        log.info("Attempting to seed sample UserPolicy...");
+        try {
+            User user = userRepository.findByEmail("user@iqsure.com").orElse(null);
+            org.hartford.iqsure.entity.Policy policy = policyRepository.findAll().stream()
+                    .filter(p -> p.getTitle().equals("Basic Health Plan"))
+                    .findFirst()
+                    .orElse(policyRepository.findAll().stream().findFirst().orElse(null));
+
+            if (user != null && policy != null) {
+                User underwriter = userRepository.findByEmail("underwriter@iqsure.com").orElse(null);
+                
+                org.hartford.iqsure.entity.UserPolicy up = org.hartford.iqsure.entity.UserPolicy.builder()
+                        .user(user)
+                        .policy(policy)
+                        .finalPremium(policy.getBasePremium())
+                        .discountApplied(0.0)
+                        .status(underwriter != null ? org.hartford.iqsure.entity.UserPolicy.PolicyStatus.UNDER_EVALUATION : org.hartford.iqsure.entity.UserPolicy.PolicyStatus.PENDING_UNDERWRITING)
+                        .assignedUnderwriter(underwriter)
+                        .assignedAt(underwriter != null ? java.time.LocalDateTime.now() : null)
+                        .remainingCoverage(java.math.BigDecimal.valueOf(policy.getCoverageAmount()))
+                        .nomineeName("Jane Doe")
+                        .nomineeRelationship("Spouse")
+                        .healthReportPath("/assets/sample-health-report.pdf")
+                        .purchaseDate(java.time.LocalDateTime.now())
+                        .build();
+                userPolicyRepository.saveAndFlush(up);
+
+                // Add sample insured members for the underwriter to review
+                org.hartford.iqsure.entity.InsuredMember family1 = org.hartford.iqsure.entity.InsuredMember.builder()
+                        .userPolicy(up)
+                        .fullName("John Doe")
+                        .relationship("SELF")
+                        .dateOfBirth(java.time.LocalDate.of(1990, 5, 15))
+                        .gender("MALE")
+                        .preExistingConditions("None")
+                        .build();
+                
+                org.hartford.iqsure.entity.InsuredMember family2 = org.hartford.iqsure.entity.InsuredMember.builder()
+                        .userPolicy(up)
+                        .fullName("Jane Doe")
+                        .relationship("SPOUSE")
+                        .dateOfBirth(java.time.LocalDate.of(1992, 8, 20))
+                        .gender("FEMALE")
+                        .preExistingConditions("Asthma")
+                        .build();
+
+                insuredMemberRepository.save(family1);
+                insuredMemberRepository.save(family2);
+                insuredMemberRepository.flush();
+
+                log.info("SUCCESS: Seeded UNDER_EVALUATION policy for John Doe assigned to underwriter.");
+            } else {
+                if (user == null) log.warn("SEEDER ERROR: User 'user@iqsure.com' not found for policy seeding.");
+                if (policy == null) log.warn("SEEDER ERROR: No Policies found for policy seeding.");
+            }
+        } catch (Exception e) {
+            log.error("CRITICAL SEEDER ERROR: Failed to seed user policy: {}", e.getMessage());
         }
     }
     private void seedEducationContent() {
@@ -198,6 +267,7 @@ public class DataSeeder {
         savePolicy("Senior Citizen Plan", "Tailored plan for senior citizens aged 60-80 years. Covers pre-existing diseases after 2-year waiting period.", 25000.0, 800000.0, 12, "60-80", "SENIOR_CITIZEN", "24 months", false, true);
         savePolicy("Platinum Health Plan", "Ultimate individual plan with maximum ₹20 Lakh coverage, air ambulance, and personal accident cover.", 30000.0, 2000000.0, 12, "18-55", "INDIVIDUAL", "1 month", true, true);
 
+        policyRepository.flush(); // Ensure policies are in DB
         log.info("Health Insurance Policies seeded.");
     }
 

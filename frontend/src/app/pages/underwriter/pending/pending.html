@@ -7,6 +7,13 @@
     <a routerLink="/underwriter/dashboard" class="btn-secondary">← Dashboard</a>
   </div>
 
+  @if (notification) {
+    <div class="alert-banner" [class]="notification.type">
+      <span class="icon">{{ notification.type === 'success' ? '✅' : '❌' }}</span>
+      <span class="message">{{ notification.message }}</span>
+    </div>
+  }
+
   @if (loading) {
     <div class="loading-state">
       <div class="spinner"></div>
@@ -61,11 +68,59 @@
           <button class="close-btn" (click)="selectedApp = null">×</button>
         </div>
         <div class="modal-body">
-          <div class="app-summary">
-            <p><strong>Application:</strong> #{{ selectedApp.id }}</p>
-            <p><strong>Customer:</strong> {{ selectedApp.userName }}</p>
-            <p><strong>Plan:</strong> {{ selectedApp.policyTitle }}</p>
-            <p><strong>Base Premium:</strong> ₹{{ selectedApp.basePremium | number }}</p>
+          <div class="details-grid">
+            <div class="detail-group">
+              <label>Application Info</label>
+              <p><strong>App ID:</strong> #{{ selectedApp.id }}</p>
+              <p><strong>Plan:</strong> {{ selectedApp.policyTitle }}</p>
+              <p><strong>Base Premium:</strong> ₹{{ selectedApp.basePremium | number }}</p>
+            </div>
+            <div class="detail-group">
+              <label>Nominee & Status</label>
+              <p><strong>Customer:</strong> {{ selectedApp.userName }}</p>
+              <p><strong>Nominee:</strong> {{ selectedApp.nomineeName }} ({{ selectedApp.nomineeRelationship }})</p>
+              <p><strong>Document:</strong> 
+                @if (selectedApp.healthReportPath) {
+                  <a [href]="selectedApp.healthReportPath" target="_blank" class="doc-link">View Health Report 📄</a>
+                } @else {
+                  <span class="text-muted">Not uploaded</span>
+                }
+              </p>
+            </div>
+          </div>
+
+          <div class="insured-section">
+            <label>Insured Family Members</label>
+            <div class="members-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Relation</th>
+                    <th>Age</th>
+                    <th>Conditions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (member of selectedApp.insuredMembers; track member.id) {
+                    <tr>
+                      <td>{{ member.fullName }}</td>
+                      <td>{{ member.relationship }}</td>
+                      <td>{{ member.gender }}</td>
+                      <td>
+                        <span class="condition-tag" [class.danger]="member.preExistingConditions !== 'None'">
+                          {{ member.preExistingConditions }}
+                        </span>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="4" class="text-center py-4 text-muted">No family members declared.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div class="form-group">

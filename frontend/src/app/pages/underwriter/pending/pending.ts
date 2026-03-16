@@ -18,6 +18,7 @@ export class UnderwriterPendingComponent implements OnInit {
   quoteAmount: number | null = null;
   remarks = '';
   submitting = false;
+  notification: { message: string, type: 'success' | 'error' } | null = null;
 
   constructor(private api: ApiService) {}
 
@@ -26,6 +27,8 @@ export class UnderwriterPendingComponent implements OnInit {
   }
 
   loadPending(): void {
+    this.loading = true;
+    this.notification = null;
     this.api.getPoliciesByStatus('UNDER_EVALUATION').subscribe(apps => {
       this.applications = apps;
       this.loading = false;
@@ -41,10 +44,26 @@ export class UnderwriterPendingComponent implements OnInit {
   submitQuote(): void {
     if (!this.quoteAmount || !this.selectedApp) return;
     this.submitting = true;
-    this.api.sendQuote(this.selectedApp.id, this.quoteAmount, this.remarks).subscribe(() => {
-      this.submitting = false;
-      this.selectedApp = null;
-      this.loadPending();
+    this.notification = null;
+
+    this.api.sendQuote(this.selectedApp.id, this.quoteAmount, this.remarks).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.selectedApp = null;
+        this.showNotification('Quote sent successfully!', 'success');
+        this.loadPending();
+      },
+      error: () => {
+        this.submitting = false;
+        this.showNotification('Failed to send quote. Please try again.', 'error');
+      }
     });
+  }
+
+  showNotification(message: string, type: 'success' | 'error'): void {
+    this.notification = { message, type };
+    setTimeout(() => {
+      this.notification = null;
+    }, 3000);
   }
 }

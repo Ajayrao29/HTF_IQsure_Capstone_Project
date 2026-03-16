@@ -15,6 +15,8 @@ export class AssignClaimsOfficerComponent implements OnInit {
   pendingClaims: Claim[] = [];
   officers: User[] = [];
   loading = true;
+  processing = false;
+  notification: { message: string, type: 'success' | 'error' } | null = null;
 
   constructor(private api: ApiService) {}
 
@@ -24,9 +26,13 @@ export class AssignClaimsOfficerComponent implements OnInit {
 
   loadData(): void {
     this.loading = true;
-    this.api.getAllClaims().subscribe(claims => {
-      this.pendingClaims = claims.filter(c => c.status === 'SUBMITTED');
-      this.loading = false;
+    this.notification = null;
+    this.api.getAllClaims().subscribe({
+      next: (claims) => {
+        this.pendingClaims = claims.filter(c => c.status === 'SUBMITTED');
+        this.loading = false;
+      },
+      error: () => this.loading = false
     });
 
     this.api.getUsersByRole('ROLE_CLAIMS_OFFICER').subscribe(users => {
@@ -35,11 +41,28 @@ export class AssignClaimsOfficerComponent implements OnInit {
   }
 
   assign(claimId: number, officerId: string): void {
-    if (!officerId) return;
+    if (!officerId || this.processing) return;
     
-    this.api.assignClaimOfficer(claimId, parseInt(officerId)).subscribe(() => {
-      this.pendingClaims = this.pendingClaims.filter(c => c.id !== claimId);
-      alert('Claims Officer assigned successfully!');
+    this.processing = true;
+    this.notification = null;
+
+    this.api.assignClaimOfficer(claimId, parseInt(officerId)).subscribe({
+      next: () => {
+        this.pendingClaims = this.pendingClaims.filter(c => c.id !== claimId);
+        this.processing = false;
+        this.showNotification('Claims Officer assigned successfully!', 'success');
+      },
+      error: () => {
+        this.processing = false;
+        this.showNotification('Failed to assign officer. Please try again.', 'error');
+      }
     });
+  }
+
+  showNotification(message: string, type: 'success' | 'error'): void {
+    this.notification = { message, type };
+    setTimeout(() => {
+      this.notification = null;
+    }, 3000);
   }
 }

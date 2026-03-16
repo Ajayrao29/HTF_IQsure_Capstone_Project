@@ -53,7 +53,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   calculateStats(): void {
-    this.stats.pendingApps = this.policies.filter(p => p.status === 'PENDING').length;
+    this.stats.pendingApps = this.policies.filter(p => p.status === 'PENDING_UNDERWRITING').length;
     this.stats.underEvaluation = this.policies.filter(p => p.status === 'UNDER_EVALUATION').length;
     this.stats.quotesSent = this.policies.filter(p => p.status === 'QUOTES_SENT').length;
     this.stats.activePolicies = this.policies.filter(p => p.status === 'ACTIVE').length;

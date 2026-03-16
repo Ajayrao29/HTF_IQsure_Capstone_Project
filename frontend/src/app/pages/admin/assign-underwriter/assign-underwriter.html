@@ -6,6 +6,13 @@
     </div>
   </div>
 
+  @if (notification) {
+    <div class="alert-banner" [class]="notification.type">
+      <span class="icon">{{ notification.type === 'success' ? '✅' : '❌' }}</span>
+      <span class="message">{{ notification.message }}</span>
+    </div>
+  }
+
   @if (loading) {
     <div class="loading">Loading pending applications...</div>
   } @else {
@@ -33,7 +40,7 @@
               <td>{{ p.purchaseDate | date:'shortDate' }}</td>
               <td><span class="status-badge pending">PENDING</span></td>
               <td>
-                <select #uwSelect class="form-select-sm">
+                <select #uwSelect class="form-select-sm" (change)="0">
                   <option value="">Select Underwriter</option>
                   @for (uw of underwriters; track uw.userId) {
                     <option [value]="uw.userId">{{ uw.name }} ({{ uw.specialization }})</option>
@@ -41,8 +48,10 @@
                 </select>
               </td>
               <td>
-                <button class="btn-primary btn-sm" (click)="assign(p.id, uwSelect.value)" [disabled]="!uwSelect.value">
-                  Assign
+                <button class="btn-primary btn-sm" 
+                        (click)="assign(p.id, uwSelect.value)" 
+                        [disabled]="!uwSelect.value || processing">
+                  {{ processing ? 'Assigning...' : 'Assign' }}
                 </button>
               </td>
             </tr>

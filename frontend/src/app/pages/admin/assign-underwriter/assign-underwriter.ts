@@ -15,6 +15,8 @@ export class AssignUnderwriterComponent implements OnInit {
   pendingPolicies: UserPolicy[] = [];
   underwriters: User[] = [];
   loading = true;
+  processing = false;
+  notification: { message: string, type: 'success' | 'error' } | null = null;
 
   constructor(private api: ApiService) {}
 
@@ -24,9 +26,13 @@ export class AssignUnderwriterComponent implements OnInit {
 
   loadData(): void {
     this.loading = true;
-    this.api.getPoliciesByStatus('PENDING').subscribe(policies => {
-      this.pendingPolicies = policies;
-      this.loading = false;
+    this.notification = null;
+    this.api.getAllUserPoliciesAdmin().subscribe({
+      next: (policies) => {
+        this.pendingPolicies = policies.filter(p => p.status === 'PENDING_UNDERWRITING');
+        this.loading = false;
+      },
+      error: () => this.loading = false
     });
 
     this.api.getUsersByRole('ROLE_UNDERWRITER').subscribe(users => {
@@ -35,11 +41,28 @@ export class AssignUnderwriterComponent implements OnInit {
   }
 
   assign(policyId: number, underwriterId: string): void {
-    if (!underwriterId) return;
-    
-    this.api.assignUnderwriter(policyId, parseInt(underwriterId)).subscribe(() => {
-      this.pendingPolicies = this.pendingPolicies.filter(p => p.id !== policyId);
-      alert('Underwriter assigned successfully!');
+    if (!underwriterId || this.processing) return;
+
+    this.processing = true;
+    this.notification = null;
+
+    this.api.assignUnderwriter(policyId, parseInt(underwriterId)).subscribe({
+      next: () => {
+        this.pendingPolicies = this.pendingPolicies.filter(p => p.id !== policyId);
+        this.processing = false;
+        this.showNotification('Underwriter assigned successfully!', 'success');
+      },
+      error: () => {
+        this.processing = false;
+        this.showNotification('Failed to assign underwriter. Please try again.', 'error');
+      }
     });
+  }
+
+  showNotification(message: string, type: 'success' | 'error'): void {
+    this.notification = { message, type };
+    setTimeout(() => {
+      this.notification = null;
+    }, 3000);
   }
 }

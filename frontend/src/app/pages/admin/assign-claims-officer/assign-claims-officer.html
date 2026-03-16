@@ -6,6 +6,13 @@
     </div>
   </div>
 
+  @if (notification) {
+    <div class="alert-banner" [class]="notification.type">
+      <span class="icon">{{ notification.type === 'success' ? '✅' : '❌' }}</span>
+      <span class="message">{{ notification.message }}</span>
+    </div>
+  }
+
   @if (loading) {
     <div class="loading">Loading submitted claims...</div>
   } @else {
@@ -33,7 +40,7 @@
               <td>{{ c.incidentDate | date:'shortDate' }}</td>
               <td><span class="status-badge submitted">SUBMITTED</span></td>
               <td>
-                <select #officerSelect class="form-select-sm">
+                <select #officerSelect class="form-select-sm" (change)="0">
                   <option value="">Select Officer</option>
                   @for (o of officers; track o.userId) {
                     <option [value]="o.userId">{{ o.name }} (Lmt: ${{ o.approvalLimit?.toLocaleString() }})</option>
@@ -41,8 +48,10 @@
                 </select>
               </td>
               <td>
-                <button class="btn-primary btn-sm" (click)="assign(c.id, officerSelect.value)" [disabled]="!officerSelect.value">
-                  Assign
+                <button class="btn-primary btn-sm" 
+                        (click)="assign(c.id, officerSelect.value)" 
+                        [disabled]="!officerSelect.value || processing">
+                  {{ processing ? 'Assigning...' : 'Assign' }}
                 </button>
               </td>
             </tr>
