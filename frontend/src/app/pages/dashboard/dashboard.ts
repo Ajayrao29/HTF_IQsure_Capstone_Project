@@ -128,7 +128,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   get recentAttempts(): any[] { return this.myAttempts; }
 
   shareAchievement(): void {
-    const text = `I've earned ${this.user?.userPoints} points on IQsure! Join me in learning about insurance and saving money! 💪🏼💰`;
+    const text = `I've earned ${this.user?.userPoints} points on IQsure! Join me in maximizing savings and learning about insurance.`;
     if (navigator.share) {
       navigator.share({ title: 'IQsure Achievement', text });
     } else {

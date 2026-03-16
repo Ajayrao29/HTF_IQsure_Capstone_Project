@@ -148,7 +148,7 @@ public class DataSeeder {
         }
 
         // Ensure we have sample data for the assignment pipeline
-        if (userPolicyRepository.count() < 3) {
+        if (userPolicyRepository.count() == 0) {
             seedSampleUserPolicy();
         }
     }
@@ -176,7 +176,7 @@ public class DataSeeder {
                         .remainingCoverage(java.math.BigDecimal.valueOf(policy.getCoverageAmount()))
                         .nomineeName("Jane Doe")
                         .nomineeRelationship("Spouse")
-                        .healthReportPath("/assets/sample-health-report.pdf")
+                        .healthReportPath("/uploads/sample-report.pdf")
                         .purchaseDate(java.time.LocalDateTime.now())
                         .build();
                 userPolicyRepository.saveAndFlush(up);
@@ -202,7 +202,30 @@ public class DataSeeder {
 
                 insuredMemberRepository.save(family1);
                 insuredMemberRepository.save(family2);
+                
+                // Add an additional ACTIVE policy so user can test Claims flow immediately
+                org.hartford.iqsure.entity.Policy goldPolicy = policyRepository.findAll().stream()
+                        .filter(p -> p.getTitle().equals("Gold Health Plan"))
+                        .findFirst()
+                        .orElse(null);
+
+                if (goldPolicy != null) {
+                    org.hartford.iqsure.entity.UserPolicy activeUp = org.hartford.iqsure.entity.UserPolicy.builder()
+                            .user(user)
+                            .policy(goldPolicy)
+                            .finalPremium(goldPolicy.getBasePremium())
+                            .discountApplied(0.0)
+                            .status(org.hartford.iqsure.entity.UserPolicy.PolicyStatus.ACTIVE)
+                            .remainingCoverage(java.math.BigDecimal.valueOf(goldPolicy.getCoverageAmount()))
+                            .nomineeName("Jane Doe")
+                            .nomineeRelationship("Spouse")
+                            .purchaseDate(java.time.LocalDateTime.now().minusMonths(1))
+                            .build();
+                    userPolicyRepository.save(activeUp);
+                }
+
                 insuredMemberRepository.flush();
+                userPolicyRepository.flush();
 
                 log.info("SUCCESS: Seeded UNDER_EVALUATION policy for John Doe assigned to underwriter.");
             } else {

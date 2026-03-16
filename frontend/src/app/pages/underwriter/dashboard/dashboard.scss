@@ -56,6 +56,11 @@
     &.customers-icon { background: #F3E6FF; color: #9333EA; }
     &.premium-icon { background: #E6FFF9; color: #14B8A6; }
     &.commission-icon { background: #FFE6E6; color: #EF4444; }
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
   }
 
   .stat-info {

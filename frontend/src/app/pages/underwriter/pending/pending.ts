@@ -37,7 +37,7 @@ export class UnderwriterPendingComponent implements OnInit {
 
   openQuoteModal(app: any): void {
     this.selectedApp = app;
-    this.quoteAmount = app.basePremium; // Start with base premium
+    this.quoteAmount = app.finalPremium; // Start with the price reflecting rewards/discounts
     this.remarks = '';
   }
 
@@ -65,5 +65,17 @@ export class UnderwriterPendingComponent implements OnInit {
     setTimeout(() => {
       this.notification = null;
     }, 3000);
+  }
+
+  getFileUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    
+    // Clean the path - remove any leading / or /uploads/ prefix we might have saved
+    let cleanPath = path;
+    if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+    if (cleanPath.startsWith('uploads/')) cleanPath = cleanPath.substring(8);
+    
+    return `http://localhost:8080/api/v1/files/view/${cleanPath}`;
   }
 }

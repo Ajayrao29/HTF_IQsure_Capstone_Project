@@ -117,6 +117,7 @@ export interface Claim {
   claimNumber: string;
   userId: number;
   userPolicyId: number;
+  policyTitle?: string;
   type: string;
   amount: number;
   approvedAmount?: number;

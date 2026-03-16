@@ -52,8 +52,8 @@
             <span class="meta-tag questions-tag">{{ q.totalQuestions }} Questions</span>
           </div>
           <div class="quiz-card-actions">
-            <button class="btn-sm" (click)="manageQuestions(q)">Questions</button>
-            <button class="btn-sm" (click)="openEdit(q)">Edit</button>
+            <button class="btn-view btn-sm" (click)="manageQuestions(q)">Questions</button>
+            <button class="btn-edit btn-sm" (click)="openEdit(q)">Edit</button>
             <button class="btn-danger btn-sm" (click)="deleteQuiz(q.quizId)">Delete</button>
           </div>
         </div>
@@ -101,7 +101,7 @@
             <div class="q-top">
               <span class="q-num">Q{{ i+1 }}</span>
               <div class="q-actions">
-                <button class="btn-sm" (click)="setAnswer(q.questionId)">Set Answer</button>
+                <button class="btn-edit btn-sm" (click)="setAnswer(q.questionId)">Set Answer</button>
                 <button class="btn-danger btn-sm" (click)="deleteQuestion(q.questionId)">Delete</button>
               </div>
             </div>

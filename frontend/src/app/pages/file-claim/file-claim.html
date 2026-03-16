@@ -43,7 +43,7 @@
         </div>
         <div class="form-group">
           <label>Incident Date *</label>
-          <input type="date" [(ngModel)]="formData.incidentDate">
+          <input type="date" [(ngModel)]="formData.incidentDate" [max]="today">
         </div>
       </div>
     </section>

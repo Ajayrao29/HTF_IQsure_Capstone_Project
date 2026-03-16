@@ -7,6 +7,13 @@
     <a routerLink="/policies" class="btn-primary">Browse More Policies</a>
   </div>
 
+  @if (paymentNotice) {
+    <div class="inline-notification" [ngClass]="paymentNotice.type">
+      <span class="icon">{{ paymentNotice.type === 'success' ? '✅' : '❌' }}</span>
+      <p>{{ paymentNotice.message }}</p>
+    </div>
+  }
+
   @if (loading) {
     <div class="loading">Loading your policies…</div>
   }
@@ -23,37 +30,108 @@
   @if (!loading && policies.length > 0) {
     <div class="policy-list">
       @for (p of policies; track p) {
-        <div class="policy-card">
+        <div class="policy-card" [class.pending]="p.status !== 'ACTIVE'">
           <div class="card-left">
             <div class="type-icon">{{ getPolicyIcon(p.policyType) }}</div>
             <div>
               <h3>{{ p.policyTitle }}</h3>
               <div class="policy-meta">
                 <span class="type-tag">{{ p.policyType }}</span>
-                <span class="status-tag" [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+                <span class="status-tag" [ngClass]="getStatusClass(p.status)">{{ p.status.replace('_', ' ') }}</span>
               </div>
             </div>
           </div>
           <div class="card-right">
             <div class="premium-info">
-              <div class="final-premium">₹{{ p.finalPremium }}/yr</div>
-              @if (p.savedAmount > 0) {
+              @if (p.status === 'QUOTES_SENT') {
+                <div class="quote-received">
+                  <small>Underwriter Quote:</small>
+                  <div class="final-premium quote-highlight">₹{{ p.quoteAmount | number }}</div>
+                  <button class="btn-primary btn-sm pay-btn" (click)="payNow(p)">💳 Pay Now (Razorpay)</button>
+                </div>
+              } @else {
+                <div class="final-premium">₹{{ (p.quoteAmount || p.finalPremium) | number }}/yr</div>
+              }
+              
+              @if (p.savedAmount > 0 && p.status !== 'QUOTES_SENT') {
                 <div class="base-info">
-                  <span class="original">₹{{ p.basePremium }}</span>
-                  <span class="saved">You saved ₹{{ p.savedAmount }}!</span>
+                  <span class="original">₹{{ p.basePremium | number }}</span>
+                  <span class="saved">You saved ₹{{ p.savedAmount | number }}!</span>
                 </div>
               }
             </div>
             <div class="extra-details">
               <span>Coverage: ₹{{ p.coverageAmount | number }}</span>
               <span>{{ p.durationMonths }} months</span>
-              @if (p.discountApplied > 0) {
+              @if (p.discountApplied > 0 && p.status !== 'QUOTES_SENT') {
                 <span class="discount-applied">{{ p.discountApplied }}% discount</span>
               }
             </div>
           </div>
         </div>
       }
+    </div>
+  }
+
+  <!-- ── Payment Confirmation Modal ── -->
+  @if (showPaymentConfirm && selectedPolicy) {
+    <div class="modal-overlay">
+      <div class="modal-card">
+        <span class="modal-icon">💳</span>
+        <h2>Secure Payment</h2>
+        <p>
+          You are about to pay <strong>₹{{ selectedPolicy.quoteAmount | number }}</strong> for the 
+          <strong>{{ selectedPolicy.policyTitle }}</strong>.
+        </p>
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="showPaymentConfirm = false">Cancel</button>
+          <button class="btn-confirm" (click)="confirmPayment()">Pay Now</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (processing) {
+    <div class="modal-overlay">
+      <div class="modal-card">
+        <div class="dot-loader"></div>
+        <p style="margin-top: 1.5rem; font-weight: 700;">Processing Transaction...</p>
+      </div>
+    </div>
+  }
+
+  <!-- ── Payment Success Celebration Card ── -->
+  @if (showSuccessCard && selectedPolicy) {
+    <div class="modal-overlay celebration">
+      <div class="success-card">
+        <div class="success-icon-wrap">
+          <div class="check-container">
+            <div class="check-mark"></div>
+          </div>
+        </div>
+        
+        <h2>Payment Successful!</h2>
+        <p class="success-sub">Congratulations! Your policy is now active.</p>
+        
+        <div class="receipt-box">
+          <div class="r-row">
+            <span>Policy</span>
+            <strong>{{ selectedPolicy.policyTitle }}</strong>
+          </div>
+          <div class="r-row">
+            <span>Amount Paid</span>
+            <strong class="price">₹{{ selectedPolicy.quoteAmount | number }}</strong>
+          </div>
+          <div class="r-row">
+            <span>Ref No.</span>
+            <strong>#{{ (100000 + selectedPolicy.id * 7).toString().substring(0,6) }}</strong>
+          </div>
+        </div>
+        
+        <p class="footer-note">A confirmation email has been sent to your registered address.</p>
+        
+        <button class="btn-done" (click)="showSuccessCard = false">Back to Dashboard</button>
+      </div>
     </div>
   }
 </div>

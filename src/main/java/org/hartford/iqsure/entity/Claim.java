@@ -79,7 +79,8 @@ public class Claim {
 
     public enum ClaimType {
         CASHLESS,
-        REIMBURSEMENT
+        REIMBURSEMENT,
+        ACCIDENTAL
     }
 
     public enum ClaimStatus {

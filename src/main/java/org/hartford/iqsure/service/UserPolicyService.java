@@ -37,6 +37,7 @@ public class UserPolicyService {
     private final PolicyRepository policyRepository;
     private final UserPolicyRepository userPolicyRepository;
     private final PremiumCalculationService premiumCalculationService;
+    private final NotificationService notificationService;
 
     @Transactional
     public UserPolicyResponseDTO purchasePolicy(Long userId, UserPolicyRequestDTO dto, List<Long> selectedRewardIds) {
@@ -79,10 +80,19 @@ public class UserPolicyService {
             }
         }
 
-        UserPolicyResponseDTO result = toDTO(userPolicyRepository.save(userPolicy));
+        UserPolicy saved = userPolicyRepository.save(userPolicy);
+        UserPolicyResponseDTO result = toDTO(saved);
 
         // Mark the selected rewards as used so they can't be applied to another policy
         premiumCalculationService.markRewardsAsUsed(selectedRewardIds);
+
+        // Notify Admins
+        notificationService.createNotificationForAdmins(
+                "New policy requested by " + user.getName() + " for " + policy.getTitle(),
+                org.hartford.iqsure.entity.Notification.NotificationType.POLICY_REQUESTED,
+                saved.getId(),
+                "/admin/assign-uw"
+        );
 
         return result;
     }
@@ -127,8 +137,94 @@ public class UserPolicyService {
         up.setAssignedAt(LocalDateTime.now());
         up.setStatus(UserPolicy.PolicyStatus.UNDER_EVALUATION);
 
-        return toDTO(userPolicyRepository.save(up));
+        UserPolicy saved = userPolicyRepository.save(up);
+
+        // Notify Underwriter
+        notificationService.createNotification(
+                underwriterId,
+                "You have been assigned to evaluate a policy request for " + up.getUser().getName(),
+                org.hartford.iqsure.entity.Notification.NotificationType.UNDERWRITER_ASSIGNED,
+                saved.getId(),
+                "/underwriter/pending"
+        );
+
+        // Notify User
+        notificationService.createNotification(
+                up.getUser().getUserId(),
+                "Your application for " + up.getPolicy().getTitle() + " has been assigned to an underwriter for evaluation.",
+                org.hartford.iqsure.entity.Notification.NotificationType.POLICY_STATUS_UPDATE,
+                saved.getId(),
+                "/my-policies"
+        );
+
+        return toDTO(saved);
     }
+
+    @Transactional
+    public UserPolicyResponseDTO rejectPolicy(Long userPolicyId, String remarks) {
+        UserPolicy up = userPolicyRepository.findById(userPolicyId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserPolicy not found: " + userPolicyId));
+
+        up.setStatus(UserPolicy.PolicyStatus.REJECTED);
+        up.setUnderwriterRemarks(remarks);
+
+        UserPolicy saved = userPolicyRepository.save(up);
+
+        // Notify User
+        notificationService.createNotification(
+                up.getUser().getUserId(),
+                "Your application for " + up.getPolicy().getTitle() + " was not approved at this time. Reason: " + remarks,
+                org.hartford.iqsure.entity.Notification.NotificationType.POLICY_STATUS_UPDATE,
+                saved.getId(),
+                "/my-policies"
+        );
+
+        return toDTO(saved);
+    }
+
+    public java.util.Map<String, Object> getUnderwriterStats(Long underwriterId) {
+        User underwriter = userRepository.findById(underwriterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Underwriter not found: " + underwriterId));
+
+        List<UserPolicy> myPolicies = userPolicyRepository.findByAssignedUnderwriter_UserId(underwriterId);
+
+        long pendingAssignments = myPolicies.stream()
+                .filter(p -> p.getStatus() == UserPolicy.PolicyStatus.UNDER_EVALUATION)
+                .count();
+
+        long quotesSentCount = myPolicies.stream()
+                .filter(p -> p.getStatus() == UserPolicy.PolicyStatus.QUOTES_SENT || p.getStatus() == UserPolicy.PolicyStatus.ACTIVE)
+                .count();
+
+        long activePoliciesCount = myPolicies.stream()
+                .filter(p -> p.getStatus() == UserPolicy.PolicyStatus.ACTIVE)
+                .count();
+
+        long customersServed = myPolicies.stream()
+                .map(p -> p.getUser().getUserId())
+                .distinct()
+                .count();
+
+        double totalPremium = myPolicies.stream()
+                .filter(p -> p.getStatus() == UserPolicy.PolicyStatus.ACTIVE)
+                .mapToDouble(UserPolicy::getFinalPremium)
+                .sum();
+
+        double commissionPercentage = underwriter.getCommissionPercentage() != null ? 
+                underwriter.getCommissionPercentage().doubleValue() : 0.0;
+        double commissionEarned = (totalPremium * commissionPercentage) / 100.0;
+
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        stats.put("pendingAssignments", pendingAssignments);
+        stats.put("quotesSent", quotesSentCount);
+        stats.put("activePolicies", activePoliciesCount);
+        stats.put("customersServed", customersServed);
+        stats.put("totalPremium", Math.round(totalPremium * 100.0) / 100.0);
+        stats.put("commissionEarned", Math.round(commissionEarned * 100.0) / 100.0);
+
+        return stats;
+    }
+
 
     @Transactional
     public UserPolicyResponseDTO sendQuote(Long userPolicyId, java.math.BigDecimal quoteAmount, String remarks) {
@@ -146,7 +242,42 @@ public class UserPolicyService {
             userRepository.save(underwriter);
         }
 
-        return toDTO(userPolicyRepository.save(up));
+        UserPolicy saved = userPolicyRepository.save(up);
+
+        // Notify User
+        notificationService.createNotification(
+                up.getUser().getUserId(),
+                "Good news! Your quote for " + up.getPolicy().getTitle() + " is ready for review.",
+                org.hartford.iqsure.entity.Notification.NotificationType.QUOTE_RECEIVED,
+                saved.getId(),
+                "/my-policies"
+        );
+
+        return toDTO(saved);
+    }
+
+    @Transactional
+    public UserPolicyResponseDTO payPolicy(Long userPolicyId) {
+        UserPolicy up = userPolicyRepository.findById(userPolicyId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserPolicy not found: " + userPolicyId));
+
+        if (up.getStatus() != UserPolicy.PolicyStatus.QUOTES_SENT) {
+            throw new BadRequestException("Policy must have a quote sent before it can be paid.");
+        }
+
+        up.setStatus(UserPolicy.PolicyStatus.ACTIVE);
+        UserPolicy saved = userPolicyRepository.save(up);
+
+        // Notify User
+        notificationService.createNotification(
+                up.getUser().getUserId(),
+                "Payment successful! Your policy " + up.getPolicy().getTitle() + " is now ACTIVE.",
+                org.hartford.iqsure.entity.Notification.NotificationType.POLICY_STATUS_UPDATE,
+                saved.getId(),
+                "/my-policies"
+        );
+
+        return toDTO(saved);
     }
 
     @Transactional
@@ -155,7 +286,18 @@ public class UserPolicyService {
                 .orElseThrow(() -> new ResourceNotFoundException("UserPolicy not found: " + userPolicyId));
 
         up.setStatus(UserPolicy.PolicyStatus.ACTIVE);
-        return toDTO(userPolicyRepository.save(up));
+        UserPolicy saved = userPolicyRepository.save(up);
+
+        // Notify User
+        notificationService.createNotification(
+                up.getUser().getUserId(),
+                "Your policy " + up.getPolicy().getTitle() + " has been manually activated and is now in effect.",
+                org.hartford.iqsure.entity.Notification.NotificationType.POLICY_STATUS_UPDATE,
+                saved.getId(),
+                "/my-policies"
+        );
+
+        return toDTO(saved);
     }
 
     private UserPolicyResponseDTO toDTO(UserPolicy up) {

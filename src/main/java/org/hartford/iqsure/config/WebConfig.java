@@ -30,6 +30,7 @@ package org.hartford.iqsure.config;
 
 import org.h2.server.web.JakartaWebServlet;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -38,8 +39,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig {
 
+    @Value("${file.upload-dir:uploads}")
+    private String uploadDir;
+
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
+    public WebMvcConfigurer webConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {

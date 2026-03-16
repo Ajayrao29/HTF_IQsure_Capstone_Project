@@ -157,7 +157,10 @@
     border: 1px solid #E2E8F0;
     font-size: 1rem;
     outline: none;
-    &:focus { border-color: #8B003F; }
+    &:focus { 
+      border-color: #8B003F; 
+      box-shadow: 0 0 0 4px rgba(139, 0, 63, 0.1);
+    }
   }
 }
 
@@ -172,20 +175,83 @@
   .file-name { color: #8B003F; font-weight: 800; }
 }
 
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.btn-add_member { background: #4A001F; color: white; padding: 0.6rem 1.5rem; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; }
+.section-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px solid #F1F5F9;
+}
+.btn-add-member {
+  background: #FFF0F5;
+  color: #8B003F;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
+  border: 1.5px solid rgba(139, 0, 63, 0.2);
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(139, 0, 63, 0.05);
+
+  &:hover {
+    background: #8B003F;
+    color: white;
+    border-color: #8B003F;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 15px rgba(139, 0, 63, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
 
 .member-item-card {
   border: 1px solid #E2E8F0;
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 2rem;
   margin-bottom: 1.5rem;
-  background: #F8FAFC;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  
+  &:hover {
+    border-color: rgba(139, 0, 63, 0.2);
+    box-shadow: 0 10px 25px rgba(139, 0, 63, 0.06);
+  }
   
   .member-card-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
-    h4 { margin: 0; color: #4A001F; font-weight: 800; }
-    .btn-remove { color: #EF4444; background: none; border: none; font-weight: 700; cursor: pointer; }
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #F1F5F9;
+
+    h4 { margin: 0; color: #4A001F; font-weight: 800; font-size: 1.1rem; }
+    
+    .btn-remove { 
+      color: #EF4444; 
+      background: #FEF2F2; 
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      border: 1.5px solid transparent; 
+      font-weight: 700; 
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #EF4444;
+        color: white;
+        transform: scale(1.05);
+      }
+    }
   }
 }
 

@@ -125,4 +125,12 @@ public class UserPolicyController {
             @PathVariable Long policyId) {
         return ResponseEntity.ok(premiumCalculationService.getLogsForUserAndPolicy(userId, policyId));
     }
+
+    @PutMapping("/policies/{userPolicyId}/pay")
+    @Operation(summary = "Pay for a policy quote and activate it")
+    public ResponseEntity<UserPolicyResponseDTO> payPolicy(
+            @PathVariable Long userId,
+            @PathVariable Long userPolicyId) {
+        return ResponseEntity.ok(userPolicyService.payPolicy(userPolicyId));
+    }
 }

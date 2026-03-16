@@ -114,6 +114,10 @@ export class ApiService {
     return this.http.put<any>(`${API}/api/v1/claims/${claimId}/process?status=${status}&remarks=${remarks}${amountParam}`, {});
   }
 
+  settleClaim(claimId: number, settlementAmount: number): Observable<any> {
+    return this.http.put<any>(`${API}/api/v1/claims/${claimId}/settle?settlementAmount=${settlementAmount}`, {});
+  }
+
   // ─── Pipeline (Admin) ─────────────────────────────────────────────────
   getAllUserPoliciesAdmin(): Observable<any[]> {
     return this.http.get<any[]>(`${API}/api/v1/admin/pipeline/policies`);
@@ -135,12 +139,12 @@ export class ApiService {
     return this.http.put<any>(`${API}/api/v1/admin/pipeline/policies/${userPolicyId}/activate`, {});
   }
 
-  getUnderwriterStats(): Observable<any> {
-    return this.http.get<any>(`${API}/api/v1/admin/pipeline/underwriter/stats`);
+  getUnderwriterStats(underwriterId: number): Observable<any> {
+    return this.http.get<any>(`${API}/api/v1/admin/pipeline/underwriter/stats?underwriterId=${underwriterId}`);
   }
 
-  getClaimsOfficerStats(): Observable<any> {
-    return this.http.get<any>(`${API}/api/v1/admin/pipeline/officer/stats`);
+  getClaimsOfficerStats(officerId: number): Observable<any> {
+    return this.http.get<any>(`${API}/api/v1/admin/pipeline/officer/stats?officerId=${officerId}`);
   }
 
   // ─── Quizzes ──────────────────────────────────────────────────────────
@@ -308,6 +312,10 @@ export class ApiService {
     return this.http.get<any[]>(`${API}/api/v1/users/${userId}/policies`);
   }
 
+  payPolicy(userId: number, userPolicyId: number): Observable<any> {
+    return this.http.put<any>(`${API}/api/v1/users/${userId}/policies/${userPolicyId}/pay`, {});
+  }
+
   // ─── Discount Rules ───────────────────────────────────────────────────
   // → DiscountRuleController.java → GET /api/v1/discount-rules/all
   getAllDiscountRules(): Observable<any[]> {
@@ -338,6 +346,29 @@ export class ApiService {
   // → EducationContentController.java → GET /api/v1/education/tts
   getTtsAudio(text: string, language: string): Observable<Blob> {
     return this.http.get(`${API}/api/v1/education/tts?language=${language}&text=${encodeURIComponent(text)}`, { responseType: 'blob' });
+  }
+  // ─── Notifications ───────────────────────────────────────────────────
+  getNotifications(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${API}/api/v1/notifications/user/${userId}`);
+  }
+
+  getUnreadNotificationsCount(userId: number): Observable<number> {
+    return this.http.get<number>(`${API}/api/v1/notifications/user/${userId}/unread-count`);
+  }
+
+  markNotificationAsRead(notificationId: number): Observable<void> {
+    return this.http.put<void>(`${API}/api/v1/notifications/${notificationId}/read`, {});
+  }
+
+  markAllNotificationsAsRead(userId: number): Observable<void> {
+    return this.http.put<void>(`${API}/api/v1/notifications/user/${userId}/read-all`, {});
+  }
+
+  // ─── File Uploads ─────────────────────────────────────────────────────
+  uploadFile(file: File): Observable<{ filePath: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ filePath: string }>(`${API}/api/v1/files/upload`, formData);
   }
 }
 

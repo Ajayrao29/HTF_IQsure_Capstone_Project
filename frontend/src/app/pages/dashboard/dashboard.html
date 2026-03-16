@@ -10,7 +10,7 @@
   <!-- Welcome Banner -->
   <div class="welcome-banner admin-banner">
     <div class="banner-text">
-      <h1>Welcome back, <span>Admin</span> 👋</h1>
+      <h1>Welcome back, <span>Admin</span> <svg class="icon-inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></h1>
       <p>Manage the IQsure platform. Monitor users, quizzes, and policies from here.</p>
     </div>
     <div class="points-badge">
@@ -22,25 +22,33 @@
   <!-- Stats Row -->
   <div class="stats-row">
     <div class="stat-card admin-stat">
-      <div class="stat-icon">👥</div>
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>
+      </div>
       <div class="stat-value">{{stats.totalUsers}}</div>
       <div class="stat-label">REGISTERED USERS</div>
     </div>
 
     <div class="stat-card admin-stat">
-      <div class="stat-icon">🧩</div>
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
       <div class="stat-value">{{stats.totalQuizzes}}</div>
       <div class="stat-label">TOTAL QUIZZES</div>
     </div>
 
     <div class="stat-card admin-stat">
-      <div class="stat-icon">📋</div>
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
       <div class="stat-value">{{stats.totalPolicies}}</div>
       <div class="stat-label">POLICIES</div>
     </div>
 
     <div class="stat-card admin-stat">
-      <div class="stat-icon">🎁</div>
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+      </div>
       <div class="stat-value">{{stats.totalRewards}}</div>
       <div class="stat-label">REWARDS ISSUED</div>
     </div>
@@ -85,22 +93,22 @@
 
       <div class="admin-actions-list">
         <a routerLink="/admin/users" class="mini-action">
-          👥 Manage Users
+          <svg class="icon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg> Manage Users
         </a>
         <a routerLink="/admin/quiz-mgmt" class="mini-action">
-          🧩 Manage Quizzes
+          <svg class="icon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg> Manage Quizzes
         </a>
         <a routerLink="/admin/policy-mgmt" class="mini-action">
-          📋 Manage Policies
+          <svg class="icon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> Manage Policies
         </a>
         <a routerLink="/admin/badge-mgmt" class="mini-action">
-          🏅 Manage Badges
+          <svg class="icon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg> Manage Badges
         </a>
         <a routerLink="/admin/reward-mgmt" class="mini-action">
-          🎁 Manage Rewards
+          <svg class="icon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm0 0H5.5A1.5 1.5 0 014 6.5v-1A1.5 1.5 0 015.5 4H12m0 4h6.5A1.5 1.5 0 0020 6.5v-1A1.5 1.5 0 0018.5 4H12" /></svg> Manage Rewards
         </a>
         <a routerLink="/admin/discount-rules" class="mini-action">
-          💰 Discount Rules
+          <svg class="icon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Discount Rules
         </a>
       </div>
     </div>
@@ -197,28 +205,36 @@
   <!-- Key Metrics Row -->
   <div class="metrics-grid">
     <div class="metric-card">
-      <div class="metric-icon green">📖</div>
+      <div class="metric-icon green">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+      </div>
       <div class="metric-info">
         <h3>{{ userStats.totalPolicies }}</h3>
         <p>Total Policies</p>
       </div>
     </div>
     <div class="metric-card">
-      <div class="metric-icon blue">🛡️</div>
+      <div class="metric-icon blue">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+      </div>
       <div class="metric-info">
         <h3>{{ userStats.activePolicies }}</h3>
         <p>Active Policies</p>
       </div>
     </div>
     <div class="metric-card">
-      <div class="metric-icon yellow">⏳</div>
+      <div class="metric-icon yellow">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </div>
       <div class="metric-info">
         <h3>{{ userStats.awaitingQuote }}</h3>
         <p>Awaiting Quote / Payment</p>
       </div>
     </div>
     <div class="metric-card">
-      <div class="metric-icon red">⚠️</div>
+      <div class="metric-icon red">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+      </div>
       <div class="metric-info">
         <h3>{{ userStats.pendingClaims }}</h3>
         <p>Pending Claims</p>
@@ -231,25 +247,33 @@
     <h2 class="section-title">Quick Actions</h2>
     <div class="action-grid-modern">
       <a routerLink="/apply-policy" class="action-card-modern">
-        <div class="action-icon-wrapper">🔍</div>
+        <div class="action-icon-wrapper">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </div>
         <h3>Browse Plans</h3>
         <p>Explore insurance options</p>
       </a>
 
       <a routerLink="/my-policies" class="action-card-modern">
-        <div class="action-icon-wrapper">🗃️</div>
+        <div class="action-icon-wrapper">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+        </div>
         <h3>My Policies</h3>
         <p>View & manage policies</p>
       </a>
 
       <a routerLink="/my-claims" class="action-card-modern">
-        <div class="action-icon-wrapper">📋</div>
+        <div class="action-icon-wrapper">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01" /></svg>
+        </div>
         <h3>My Claims</h3>
         <p>Track claim status</p>
       </a>
 
       <a routerLink="/my-claims" class="action-card-modern">
-        <div class="action-icon-wrapper">✏️</div>
+        <div class="action-icon-wrapper">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+        </div>
         <h3>File Claim</h3>
         <p>Submit a new claim</p>
       </a>
@@ -289,7 +313,11 @@
       <ng-container *ngIf="myBadges.length > 0; else noBadges">
         <div class="badge-grid">
           <div class="badge-item" *ngFor="let badge of myBadges">
-            <div class="badge-icon">{{badge.icon || '🏅'}}</div>
+            <div class="badge-icon">
+              <!-- Using a professional achievement icon as default -->
+              <svg *ngIf="!badge.icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+              <span *ngIf="badge.icon">{{badge.icon}}</span>
+            </div>
             <div class="badge-name">{{badge.name}}</div>
           </div>
         </div>
@@ -303,11 +331,13 @@
   <!-- 📥 Savings & Rewards Overview (Restored) -->
   <div class="card mt-4 shadow-sm">
     <div class="card-header">
-      <h2>🏆 Savings & Rewards</h2>
+      <h2><svg class="icon-l inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg> Savings & Rewards</h2>
     </div>
     <div class="savings-rewards-panels">
       <div class="panel-item">
-        <div class="p-icon">💰</div>
+        <div class="p-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
         <div class="p-info">
           <div class="p-value">₹{{ totalSavings | number }}</div>
           <div class="p-label">TOTAL MONEY SAVED</div>
@@ -315,7 +345,9 @@
         </div>
       </div>
       <div class="panel-item">
-        <div class="p-icon">⭐</div>
+        <div class="p-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+        </div>
         <div class="p-info">
           <div class="p-value">{{ user?.userPoints || 0 }}</div>
           <div class="p-label">LOYALTY POINTS</div>

@@ -37,9 +37,12 @@ export class UnderwriterDashboardComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.api.getUnderwriterStats().subscribe(s => {
-      this.stats = s;
-      this.loading = false;
-    });
+    const userId = this.auth.getUserId();
+    if (userId) {
+      this.api.getUnderwriterStats(userId).subscribe(s => {
+        this.stats = s;
+        this.loading = false;
+      });
+    }
   }
 }

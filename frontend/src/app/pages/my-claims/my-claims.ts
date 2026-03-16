@@ -37,6 +37,7 @@ export class MyClaimsComponent implements OnInit {
       case 'REJECTED': return 'status-rejected';
       case 'SUBMITTED': return 'status-submitted';
       case 'UNDER_REVIEW': return 'status-review';
+      case 'SETTLED': return 'status-settled';
       default: return '';
     }
   }

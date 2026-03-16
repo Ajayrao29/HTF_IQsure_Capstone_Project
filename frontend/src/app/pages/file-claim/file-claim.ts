@@ -16,6 +16,7 @@ import { UserPolicy } from '../../models/models';
 export class FileClaimComponent implements OnInit {
   policies: UserPolicy[] = [];
   loading = true;
+  today: string = new Date().toISOString().split('T')[0];
   
   formData = {
     userPolicyId: null as number | null,
@@ -50,8 +51,8 @@ export class FileClaimComponent implements OnInit {
   }
 
   submitClaim(): void {
-    if (!this.formData.userPolicyId || !this.formData.amount) {
-      this.errorMessage = 'Please select a policy and enter an amount.';
+    if (!this.formData.userPolicyId || !this.formData.amount || !this.formData.incidentDate || !this.formData.diagnosis) {
+      this.errorMessage = 'Please fill in all required fields (Policy, Amount, Date, and Diagnosis).';
       this.successMessage = '';
       return;
     }
@@ -64,7 +65,10 @@ export class FileClaimComponent implements OnInit {
         setTimeout(() => this.router.navigate(['/my-claims']), 3000);
       },
       error: (err) => {
-        this.errorMessage = 'Error filing claim: ' + (err.error?.message || 'Unknown error');
+        console.error('Claim filing failed:', err);
+        // Try to get message from backend ErrorResponse, then from Angular HttpErrorResponse, then default
+        const errorMsg = err.error?.message || err.message || (typeof err.error === 'string' ? err.error : 'Unknown error');
+        this.errorMessage = 'Error filing claim: ' + errorMsg;
         this.successMessage = '';
       }
     });

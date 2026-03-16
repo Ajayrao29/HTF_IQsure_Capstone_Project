@@ -1,84 +1,88 @@
 <div class="page fade-in">
-  <!-- Top Banner -->
-  <div class="officer-banner">
-    <div class="banner-content">
-      <div class="welcome-text">
-        <h1>Claims Officer Dashboard</h1>
-        <p>Welcome back, {{ userName }} — manage and process insurance claims</p>
+  <!-- ── Command Center Banner ── -->
+  <div class="command-banner">
+    <div class="banner-flex">
+      <div class="welcome">
+        <h1>Claims Command Center</h1>
+        <p>Operational Oversight & Fraud Mitigation</p>
       </div>
-      <div class="employee-badge">{{ employeeId }}</div>
+      <div class="officer-ID">{{ employeeId }}</div>
     </div>
   </div>
 
-  <!-- Key Metrics Row -->
-  <div class="key-metrics-card">
-    <div class="metric">
-        <span class="metric-label">DEPARTMENT</span>
-        <span class="metric-value">{{ stats.department }}</span>
+  <!-- ── Unified Metrics Row ── -->
+  <div class="metrics-row">
+    <div class="metric-glass">
+      <span class="label">Primary Officer</span>
+      <span class="value">{{ userName }}</span>
     </div>
-    <div class="metric">
-        <span class="metric-label">APPROVAL LIMIT</span>
-        <span class="metric-value pink">₹{{ stats.approvalLimit | number }}</span>
+    <div class="metric-glass">
+      <span class="label">Assigned Department</span>
+      <span class="value">{{ stats.department }}</span>
     </div>
-    <div class="metric">
-        <span class="metric-label">APPROVAL RATE</span>
-        <span class="metric-value pink">{{ stats.approvalRate }}</span>
+    <div class="metric-glass">
+      <span class="label">Authorization Limit</span>
+      <span class="value highlight">₹{{ stats.approvalLimit | number }}</span>
+    </div>
+    <div class="metric-glass">
+      <span class="label">Performance Rate</span>
+      <span class="value highlight">{{ stats.approvalRate }}</span>
     </div>
   </div>
 
-  <!-- Status Stats Grid -->
-  <div class="stats-grid">
-    <div class="stat-box">
-      <div class="stat-icon yellow">⚠️</div>
-      <div class="stat-info">
+  <!-- ── Live Status Grid ── -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="icon-wrap gold">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </div>
+      <div class="data">
         <h3>{{ stats.claimsInQueue }}</h3>
-        <p>Claims in Queue</p>
+        <p>Awaiting Pickup</p>
       </div>
     </div>
 
-    <div class="stat-box">
-      <div class="stat-icon blue">🕒</div>
-      <div class="stat-info">
+    <div class="stat-card">
+      <div class="icon-wrap blue">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5M5 19v-4a2 2 0 00-2-2m18 0h-2m-2 0h-2m4 0a2 2 0 012 2v2M5 7V5a2 2 0 012-2h10a2 2 0 012 2v2" /></svg>
+      </div>
+      <div class="data">
         <h3>{{ stats.underReview }}</h3>
-        <p>Under My Review</p>
+        <p>Active Case Files</p>
       </div>
     </div>
 
-    <div class="stat-box">
-      <div class="stat-icon green-glow">🔄</div>
-      <div class="stat-info">
-        <h3>{{ stats.totalProcessed }}</h3>
-        <p>Total Processed</p>
+    <div class="stat-card">
+      <div class="icon-wrap green">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-icon green">✅</div>
-      <div class="stat-info">
+      <div class="data">
         <h3>{{ stats.approved }}</h3>
-        <p>Approved</p>
+        <p>Verified Approvals</p>
       </div>
     </div>
 
-    <div class="stat-box">
-      <div class="stat-icon red">❌</div>
-      <div class="stat-info">
+    <div class="stat-card">
+      <div class="icon-wrap red">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </div>
+      <div class="data">
         <h3>{{ stats.rejected }}</h3>
-        <p>Rejected</p>
+        <p>System Rejections</p>
       </div>
     </div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="quick-actions">
-    <h2 class="section-title">Quick Actions</h2>
-    <div class="action-grid">
-      <a routerLink="/claims-officer/claims" class="action-card">
-        <div class="action-icon">📥</div>
-        <div class="action-info">
-          <h3>My Assigned Claims</h3>
-          <p>Review assigned claims</p>
+  <!-- ── Action Portal ── -->
+  <div class="action-section">
+    <h2>Operations Portal</h2>
+    <div class="grid">
+      <a routerLink="/claims-officer/claims" class="rapid-card">
+        <div class="r-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
         </div>
+        <h3>Claim Queue</h3>
+        <p>Process your active assigned files and authorized payouts.</p>
       </a>
     </div>
   </div>

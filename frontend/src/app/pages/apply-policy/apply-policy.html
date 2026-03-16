@@ -6,17 +6,7 @@
       <p>Select an insurance plan that suits you. Our underwriter will calculate your exact premium after reviewing your details.</p>
     </div>
 
-    <div class="filter-controls">
-      <div class="search-box">
-        <input type="text" placeholder="Search plans by name...">
-      </div>
-      <div class="category-tabs">
-        <button [class.active]="activeCategory === 'ALL'" (click)="filterPlans('ALL')">ALL</button>
-        <button [class.active]="activeCategory === 'INDIVIDUAL'" (click)="filterPlans('INDIVIDUAL')">INDIVIDUAL</button>
-        <button [class.active]="activeCategory === 'FAMILY'" (click)="filterPlans('FAMILY')">FAMILY</button>
-        <button [class.active]="activeCategory === 'SENIOR_CITIZEN'" (click)="filterPlans('SENIOR_CITIZEN')">SENIOR CITIZEN</button>
-      </div>
-    </div>
+
 
     @if (loading) {
       <div class="loading-box">Loading plans...</div>
@@ -140,7 +130,7 @@
                 </div>
                 <div class="form-group">
                   <label>Date of Birth *</label>
-                  <input type="date" [(ngModel)]="m.dateOfBirth">
+                  <input type="date" [(ngModel)]="m.dateOfBirth" [max]="today">
                 </div>
               </div>
 

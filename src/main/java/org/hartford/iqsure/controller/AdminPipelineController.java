@@ -15,6 +15,7 @@ import java.util.List;
 public class AdminPipelineController {
 
     private final UserPolicyService userPolicyService;
+    private final org.hartford.iqsure.service.ClaimService claimService;
 
     @GetMapping("/policies")
     public ResponseEntity<List<UserPolicyResponseDTO>> getAllPolicies() {
@@ -27,18 +28,8 @@ public class AdminPipelineController {
     }
 
     @GetMapping("/underwriter/stats")
-    public ResponseEntity<java.util.Map<String, Object>> getUnderwriterStats() {
-        // In a real app, get the logged in user's ID
-        // For now, let's assume we fetch it from authentication context
-        // This is a placeholder for the logic
-        return ResponseEntity.ok(java.util.Map.of(
-            "pendingAssignments", 0,
-            "quotesSent", 0,
-            "activePolicies", 0,
-            "customersServed", 0,
-            "totalPremium", 0.0,
-            "commissionEarned", 0.0
-        ));
+    public ResponseEntity<java.util.Map<String, Object>> getUnderwriterStats(@RequestParam Long underwriterId) {
+        return ResponseEntity.ok(userPolicyService.getUnderwriterStats(underwriterId));
     }
 
     @PutMapping("/policies/{id}/assign")
@@ -56,17 +47,13 @@ public class AdminPipelineController {
         return ResponseEntity.ok(userPolicyService.activatePolicy(id));
     }
 
+    @PutMapping("/policies/{id}/reject")
+    public ResponseEntity<UserPolicyResponseDTO> rejectPolicy(@PathVariable Long id, @RequestParam String remarks) {
+        return ResponseEntity.ok(userPolicyService.rejectPolicy(id, remarks));
+    }
+
     @GetMapping("/officer/stats")
-    public ResponseEntity<java.util.Map<String, Object>> getClaimsOfficerStats() {
-        return ResponseEntity.ok(java.util.Map.of(
-            "claimsInQueue", 0,
-            "underReview", 0,
-            "totalProcessed", 0,
-            "approved", 0,
-            "rejected", 0,
-            "approvalRate", "0%",
-            "department", "Claims Processing",
-            "approvalLimit", 500000.0
-        ));
+    public ResponseEntity<java.util.Map<String, Object>> getClaimsOfficerStats(@RequestParam Long officerId) {
+        return ResponseEntity.ok(claimService.getClaimsOfficerStats(officerId));
     }
 }

@@ -39,9 +39,12 @@ export class ClaimsOfficerDashboardComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.api.getClaimsOfficerStats().subscribe(s => {
-      this.stats = s;
-      this.loading = false;
-    });
+    const userId = this.auth.getUserId();
+    if (userId) {
+      this.api.getClaimsOfficerStats(userId).subscribe(s => {
+        this.stats = s;
+        this.loading = false;
+      });
+    }
   }
 }

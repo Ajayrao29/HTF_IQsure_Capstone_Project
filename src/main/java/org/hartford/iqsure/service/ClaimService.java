@@ -21,6 +21,7 @@ public class ClaimService {
     private final ClaimRepository claimRepository;
     private final UserPolicyRepository userPolicyRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public List<Claim> getAllClaims() {
         return claimRepository.findAll();
@@ -55,7 +56,17 @@ public class ClaimService {
                 .status(Claim.ClaimStatus.SUBMITTED)
                 .build();
 
-        return claimRepository.save(claim);
+        Claim saved = claimRepository.save(claim);
+
+        // Notify Admins
+        notificationService.createNotificationForAdmins(
+                "New claim filed by " + user.getName() + " for " + userPolicy.getPolicy().getTitle(),
+                org.hartford.iqsure.entity.Notification.NotificationType.CLAIM_FILED,
+                saved.getId(),
+                "/admin/assign-officer"
+        );
+
+        return saved;
     }
 
     @Transactional
@@ -71,7 +82,27 @@ public class ClaimService {
         claim.setStatus(Claim.ClaimStatus.UNDER_REVIEW);
         claim.setReviewStartedAt(LocalDateTime.now());
 
-        return claimRepository.save(claim);
+        Claim saved = claimRepository.save(claim);
+
+        // Notify Claims Officer
+        notificationService.createNotification(
+                officerId,
+                "You have been assigned to review a claim from " + claim.getUser().getName(),
+                org.hartford.iqsure.entity.Notification.NotificationType.CLAIM_ASSIGNED,
+                saved.getId(),
+                "/claims-officer/claims"
+        );
+
+        // Notify User
+        notificationService.createNotification(
+                claim.getUser().getUserId(),
+                "Good news! An officer has been assigned to your claim " + claim.getClaimNumber() + " and it is now under review.",
+                org.hartford.iqsure.entity.Notification.NotificationType.CLAIM_STATUS_UPDATE,
+                saved.getId(),
+                "/my-claims"
+        );
+
+        return saved;
     }
 
     @Transactional
@@ -83,8 +114,101 @@ public class ClaimService {
         
         if (status == Claim.ClaimStatus.APPROVED || status == Claim.ClaimStatus.PARTIAL_APPROVED) {
             claim.setApprovedAmount(approvedAmount);
+            
+            // Increment total claims approved for the officer
+            User officer = claim.getAssignedOfficer();
+            if (officer != null) {
+                officer.setTotalClaimsApproved((officer.getTotalClaimsApproved() != null ? officer.getTotalClaimsApproved() : 0) + 1);
+                officer.setTotalClaimsProcessed((officer.getTotalClaimsProcessed() != null ? officer.getTotalClaimsProcessed() : 0) + 1);
+                userRepository.save(officer);
+            }
+        } else if (status == Claim.ClaimStatus.REJECTED) {
+            User officer = claim.getAssignedOfficer();
+            if (officer != null) {
+                officer.setTotalClaimsRejected((officer.getTotalClaimsRejected() != null ? officer.getTotalClaimsRejected() : 0) + 1);
+                officer.setTotalClaimsProcessed((officer.getTotalClaimsProcessed() != null ? officer.getTotalClaimsProcessed() : 0) + 1);
+                userRepository.save(officer);
+            }
         }
 
-        return claimRepository.save(claim);
+        Claim saved = claimRepository.save(claim);
+
+        // Notify User
+        String msg = status == Claim.ClaimStatus.REJECTED ? 
+                "Your claim " + claim.getClaimNumber() + " has been rejected." :
+                "Your claim " + claim.getClaimNumber() + " has been processed: " + status;
+
+        notificationService.createNotification(
+                claim.getUser().getUserId(),
+                msg,
+                org.hartford.iqsure.entity.Notification.NotificationType.CLAIM_STATUS_UPDATE,
+                saved.getId(),
+                "/my-claims"
+        );
+
+        return saved;
+    }
+
+    @Transactional
+    public Claim settleClaim(Long claimId, java.math.BigDecimal settlementAmount) {
+        Claim claim = getClaimById(claimId);
+        if (claim.getStatus() != Claim.ClaimStatus.APPROVED && claim.getStatus() != Claim.ClaimStatus.PARTIAL_APPROVED) {
+            throw new RuntimeException("Claim must be approved before settlement");
+        }
+        
+        claim.setStatus(Claim.ClaimStatus.SETTLED);
+        claim.setSettlementAmount(settlementAmount);
+        claim.setSettlementDate(java.time.LocalDate.now());
+        
+        // Update user policy coverage
+        UserPolicy up = claim.getUserPolicy();
+        if (up != null) {
+            up.setTotalClaimedAmount(up.getTotalClaimedAmount().add(settlementAmount));
+            up.setRemainingCoverage(up.getRemainingCoverage().subtract(settlementAmount));
+            userPolicyRepository.save(up);
+        }
+        
+        Claim saved = claimRepository.save(claim);
+
+        // Notify User
+        notificationService.createNotification(
+                claim.getUser().getUserId(),
+                "Your claim " + claim.getClaimNumber() + " has been settled. Amount: ₹" + settlementAmount,
+                org.hartford.iqsure.entity.Notification.NotificationType.CLAIM_STATUS_UPDATE,
+                saved.getId(),
+                "/my-claims"
+        );
+
+        return saved;
+    }
+
+    public java.util.Map<String, Object> getClaimsOfficerStats(Long officerId) {
+        User officer = userRepository.findById(officerId).orElseThrow(() -> new RuntimeException("Officer not found"));
+        
+        List<Claim> myClaims = claimRepository.findByAssignedOfficer_UserId(officerId);
+        List<Claim> allSubmitted = claimRepository.findByStatus(Claim.ClaimStatus.SUBMITTED);
+
+        long underReview = myClaims.stream().filter(c -> c.getStatus() == Claim.ClaimStatus.UNDER_REVIEW).count();
+        long approved = myClaims.stream().filter(c -> 
+            c.getStatus() == Claim.ClaimStatus.APPROVED || 
+            c.getStatus() == Claim.ClaimStatus.PARTIAL_APPROVED || 
+            c.getStatus() == Claim.ClaimStatus.SETTLED
+        ).count();
+        long rejected = myClaims.stream().filter(c -> c.getStatus() == Claim.ClaimStatus.REJECTED).count();
+        long totalProcessed = approved + rejected;
+
+        String approvalRate = totalProcessed > 0 ? (Math.round((double) approved / totalProcessed * 100)) + "%" : "0%";
+
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        stats.put("claimsInQueue", allSubmitted.size());
+        stats.put("underReview", underReview);
+        stats.put("totalProcessed", totalProcessed);
+        stats.put("approved", approved);
+        stats.put("rejected", rejected);
+        stats.put("approvalRate", approvalRate);
+        stats.put("department", officer.getDepartment() != null ? officer.getDepartment() : "General Claims");
+        stats.put("approvalLimit", officer.getApprovalLimit() != null ? officer.getApprovalLimit() : 500000.0);
+
+        return stats;
     }
 }

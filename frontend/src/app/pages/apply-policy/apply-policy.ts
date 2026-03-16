@@ -14,6 +14,7 @@ import { Policy, InsuredMember } from '../../models/models';
   styleUrls: ['./apply-policy.scss']
 })
 export class ApplyPolicyComponent implements OnInit {
+  today: string = new Date().toISOString().split('T')[0];
   plans: Policy[] = [];
   filteredPlans: Policy[] = [];
   loading = true;
@@ -141,8 +142,11 @@ export class ApplyPolicyComponent implements OnInit {
 
   toggleReward(rewardId: number): void {
     const idx = this.formData.rewardIds.indexOf(rewardId);
-    if (idx >= 0) this.formData.rewardIds.splice(idx, 1);
-    else this.formData.rewardIds.push(rewardId);
+    if (idx >= 0) {
+      this.formData.rewardIds = []; // Toggle off
+    } else {
+      this.formData.rewardIds = [rewardId]; // Replace with new one (only one allowed)
+    }
     this.calculatePreview();
   }
 
@@ -170,11 +174,30 @@ export class ApplyPolicyComponent implements OnInit {
     if (!this.selectedPlan) return;
     
     const userId = this.auth.getUserId()!;
+    this.successMessage = '';
+    this.errorMessage = '';
+
+    // If there's a file, upload it first
+    if (this.formData.healthReport) {
+      this.api.uploadFile(this.formData.healthReport).subscribe({
+        next: (resp) => {
+          this.executePurchase(userId, resp.filePath);
+        },
+        error: (err) => {
+          this.errorMessage = 'File upload failed: ' + (err.error?.message || 'Check connection');
+        }
+      });
+    } else {
+      this.executePurchase(userId, '');
+    }
+  }
+
+  private executePurchase(userId: number, path: string): void {
     const request = {
-      policyId: this.selectedPlan.policyId,
+      policyId: this.selectedPlan!.policyId,
       nomineeName: this.formData.nomineeName,
       nomineeRelationship: this.formData.nomineeRelationship,
-      healthReportPath: this.formData.healthReport ? this.formData.healthReport.name : '', // Simplified for demo
+      healthReportPath: path,
       insuredMembers: this.formData.members,
       rewardIds: this.formData.rewardIds
     };
@@ -182,12 +205,10 @@ export class ApplyPolicyComponent implements OnInit {
     this.api.purchasePolicy(userId, request, this.formData.rewardIds).subscribe({
       next: () => {
         this.successMessage = 'Application submitted successfully! Our underwriter will review it soon.';
-        this.errorMessage = '';
         setTimeout(() => this.router.navigate(['/dashboard']), 3000);
       },
       error: (err) => {
         this.errorMessage = 'Error submitting application: ' + (err.error?.message || 'Unknown error');
-        this.successMessage = '';
       }
     });
   }

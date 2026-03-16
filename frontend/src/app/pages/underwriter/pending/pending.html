@@ -1,143 +1,159 @@
 <div class="page fade-in">
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Pending Assignments</h1>
-      <p>Policy applications assigned to you — calculate and send your premium quote.</p>
+  @if (!selectedApp) {
+    <!-- ════════════ VIEW: LIST OF ASSIGNMENTS ════════════ -->
+    <div class="view-header">
+      <div class="title-area">
+        <h1>Assessment Center</h1>
+        <p>You have {{ applications.length }} policy applications awaiting your evaluation</p>
+      </div>
+      <a routerLink="/underwriter/dashboard" class="minimal-btn">← Back to Dashboard</a>
     </div>
-    <a routerLink="/underwriter/dashboard" class="btn-secondary">← Dashboard</a>
-  </div>
 
-  @if (notification) {
-    <div class="alert-banner" [class]="notification.type">
-      <span class="icon">{{ notification.type === 'success' ? '✅' : '❌' }}</span>
-      <span class="message">{{ notification.message }}</span>
-    </div>
-  }
+    @if (notification) {
+      <div class="status-banner" [class]="notification.type">
+        <span class="icon">{{ notification.type === 'success' ? '✨' : '⚠️' }}</span>
+        <p>{{ notification.message }}</p>
+      </div>
+    }
 
-  @if (loading) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading assignments...</p>
-    </div>
-  } @else if (applications.length === 0) {
-    <div class="empty-state">
-      <div class="empty-icon">📭</div>
-      <h3>No pending assignments!</h3>
-      <p>You're all caught up. The admin will assign new policy applications to you.</p>
-    </div>
+    @if (loading) {
+      <div class="p-spinner">
+        <div class="dot-loader"></div>
+        <p>Scanning Pipeline...</p>
+      </div>
+    } @else if (applications.length === 0) {
+      <div class="zero-state">
+        <div class="hero-icon">📋</div>
+        <h2>Clear Workspace</h2>
+        <p>No pending assignments currently. New requests will appear here once assigned by the admin.</p>
+      </div>
+    } @else {
+      <div class="card-grid">
+        @for (app of applications; track app.id) {
+          <div class="app-card" (click)="openQuoteModal(app)">
+            <div class="card-glow"></div>
+            <div class="card-content">
+              <div class="card-top">
+                <span class="app-id">ID: #{{ app.id }}</span>
+                <span class="p-badge" [class.gold]="app.policyTitle.includes('Gold')">{{ app.policyType }}</span>
+              </div>
+              
+              <div class="customer-info">
+                <h3>{{ app.userName }}</h3>
+                <p class="plan-subtitle">{{ app.policyTitle }}</p>
+              </div>
+
+              <div class="card-meta">
+                <div class="meta-item">
+                  <span class="label">Base Premium</span>
+                  <span class="value">₹{{ app.basePremium | number }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Assigned</span>
+                  <span class="value">{{ app.assignedAt | date:'mediumDate' }}</span>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <span class="action-hint">Begin Assessment →</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   } @else {
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Application ID</th>
-            <th>Customer</th>
-            <th>Policy Plan</th>
-            <th>Base Premium</th>
-            <th>Assigned Date</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (app of applications; track app.id) {
-            <tr>
-              <td><strong>#{{ app.id }}</strong></td>
-              <td>{{ app.userName }}</td>
-              <td>
-                <span class="plan-name">{{ app.policyTitle }}</span>
-                <span class="type-badge">{{ app.policyType }}</span>
-              </td>
-              <td>₹{{ app.basePremium | number }}</td>
-              <td>{{ app.assignedAt | date:'mediumDate' }}</td>
-              <td>
-                <button class="btn-primary btn-sm" (click)="openQuoteModal(app)">Send Quote</button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-
-  <!-- Quote Modal -->
-  @if (selectedApp) {
-    <div class="modal-overlay" (click)="selectedApp = null">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Send Premium Quote</h2>
-          <button class="close-btn" (click)="selectedApp = null">×</button>
+    <!-- ════════════ VIEW: FOCUS ASSESSMENT MODE ════════════ -->
+    <div class="focus-mode">
+      <div class="focus-header">
+        <button class="back-link" (click)="selectedApp = null">← Return to List</button>
+        <div class="focus-title">
+          <h1>Evaluation: {{ selectedApp.userName }}</h1>
+          <span class="focus-id">Application #{{ selectedApp.id }}</span>
         </div>
-        <div class="modal-body">
-          <div class="details-grid">
-            <div class="detail-group">
-              <label>Application Info</label>
-              <p><strong>App ID:</strong> #{{ selectedApp.id }}</p>
-              <p><strong>Plan:</strong> {{ selectedApp.policyTitle }}</p>
-              <p><strong>Base Premium:</strong> ₹{{ selectedApp.basePremium | number }}</p>
+      </div>
+
+      <div class="assessment-layout">
+        <!-- ── Left Column: Data ── -->
+        <div class="assessment-data">
+          <!-- Policy Overview -->
+          <div class="data-section">
+            <h4 class="section-title">Policy Details</h4>
+            <div class="info-strip">
+              <div class="info-cell">
+                <span class="cell-label">Plan Name</span>
+                <span class="cell-val">{{ selectedApp.policyTitle }}</span>
+              </div>
+              <div class="info-cell">
+                <span class="cell-label">Price with Rewards</span>
+                <span class="cell-val">₹{{ selectedApp.finalPremium | number }}</span>
+              </div>
+              <div class="info-cell">
+                <span class="cell-label">Nominee</span>
+                <span class="cell-val">{{ selectedApp.nomineeName }} ({{ selectedApp.nomineeRelationship }})</span>
+              </div>
             </div>
-            <div class="detail-group">
-              <label>Nominee & Status</label>
-              <p><strong>Customer:</strong> {{ selectedApp.userName }}</p>
-              <p><strong>Nominee:</strong> {{ selectedApp.nomineeName }} ({{ selectedApp.nomineeRelationship }})</p>
-              <p><strong>Document:</strong> 
-                @if (selectedApp.healthReportPath) {
-                  <a [href]="selectedApp.healthReportPath" target="_blank" class="doc-link">View Health Report 📄</a>
-                } @else {
-                  <span class="text-muted">Not uploaded</span>
-                }
-              </p>
-            </div>
+            
+            @if (selectedApp.healthReportPath) {
+              <a [href]="getFileUrl(selectedApp.healthReportPath)" target="_blank" rel="noopener noreferrer" class="download-card">
+                <span class="icon">📄</span>
+                <div class="text">
+                  <strong>Medical Assessment Report</strong>
+                  <p>Click to open in new tab</p>
+                </div>
+              </a>
+            }
           </div>
 
-          <div class="insured-section">
-            <label>Insured Family Members</label>
-            <div class="members-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Relation</th>
-                    <th>Age</th>
-                    <th>Conditions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (member of selectedApp.insuredMembers; track member.id) {
-                    <tr>
-                      <td>{{ member.fullName }}</td>
-                      <td>{{ member.relationship }}</td>
-                      <td>{{ member.gender }}</td>
-                      <td>
-                        <span class="condition-tag" [class.danger]="member.preExistingConditions !== 'None'">
-                          {{ member.preExistingConditions }}
-                        </span>
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr>
-                      <td colspan="4" class="text-center py-4 text-muted">No family members declared.</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+          <!-- Insured Members -->
+          <div class="data-section">
+            <h4 class="section-title">Declared Members ({{ selectedApp.insuredMembers?.length || 0 }})</h4>
+            <div class="members-stack">
+              @for (member of selectedApp.insuredMembers; track member.id) {
+                <div class="member-item">
+                  <div class="member-avatar">{{ member.fullName.charAt(0) }}</div>
+                  <div class="member-info">
+                    <div class="m-row">
+                      <strong>{{ member.fullName }}</strong>
+                      <span class="m-tag">{{ member.relationship }}</span>
+                    </div>
+                    <p>{{ member.gender }} • Pre-existing: <span class="c-tag" [class.warn]="member.preExistingConditions !== 'None'">{{ member.preExistingConditions }}</span></p>
+                  </div>
+                </div>
+              } @empty {
+                <div class="nil-msg">No additional family members declared.</div>
+              }
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>Final Quoted Premium (₹)</label>
-            <input type="number" [(ngModel)]="quoteAmount" placeholder="Enter final premium amount">
-          </div>
-
-          <div class="form-group">
-            <label>Underwriter Remarks</label>
-            <textarea [(ngModel)]="remarks" rows="3" placeholder="Add any notes about the risk assessment..."></textarea>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" (click)="selectedApp = null">Cancel</button>
-          <button class="btn-primary" (click)="submitQuote()" [disabled]="!quoteAmount || submitting">
-            {{ submitting ? 'Sending...' : 'Confirm & Send Quote' }}
-          </button>
+
+        <!-- ── Right Column: Decision Form ── -->
+        <div class="assessment-form-container">
+          <div class="form-card">
+            <h3>Assessment Verdict</h3>
+            <p>Calculate the final risk-adjusted premium below.</p>
+
+            <div class="v-group">
+              <label>Final Quoted Premium (₹)</label>
+              <div class="premium-input-wrap">
+                <input type="number" [(ngModel)]="quoteAmount" placeholder="0.00" />
+                <span class="currency-tag">INR</span>
+              </div>
+              <p class="input-note">Suggested starting point: ₹{{ selectedApp.finalPremium | number }}</p>
+            </div>
+
+            <div class="v-group">
+              <label>Risk Assessment Remarks</label>
+              <textarea [(ngModel)]="remarks" rows="6" placeholder="Document the factors influencing this quote..."></textarea>
+            </div>
+
+            <div class="form-footer">
+              <button class="btn-cancel" (click)="selectedApp = null">Later</button>
+              <button class="btn-submit" (click)="submitQuote()" [disabled]="!quoteAmount || submitting">
+                {{ submitting ? 'Processing...' : 'Approve & Send Quote' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
