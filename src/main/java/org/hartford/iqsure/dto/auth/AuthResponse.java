@@ -38,4 +38,10 @@ public class AuthResponse {
     private String name;                 // User's display name
     private String email;                // User's email
     private String role;                 // "ROLE_USER" or "ROLE_ADMIN" — controls frontend routing
+
+    // Underwriter/Claims Officer metadata
+    private String licenseNumber;
+    private String employeeId;
+    private String department;
+    private java.math.BigDecimal approvalLimit;
 }

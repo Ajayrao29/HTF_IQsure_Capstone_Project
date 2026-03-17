@@ -91,6 +91,10 @@ public class UserService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .licenseNumber(user.getLicenseNumber())
+                .employeeId(user.getEmployeeId())
+                .department(user.getDepartment())
+                .approvalLimit(user.getApprovalLimit())
                 .build();
     }
 
@@ -129,6 +133,10 @@ public class UserService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .licenseNumber(user.getLicenseNumber())
+                .employeeId(user.getEmployeeId())
+                .department(user.getDepartment())
+                .approvalLimit(user.getApprovalLimit())
                 .build();
     }
 

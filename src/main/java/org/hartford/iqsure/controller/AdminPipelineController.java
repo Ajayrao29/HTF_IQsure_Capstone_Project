@@ -32,6 +32,14 @@ public class AdminPipelineController {
         return ResponseEntity.ok(userPolicyService.getUnderwriterStats(underwriterId));
     }
 
+    @GetMapping("/underwriter/policies")
+    public ResponseEntity<List<UserPolicyResponseDTO>> getUnderwriterPoliciesByStatus(@RequestParam Long underwriterId, @RequestParam(required = false) UserPolicy.PolicyStatus status) {
+        if (status != null) {
+            return ResponseEntity.ok(userPolicyService.getPoliciesByUnderwriterAndStatus(underwriterId, status));
+        }
+        return ResponseEntity.ok(userPolicyService.getPoliciesByUnderwriter(underwriterId));
+    }
+
     @PutMapping("/policies/{id}/assign")
     public ResponseEntity<UserPolicyResponseDTO> assignUnderwriter(@PathVariable Long id, @RequestParam Long underwriterId) {
         return ResponseEntity.ok(userPolicyService.assignUnderwriter(id, underwriterId));

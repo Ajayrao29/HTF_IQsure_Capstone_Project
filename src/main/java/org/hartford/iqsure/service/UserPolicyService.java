@@ -122,6 +122,16 @@ public class UserPolicyService {
         return userPolicyRepository.findByStatus(status).stream().map(this::toDTO).toList();
     }
 
+    public List<UserPolicyResponseDTO> getPoliciesByUnderwriterAndStatus(Long underwriterId, UserPolicy.PolicyStatus status) {
+        return userPolicyRepository.findByAssignedUnderwriter_UserIdAndStatus(underwriterId, status)
+                .stream().map(this::toDTO).toList();
+    }
+
+    public List<UserPolicyResponseDTO> getPoliciesByUnderwriter(Long underwriterId) {
+        return userPolicyRepository.findByAssignedUnderwriter_UserId(underwriterId)
+                .stream().map(this::toDTO).toList();
+    }
+
     @Transactional
     public UserPolicyResponseDTO assignUnderwriter(Long userPolicyId, Long underwriterId) {
         UserPolicy up = userPolicyRepository.findById(userPolicyId)

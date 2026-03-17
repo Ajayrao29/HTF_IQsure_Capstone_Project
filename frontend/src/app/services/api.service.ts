@@ -143,6 +143,11 @@ export class ApiService {
     return this.http.get<any>(`${API}/api/v1/admin/pipeline/underwriter/stats?underwriterId=${underwriterId}`);
   }
 
+  getUnderwriterPoliciesByStatus(underwriterId: number, status?: string): Observable<any[]> {
+    const statusParam = status ? `&status=${status}` : '';
+    return this.http.get<any[]>(`${API}/api/v1/admin/pipeline/underwriter/policies?underwriterId=${underwriterId}${statusParam}`);
+  }
+
   getClaimsOfficerStats(officerId: number): Observable<any> {
     return this.http.get<any>(`${API}/api/v1/admin/pipeline/officer/stats?officerId=${officerId}`);
   }

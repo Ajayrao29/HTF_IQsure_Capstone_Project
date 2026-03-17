@@ -20,7 +20,11 @@ public interface UserPolicyRepository extends JpaRepository<UserPolicy, Long> {
 
     List<UserPolicy> findByStatus(UserPolicy.PolicyStatus status);
 
-    List<UserPolicy> findByAssignedUnderwriter_UserId(Long underwriterId);
+    @org.springframework.data.jpa.repository.Query("SELECT up FROM UserPolicy up WHERE up.assignedUnderwriter.userId = :underwriterId")
+    List<UserPolicy> findByAssignedUnderwriter_UserId(@org.springframework.data.repository.query.Param("underwriterId") Long underwriterId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT up FROM UserPolicy up WHERE up.assignedUnderwriter.userId = :underwriterId AND up.status = :status")
+    List<UserPolicy> findByAssignedUnderwriter_UserIdAndStatus(@org.springframework.data.repository.query.Param("underwriterId") Long underwriterId, @org.springframework.data.repository.query.Param("status") UserPolicy.PolicyStatus status);
 
     List<UserPolicy> findByStatusIn(List<UserPolicy.PolicyStatus> statuses);
 }

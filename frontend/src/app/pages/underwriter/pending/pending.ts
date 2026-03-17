@@ -3,6 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-underwriter-pending',
@@ -20,7 +21,7 @@ export class UnderwriterPendingComponent implements OnInit {
   submitting = false;
   notification: { message: string, type: 'success' | 'error' } | null = null;
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private auth: AuthService) {}
 
   ngOnInit(): void {
     this.loadPending();
@@ -29,10 +30,15 @@ export class UnderwriterPendingComponent implements OnInit {
   loadPending(): void {
     this.loading = true;
     this.notification = null;
-    this.api.getPoliciesByStatus('UNDER_EVALUATION').subscribe(apps => {
-      this.applications = apps;
+    const userId = this.auth.getUserId();
+    if (userId) {
+      this.api.getUnderwriterPoliciesByStatus(userId, 'UNDER_EVALUATION').subscribe(apps => {
+        this.applications = apps;
+        this.loading = false;
+      });
+    } else {
       this.loading = false;
-    });
+    }
   }
 
   openQuoteModal(app: any): void {
