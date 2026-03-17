@@ -138,8 +138,8 @@ public class DataSeeder {
             seedRewards();
         }
 
-        // Always seed quizzes if questions are missing or if we want to ensure the 3 default quizzes exist
-        if (quizRepository.count() < 3 || questionRepository.count() == 0) {
+        // Always seed quizzes if questions are missing or if we want to ensure the 3 default quizzes exist with 5 questions each
+        if (quizRepository.count() < 3 || questionRepository.count() < 15) {
             seedQuizzes();
         }
 
@@ -352,6 +352,14 @@ public class DataSeeder {
                 "A hospital with internet,A hospital where you can get cashless treatment,A government hospital,A private clinic",
                 1, "Network hospitals have partner agreements with insurers to provide cashless settlement or discounted rates.");
 
+        addQuestion(healthBasics, "What is 'Co-insurance'?", 
+                "A policy for two people,The percentage of costs the policyholder pays after meeting the deductible,A discount for healthy living,Insurance for cars",
+                1, "Co-insurance is your share of the costs of a covered health care service, calculated as a percent of the allowed amount for the service.");
+
+        addQuestion(healthBasics, "What is a 'Pre-existing condition'?", 
+                "A condition that will happen in the future,A medical condition you had before starting a new policy,A condition caused by an accident,A condition covered only for seniors",
+                1, "A pre-existing condition is a health problem you had before the date that new health coverage starts.");
+
         // Quiz 2: Life Insurance
         org.hartford.iqsure.entity.Quiz lifeIns = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
                 .title("Life Insurance Essentials")
@@ -370,6 +378,14 @@ public class DataSeeder {
         addQuestion(lifeIns, "What is a 'Nominee' in insurance?", 
                 "The person who pays the premium,The person designated to receive benefits,The insurance agent,The policy issuer",
                 1, "A nominee is the person appointed by the policyholder to receive the sum assured in case of the policyholder's death.");
+
+        addQuestion(lifeIns, "What is the 'Sum Assured' in Life Insurance?", 
+                "The total premium paid over time,The guaranteed amount paid to the beneficiary upon death,The current cash value of the policy,The number of years the policy is active",
+                1, "The Sum Assured is the guaranteed amount that the beneficiary will receive in the event of the policyholder's death.");
+
+        addQuestion(lifeIns, "What is 'Rider' in insurance?", 
+                "The person driving the car,An add-on benefit that provides extra protection,The insurance agent,A type of medical test",
+                1, "A rider is an insurance policy provision that adds benefits to or amends the terms of a basic insurance policy.");
 
         // Quiz 3: Claims & Coverage
         org.hartford.iqsure.entity.Quiz claimsQuiz = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
@@ -390,7 +406,15 @@ public class DataSeeder {
                 "The number of people covered,The maximum amount the insurer will pay in a year,The total premium paid,The value of the hospital building",
                 1, "Sum Insured is the maximum amount an insurance company will pay for a covered loss in a policy year.");
 
-        log.info("3 Quizzes and their questions seeded successfully.");
+        addQuestion(claimsQuiz, "What is 'Third-Party Insurance'?", 
+                "Insurance for three people,Coverage for damages caused by the insured to another person or property,Insurance for a third house,Coverage for three accidents per year",
+                1, "Third-party insurance provides protection against the claims of another (a third party) for damages or injuries.");
+
+        addQuestion(claimsQuiz, "What is an 'Exclusion' in an insurance policy?", 
+                "A special discount,Specific risks or conditions NOT covered by the policy,The date when the policy starts,A person who is not allowed to buy insurance",
+                1, "An exclusion is a provision within an insurance policy that eliminates coverage for certain types of risks or losses.");
+
+        log.info("3 Quizzes and their 5 questions each seeded successfully.");
     }
 
     private void addQuestion(org.hartford.iqsure.entity.Quiz quiz, String text, String options, int rightOptionIdx, String explanation) {
