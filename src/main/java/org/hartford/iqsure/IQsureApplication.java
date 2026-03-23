@@ -27,8 +27,12 @@ import org.springframework.boot.SpringApplication;
 //   - @EnableAutoConfiguration (Spring auto-configures based on dependencies)
 //   - @ComponentScan (Spring scans all sub-packages for annotated classes)
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableAsync
+@EnableScheduling
 public class IQsureApplication {
 
     // This is where the app starts. Java always looks for "public static void main".

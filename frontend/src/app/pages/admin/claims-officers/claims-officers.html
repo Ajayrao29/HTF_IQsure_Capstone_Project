@@ -37,7 +37,7 @@
           <input type="text" [(ngModel)]="newOfficer.department">
         </div>
         <div class="form-group">
-          <label>Approval Limit ($)</label>
+          <label>Approval Limit (₹)</label>
           <input type="number" [(ngModel)]="newOfficer.approvalLimit">
         </div>
       </div>
@@ -72,7 +72,7 @@
               <td>{{ o.email }}</td>
               <td><code>{{ o.employeeId }}</code></td>
               <td>{{ o.department }}</td>
-              <td>${{ (o.approvalLimit || 0).toLocaleString() }}</td>
+              <td>₹{{ (o.approvalLimit || 0).toLocaleString() }}</td>
               <td><span class="count-badge">{{ o.totalClaimsProcessed || 0 }}</span></td>
               <td>
                 <button class="btn-sm btn-danger" (click)="deleteOfficer(o.userId)">Remove</button>

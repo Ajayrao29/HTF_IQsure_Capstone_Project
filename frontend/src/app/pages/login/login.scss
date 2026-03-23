@@ -72,6 +72,20 @@
     justify-content: center;
   }
 
+  .forgot-link {
+    text-align: right;
+    margin-top: 1rem;
+    
+    a {
+      color: #8A4B6B;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+      &:hover { color: #E91E63; text-decoration: underline; }
+    }
+  }
+
   .switch-link {
     text-align: center;
     margin-top: 2rem;

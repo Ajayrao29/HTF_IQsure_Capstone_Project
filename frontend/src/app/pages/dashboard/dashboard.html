@@ -191,6 +191,15 @@
 <ng-container *ngIf="!loading && !auth.isAdmin()">
 <div class="page">
 
+  <!-- 🤖 AGENTIC AI: COGNITIVE ADVISOR -->
+  <div class="cognitive-advisor slide-up" *ngIf="aiInsight">
+    <div class="advisor-chip">COGNITIVE ADVISOR</div>
+    <div class="advisor-content">
+      <span class="ai-sparkle">✨</span>
+      <p>{{ aiInsight }}</p>
+    </div>
+  </div>
+
   <!-- Welcome Banner -->
   <div class="welcome-banner user-new-banner">
     <div class="banner-text">
@@ -202,7 +211,28 @@
     </div>
   </div>
 
-  <!-- Key Metrics Row -->
+  <!-- 🏆 AGENTIC AI: MILESTONE TRACKER -->
+  <div class="milestone-card shadow-premium fade-in" *ngIf="user">
+    <div class="m-left">
+      <div class="m-icon-ring">🎖️</div>
+      <div class="m-text">
+        <h3>{{ user.userPoints >= 500 ? 'Elite Tier' : 'Growing Saver' }}</h3>
+        <p>You have <strong>{{ user.userPoints }}</strong> IQsure points</p>
+      </div>
+    </div>
+    <div class="m-progress-area">
+      <div class="m-bar-labels">
+        <span>Current Level</span>
+        <span>Next Reward: {{ user.userPoints >= 500 ? 'Unlimited' : '500 pts' }}</span>
+      </div>
+      <div class="m-bar-bg">
+        <div class="m-bar-fill" [style.width]="(user.userPoints / 500 * 100) + '%'"></div>
+      </div>
+      <p class="m-hint" *ngIf="user.userPoints < 500">
+        ✨ Play <strong>{{ (500 - user.userPoints) / 50 | number:'1.0-0' }}</strong> more quizzes to unlock a 10% premium discount!
+      </p>
+    </div>
+  </div>
   <div class="metrics-grid">
     <div class="metric-card">
       <div class="metric-icon green">
@@ -238,6 +268,58 @@
       <div class="metric-info">
         <h3>{{ userStats.pendingClaims }}</h3>
         <p>Pending Claims</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🚀 AGENTIC AI: POLICY TRACKING PIPELINE -->
+  <div class="pipeline-section" *ngIf="myPolicies.length > 0">
+    <div class="section-header-modern">
+      <h2><span class="sparkle">✨</span> Cognitive Pipeline Tracking</h2>
+      <p>Real-time status of your active insurance applications</p>
+    </div>
+
+    <div class="pipeline-grid">
+      <div class="pipeline-card fade-in" *ngFor="let p of myPolicies">
+        <div class="p-header">
+          <div class="p-title">
+            <strong>{{ p.policyTitle }}</strong>
+            <span>#{{ p.id }}</span>
+          </div>
+          <span class="status-pill" [class]="p.status">{{ p.status }}</span>
+        </div>
+
+        <div class="p-tracker">
+          <div class="track-step" [class.complete]="true" [class.active]="p.status === 'PENDING_UNDERWRITING' || p.status === 'UNDER_EVALUATION' || p.status === 'QUOTES_SENT' || p.status === 'ACTIVE'">
+            <div class="dot">📜</div>
+            <label>Signed</label>
+          </div>
+          <div class="track-line" [class.complete]="p.status === 'UNDER_EVALUATION' || p.status === 'QUOTES_SENT' || p.status === 'ACTIVE'"></div>
+          
+          <div class="track-step" [class.complete]="p.status === 'QUOTES_SENT' || p.status === 'ACTIVE'" [class.active]="p.status === 'UNDER_EVALUATION'">
+            <div class="dot">🔎</div>
+            <label>Underwriting</label>
+          </div>
+          <div class="track-line" [class.complete]="p.status === 'ACTIVE'"></div>
+
+          <div class="track-step" [class.complete]="p.status === 'ACTIVE'" [class.active]="p.status === 'QUOTES_SENT'">
+            <div class="dot">💰</div>
+            <label>Quote Ready</label>
+          </div>
+          <div class="track-line" [class.complete]="p.status === 'ACTIVE'"></div>
+
+          <div class="track-step" [class.active]="p.status === 'ACTIVE'">
+            <div class="dot">🛡️</div>
+            <label>Active</label>
+          </div>
+        </div>
+
+        @if (p.status === 'QUOTES_SENT') {
+          <div class="action-alert slide-up">
+             <span>⚡ Final Quote Available</span>
+             <button [routerLink]="['/my-policies']" class="btn-view-quote">Review & Pay</button>
+          </div>
+        }
       </div>
     </div>
   </div>

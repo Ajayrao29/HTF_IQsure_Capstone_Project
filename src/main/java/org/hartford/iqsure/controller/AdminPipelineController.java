@@ -16,6 +16,8 @@ public class AdminPipelineController {
 
     private final UserPolicyService userPolicyService;
     private final org.hartford.iqsure.service.ClaimService claimService;
+    private final org.hartford.iqsure.service.RiskAnalysisService riskAnalysisService;
+    private final org.hartford.iqsure.repository.UserPolicyRepository userPolicyRepository;
 
     @GetMapping("/policies")
     public ResponseEntity<List<UserPolicyResponseDTO>> getAllPolicies() {
@@ -46,8 +48,8 @@ public class AdminPipelineController {
     }
 
     @PutMapping("/policies/{id}/quote")
-    public ResponseEntity<UserPolicyResponseDTO> sendQuote(@PathVariable Long id, @RequestParam java.math.BigDecimal quoteAmount, @RequestParam String remarks) {
-        return ResponseEntity.ok(userPolicyService.sendQuote(id, quoteAmount, remarks));
+    public ResponseEntity<UserPolicyResponseDTO> sendQuote(@PathVariable Long id, @RequestBody org.hartford.iqsure.dto.request.QuoteRequestDTO dto) {
+        return ResponseEntity.ok(userPolicyService.sendQuote(id, dto.getQuoteAmount(), dto.getRemarks()));
     }
 
     @PutMapping("/policies/{id}/activate")
@@ -56,8 +58,15 @@ public class AdminPipelineController {
     }
 
     @PutMapping("/policies/{id}/reject")
-    public ResponseEntity<UserPolicyResponseDTO> rejectPolicy(@PathVariable Long id, @RequestParam String remarks) {
-        return ResponseEntity.ok(userPolicyService.rejectPolicy(id, remarks));
+    public ResponseEntity<UserPolicyResponseDTO> rejectPolicy(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        return ResponseEntity.ok(userPolicyService.rejectPolicy(id, body.get("remarks")));
+    }
+
+    @GetMapping("/policies/{id}/ai-analysis")
+    public ResponseEntity<org.hartford.iqsure.service.RiskAnalysisService.AIAnalysisResponse> getAiAnalysis(@PathVariable Long id) {
+        org.hartford.iqsure.entity.UserPolicy policy = userPolicyRepository.findById(id).orElse(null);
+        if (policy == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(riskAnalysisService.analyzePolicyRisk(policy));
     }
 
     @GetMapping("/officer/stats")

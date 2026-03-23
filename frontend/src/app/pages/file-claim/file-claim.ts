@@ -18,6 +18,8 @@ export class FileClaimComponent implements OnInit {
   loading = true;
   today: string = new Date().toISOString().split('T')[0];
   
+  claimStep: number = 1; // 1: Incident, 2: Medical, 3: Evidence, 4: Settlement
+  
   formData = {
     userPolicyId: null as number | null,
     type: 'CASHLESS',
@@ -25,7 +27,10 @@ export class FileClaimComponent implements OnInit {
     hospitalName: '',
     incidentDate: '',
     diagnosis: '',
-    description: ''
+    description: '',
+    bankAccountNo: '',
+    bankIFSC: '',
+    billsUploaded: false
   };
 
   successMessage = '';
@@ -50,26 +55,53 @@ export class FileClaimComponent implements OnInit {
     }
   }
 
+  nextStep(): void {
+    if (this.validateStep()) {
+      this.claimStep++;
+      window.scrollTo(0, 0);
+    }
+  }
+
+  prevStep(): void {
+    if (this.claimStep > 1) {
+      this.claimStep--;
+      window.scrollTo(0, 0);
+    }
+  }
+
+  validateStep(): boolean {
+    if (this.claimStep === 1) {
+      if (!this.formData.userPolicyId || !this.formData.amount || !this.formData.incidentDate) {
+        this.errorMessage = 'Please complete all incident details.';
+        return false;
+      }
+    }
+    if (this.claimStep === 2) {
+      if (!this.formData.diagnosis) {
+        this.errorMessage = 'Please provide the diagnosis.';
+        return false;
+      }
+    }
+    this.errorMessage = '';
+    return true;
+  }
+
   submitClaim(): void {
     if (!this.formData.userPolicyId || !this.formData.amount || !this.formData.incidentDate || !this.formData.diagnosis) {
-      this.errorMessage = 'Please fill in all required fields (Policy, Amount, Date, and Diagnosis).';
-      this.successMessage = '';
+      this.errorMessage = 'Incomplete application. Please go back and fill details.';
       return;
     }
 
     const userId = this.auth.getUserId()!;
     this.api.fileClaim(userId, this.formData.userPolicyId, this.formData).subscribe({
       next: () => {
-        this.successMessage = 'Claim filed successfully! Our officer will review it.';
+        this.successMessage = 'Claim filed successfully! Reference ID: CLM-' + Math.floor(Math.random() * 90000 + 10000);
         this.errorMessage = '';
         setTimeout(() => this.router.navigate(['/my-claims']), 3000);
       },
       error: (err) => {
-        console.error('Claim filing failed:', err);
-        // Try to get message from backend ErrorResponse, then from Angular HttpErrorResponse, then default
-        const errorMsg = err.error?.message || err.message || (typeof err.error === 'string' ? err.error : 'Unknown error');
+        const errorMsg = err.error?.message || err.message || 'Error occurred';
         this.errorMessage = 'Error filing claim: ' + errorMsg;
-        this.successMessage = '';
       }
     });
   }

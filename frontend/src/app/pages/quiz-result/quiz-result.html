@@ -1,7 +1,14 @@
 @if (result) {
   <div class="page result-page">
+    <!-- Confetti layer for high scores -->
+    @if (result.percentage >= 80) {
+      <div class="confetti-container">
+        @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) { <div class="confetti"></div> }
+      </div>
+    }
+
     <!-- Score Card -->
-    <div class="score-card">
+    <div class="score-card slide-up">
       <div class="score-message">{{ scoreMessage }}</div>
       <div class="score-circle" [style.border-color]="scoreColor">
         <span class="score-number" [style.color]="scoreColor">{{ result.percentage }}%</span>

@@ -1,81 +1,156 @@
-<div class="page fade-in">
+<div class="page fade-in claim-wizard-page">
   <div class="form-header">
     <button class="btn-back" routerLink="/my-claims">← Back to My Claims</button>
-    <h1>File a New Claim</h1>
-    <p>Submit your claim details for quick processing and settlement.</p>
+    <div class="header-main">
+      <h1>Submit a Claim</h1>
+      <p>Follow the steps below to report your medical incident and request settlement.</p>
+    </div>
+
+    <!-- WIZARD STEPPER -->
+    <div class="step-stepper">
+      <div class="step-dot" [class.active]="claimStep === 1" [class.done]="claimStep > 1"><span>1</span><label>Incident</label></div>
+      <div class="step-line"></div>
+      <div class="step-dot" [class.active]="claimStep === 2" [class.done]="claimStep > 2"><span>2</span><label>Medical</label></div>
+      <div class="step-line"></div>
+      <div class="step-dot" [class.active]="claimStep === 3" [class.done]="claimStep > 3"><span>3</span><label>Evidence</label></div>
+      <div class="step-line"></div>
+      <div class="step-dot" [class.active]="claimStep === 4" [class.done]="claimStep > 4"><span>4</span><label>Settlement</label></div>
+    </div>
   </div>
 
-  <div class="claim-form-card shadow-premium">
-    <section class="form-section">
-      <h3>Policy Selection</h3>
-      <div class="form-group">
-        <label>Select Active Policy *</label>
-        <select [(ngModel)]="formData.userPolicyId">
-          <option [ngValue]="null">— Select Policy —</option>
-          @for (p of policies; track p.id) {
-            <option [ngValue]="p.id">{{ p.policyTitle }} (#{{ p.id }})</option>
-          }
-        </select>
-      </div>
-    </section>
+  <div class="claim-form-card shadow-premium mt-4">
 
-    <section class="form-section">
-      <h3>Incident Details</h3>
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label>Claim Type *</label>
-          <select [(ngModel)]="formData.type">
-            <option value="CASHLESS">Cashless Settlement</option>
-            <option value="REIMBURSEMENT">Reimbursement</option>
-            <option value="ACCIDENTAL">Accidental</option>
+    <!-- STEP 1: POLICY & INCIDENT -->
+    @if (claimStep === 1) {
+      <section class="form-section fade-in">
+        <h3>Primary Incident Data</h3>
+        <p>Select the policy you are claiming against and provide the basic event details.</p>
+        
+        <div class="form-group mb-4">
+          <label>Select Active Policy *</label>
+          <select [(ngModel)]="formData.userPolicyId">
+            <option [ngValue]="null">— Select Policy —</option>
+            @for (p of policies; track p.id) {
+              <option [ngValue]="p.id">{{ p.policyTitle }} (#{{ p.id }})</option>
+            }
           </select>
         </div>
-        <div class="form-group">
-          <label>Estimated Amount (₹) *</label>
-          <input type="number" [(ngModel)]="formData.amount" placeholder="e.g. 50000">
-        </div>
-      </div>
 
-      <div class="form-grid-2 mt-3">
-        <div class="form-group">
-          <label>Hospital Name</label>
-          <input type="text" [(ngModel)]="formData.hospitalName" placeholder="Name of the hospital">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Claim Category *</label>
+            <select [(ngModel)]="formData.type">
+              <option value="CASHLESS">Cashless (Integrated Hospital)</option>
+              <option value="REIMBURSEMENT">Reimbursement (Out-of-pocket)</option>
+              <option value="ACCIDENTAL">Accidental / Trauma</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Requested Settlement (₹) *</label>
+            <input type="number" [(ngModel)]="formData.amount" placeholder="e.g. 50000">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Incident Date *</label>
+
+        <div class="form-group mt-3">
+          <label>Date of Incident *</label>
           <input type="date" [(ngModel)]="formData.incidentDate" [max]="today">
         </div>
-      </div>
-    </section>
-
-    <section class="form-section">
-      <h3>Medical Information</h3>
-      <div class="form-group">
-        <label>Diagnosis / Problem Details</label>
-        <input type="text" [(ngModel)]="formData.diagnosis" placeholder="What was the medical issue?">
-      </div>
-      <div class="form-group mt-3">
-        <label>Additional Description</label>
-        <textarea rows="4" [(ngModel)]="formData.description" placeholder="Provide more details about the incident..."></textarea>
-      </div>
-    </section>
-
-    <!-- Notification Messages -->
-    @if (successMessage) {
-      <div class="alert alert-success">
-        <span class="icon">✅</span> {{ successMessage }}
-      </div>
-    }
-    @if (errorMessage) {
-      <div class="alert alert-error">
-        <span class="icon">⚠️</span> {{ errorMessage }}
-      </div>
+      </section>
     }
 
-    <div class="form-footer">
-      <button class="btn-submit-claim" (click)="submitClaim()">
-        <span class="icon">📄</span> Submit Claim Application
-      </button>
+    <!-- STEP 2: MEDICAL -->
+    @if (claimStep === 2) {
+      <section class="form-section fade-in">
+        <h3>Medical Details & Diagnosis</h3>
+        <p>Tell us more about the symptoms and the hospital involved.</p>
+
+        <div class="form-group mb-4">
+          <label>Hospital or Healthcare Facility Name</label>
+          <input type="text" [(ngModel)]="formData.hospitalName" placeholder="Enter Facility Name">
+        </div>
+
+        <div class="form-group mb-4">
+          <label>Primary Diagnosis *</label>
+          <input type="text" [(ngModel)]="formData.diagnosis" placeholder="What was the medical issue?">
+        </div>
+
+        <div class="form-group">
+          <label>Narrative / Event Description</label>
+          <textarea rows="5" [(ngModel)]="formData.description" placeholder="Provide a detailed description of how the incident happened..."></textarea>
+        </div>
+      </section>
+    }
+
+    <!-- STEP 3: EVIDENCE -->
+    @if (claimStep === 3) {
+      <section class="form-section fade-in">
+        <h3>Digital Evidence & Documentation</h3>
+        <p>Upload clear photos of bills, prescriptions, and discharge summaries.</p>
+
+        <div class="mock-upload-container">
+          <div class="upload-item" (click)="formData.billsUploaded = !formData.billsUploaded" [class.checked]="formData.billsUploaded">
+            <div class="u-icon">📄</div>
+            <div class="u-meta">
+              <strong>Medical Bills / Invoices</strong>
+              <span>{{ formData.billsUploaded ? 'Document Linked' : 'Click to simulate upload' }}</span>
+            </div>
+            <div class="u-check">{{ formData.billsUploaded ? '✔️' : '○' }}</div>
+          </div>
+          
+          <div class="upload-item info-note">
+             <span class="icon">ℹ️</span>
+             <p>Our AI will automatically extract data from these documents to speed up your settlement.</p>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- STEP 4: SETTLEMENT -->
+    @if (claimStep === 4) {
+      <section class="form-section fade-in">
+        <h3>Settlement Mode & Bank Details</h3>
+        <p>Provide the account details where the funds should be disbursed if approved.</p>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Bank Account Number</label>
+            <input type="password" [(ngModel)]="formData.bankAccountNo" placeholder="•••• •••• ••••">
+          </div>
+          <div class="form-group">
+            <label>Bank IFSC Code</label>
+            <input type="text" [(ngModel)]="formData.bankIFSC" placeholder="e.g. SBIN0001234">
+          </div>
+        </div>
+
+        <div class="confirmation-checkbox mt-4">
+          <label class="check-container">
+            <input type="checkbox">
+            <span class="checkmark"></span>
+            I hereby declare that all information provided is true and accurate to the best of my knowledge.
+          </label>
+        </div>
+      </section>
+    }
+
+    <!-- Alerts -->
+    @if (successMessage) { <div class="alert alert-success mt-4">✅ {{ successMessage }}</div> }
+    @if (errorMessage) { <div class="alert alert-error mt-4">⚠️ {{ errorMessage }}</div> }
+
+    <!-- WIZARD FOOTER -->
+    <div class="form-wizard-footer mt-4">
+      @if (claimStep > 1) {
+        <button class="btn-prev" (click)="prevStep()">Back</button>
+      } @else { <div></div> }
+
+      @if (claimStep < 4) {
+        <button class="btn-next" (click)="nextStep()">
+          Next: {{ (claimStep === 1 ? 'Medical Data' : claimStep === 2 ? 'Upload Evidence' : 'Settlement Mode') }} →
+        </button>
+      } @else {
+        <button class="btn-submit-final" (click)="submitClaim()">
+          Confirm & File Claim
+        </button>
+      }
     </div>
   </div>
 </div>

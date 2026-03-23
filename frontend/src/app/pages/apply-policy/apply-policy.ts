@@ -17,18 +17,26 @@ export class ApplyPolicyComponent implements OnInit {
   today: string = new Date().toISOString().split('T')[0];
   plans: Policy[] = [];
   filteredPlans: Policy[] = [];
+  userPolicies: any[] = [];
   loading = true;
   
   // Step navigation
   step: 'PLANS' | 'FORM' = 'PLANS';
+  formStep: number = 1; // 1: Nominee, 2: Members, 3: Medical, 4: Rewards, 5: Review
   selectedPlan: Policy | null = null;
   
   formData = {
     nomineeName: '',
     nomineeRelationship: '',
     healthReport: null as File | null,
-    members: [] as InsuredMember[],
-    rewardIds: [] as number[]
+    members: [] as any[],
+    rewardIds: [] as number[],
+    declarations: {
+      hospitalizedLastYear: false,
+      chronicConditions: false,
+      smokeOrAlcohol: false,
+      surgicalHistory: false
+    }
   };
 
   availableRewards: any[] = [];
@@ -79,6 +87,7 @@ export class ApplyPolicyComponent implements OnInit {
     this.api.getAvailableRewardsForUser(userId).subscribe(r => this.availableRewards = r);
     this.api.getAllDiscountRules().subscribe(rules => this.discountRules = rules.filter((r: any) => r.isActive));
     this.api.getProfile(userId).subscribe(u => this.userProfile = u);
+    this.api.getUserPolicies(userId).subscribe(p => this.userPolicies = p);
   }
 
   loadPlans(): void {
@@ -101,7 +110,13 @@ export class ApplyPolicyComponent implements OnInit {
     }
   }
 
+  isPlanDisabled(policyId: number): boolean {
+    return this.userPolicies.some(p => p.policyId === policyId && 
+      (p.status === 'PENDING_UNDERWRITING' || p.status === 'UNDER_EVALUATION' || p.status === 'QUOTES_SENT' || p.status === 'ACTIVE'));
+  }
+
   selectPlan(plan: Policy): void {
+    if (this.isPlanDisabled(plan.policyId)) return;
     this.selectedPlan = plan;
     this.step = 'FORM';
     // Add "Self" as first member by default
@@ -138,6 +153,44 @@ export class ApplyPolicyComponent implements OnInit {
 
   onFileSelected(event: any): void {
     this.formData.healthReport = event.target.files[0];
+  }
+
+  nextFormStep(): void {
+    if (this.validateCurrentStep()) {
+      this.formStep++;
+      window.scrollTo(0, 0);
+      if (this.formStep === 5) this.calculatePreview();
+    }
+  }
+
+  prevFormStep(): void {
+    if (this.formStep > 1) {
+      this.formStep--;
+      window.scrollTo(0, 0);
+    }
+  }
+
+  validateCurrentStep(): boolean {
+    if (this.formStep === 1) {
+      if (!this.formData.nomineeName || !this.formData.nomineeRelationship) {
+        this.errorMessage = 'Please provide nominee details.';
+        return false;
+      }
+    }
+    if (this.formStep === 2) {
+      if (this.formData.members.length === 0) {
+        this.errorMessage = 'At least one member must be insured.';
+        return false;
+      }
+      for (let m of this.formData.members) {
+        if (!m.fullName || !m.dateOfBirth || !m.gender) {
+          this.errorMessage = 'Please complete all member details.';
+          return false;
+        }
+      }
+    }
+    this.errorMessage = '';
+    return true;
   }
 
   toggleReward(rewardId: number): void {

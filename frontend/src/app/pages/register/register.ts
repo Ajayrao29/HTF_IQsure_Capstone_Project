@@ -18,10 +18,17 @@ export class RegisterComponent {
   email = '';
   password = '';
   phone = '';
-  error = '';
+  onboardingTip: string = 'Welcome to IQsure! Tell us your name to begin your journey.';
   loading = false;
+  error = '';
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
+
+  updateTip(field: string): void {
+    if (field === 'name') this.onboardingTip = 'Great start! Your name will be used on your global certificates.';
+    if (field === 'email') this.onboardingTip = 'Security first: This will be your identity for 2FA and policy access.';
+    if (field === 'password') this.onboardingTip = 'Strong passwords unlock "Safe-Vault" badges. Use 8+ chars!';
+  }
   register(): void {
     this.error = '';
 

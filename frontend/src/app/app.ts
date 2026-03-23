@@ -24,7 +24,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar';   // → components/navbar/navbar.ts
 import { AuthService } from './services/auth.service';          // → services/auth.service.ts
-
+import { NotificationService } from './services/notification.service';
 import { filter } from 'rxjs';
 
 @Component({
@@ -32,13 +32,10 @@ import { filter } from 'rxjs';
   standalone: true,            // Standalone component (no NgModule needed)
   imports: [RouterOutlet, NavbarComponent],
   template: `
-    <!-- Show navbar only on authenticated pages (not landing/login/register) -->
     @if (showNavbar) {
       <app-navbar></app-navbar>
     }
     <main class="main-content">
-      <!-- This is where the current page component gets rendered based on the URL -->
-      <!-- e.g., /dashboard → DashboardComponent, /quizzes → QuizzesComponent -->
       <router-outlet></router-outlet>
     </main>
     `,
@@ -47,14 +44,23 @@ import { filter } from 'rxjs';
 export class App {
   showNavbar = false;  // Controls whether the navbar is visible
 
-  constructor(public auth: AuthService, private router: Router) {
+  constructor(
+    public auth: AuthService, 
+    private router: Router,
+    private notifications: NotificationService
+  ) {
     // Listen to every route change and decide if navbar should show
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // These are public pages where we DON'T show the navbar
-      const hiddenRoutes = ['/', '/about', '/login', '/register'];
+      const hiddenRoutes = ['/', '/about', '/login', '/register', '/forgot-password', '/reset-password'];
       this.showNavbar = !hiddenRoutes.includes(event.url);
+      
+      // If logged in, ensure we are subscribed to notifications
+      const user = this.auth.getUser();
+      if (user && user.userId) {
+        this.notifications.subscribe(user.userId);
+      }
     });
   }
 }

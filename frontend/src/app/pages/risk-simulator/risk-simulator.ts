@@ -124,7 +124,7 @@ export class RiskSimulatorComponent implements OnInit {
 
   /* ── Helpers ── */
   formatCurrency(amount: number): string {
-    return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
 
   get isFormValid(): boolean {

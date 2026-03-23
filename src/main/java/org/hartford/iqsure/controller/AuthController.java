@@ -53,4 +53,16 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         return ResponseEntity.ok(userService.login(request));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody org.hartford.iqsure.dto.auth.ForgotPasswordRequest request) {
+        userService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody org.hartford.iqsure.dto.auth.ResetPasswordRequest request) {
+        userService.resetPassword(request.getOtp(), request.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
 }

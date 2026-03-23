@@ -35,7 +35,7 @@
             <tr>
               <td><code>{{ c.claimNumber }}</code></td>
               <td>{{ c.type }}</td>
-              <td>${{ (c.amount || 0).toLocaleString() }}</td>
+              <td>₹{{ (c.amount || 0).toLocaleString() }}</td>
               <td>{{ c.hospitalName || '—' }}</td>
               <td>{{ c.incidentDate | date:'shortDate' }}</td>
               <td><span class="status-badge submitted">SUBMITTED</span></td>
@@ -43,7 +43,7 @@
                 <select #officerSelect class="form-select-sm" (change)="0">
                   <option value="">Select Officer</option>
                   @for (o of officers; track o.userId) {
-                    <option [value]="o.userId">{{ o.name }} (Lmt: ${{ o.approvalLimit?.toLocaleString() }})</option>
+                    <option [value]="o.userId">{{ o.name }} (Lmt: ₹{{ o.approvalLimit?.toLocaleString() }})</option>
                   }
                 </select>
               </td>

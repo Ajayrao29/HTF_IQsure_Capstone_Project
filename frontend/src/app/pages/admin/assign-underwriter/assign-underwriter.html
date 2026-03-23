@@ -36,7 +36,7 @@
               <td>#{{ p.id }}</td>
               <td><strong>{{ p.userName }}</strong></td>
               <td>{{ p.policyTitle }}</td>
-              <td>${{ p.finalPremium.toLocaleString() }}</td>
+              <td>₹{{ p.finalPremium.toLocaleString() }}</td>
               <td>{{ p.purchaseDate | date:'shortDate' }}</td>
               <td><span class="status-badge pending">PENDING</span></td>
               <td>

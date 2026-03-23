@@ -39,7 +39,8 @@ public class Notification {
 
     @Builder.Default
     @JsonProperty("read")
-    private boolean isRead = false;
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean read = false;
 
     @Column(nullable = false)
     @Builder.Default

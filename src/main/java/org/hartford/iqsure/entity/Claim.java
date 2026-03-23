@@ -61,6 +61,13 @@ public class Claim {
     @Column(columnDefinition = "TEXT")
     private String reviewerRemarks;
 
+    // =================== AGENTIC AI AUDIT FIELDS ===================
+
+    @Column(columnDefinition = "TEXT")
+    private String aiAuditSummary;
+
+    private Double fraudRiskScore;
+
     // =================== SETTLEMENT FIELDS ===================
 
     private LocalDate settlementDate;

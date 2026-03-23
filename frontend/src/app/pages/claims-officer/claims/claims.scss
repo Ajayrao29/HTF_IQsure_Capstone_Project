@@ -208,8 +208,29 @@
   &.btn-success { background: #10b981; color: white; &:hover { background: #059669; } }
 }
 
-.loading-state, .empty-state { text-align: center; padding: 6rem 2rem; color: #8A4B6B; }
-.dot-loader { width: 50px; height: 50px; border: 5px solid #fdf2f8; border-top-color: #E91E63; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* 🤖 AGENTIC AI: AUDIT PORTAL */
+.ai-audit-portal {
+  background: #fdf2f8; border: 1.5px solid rgba(139, 0, 63, 0.15); border-radius: 20px;
+  padding: 1.5rem; margin-bottom: 2rem;
+  .audit-header { 
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;
+    h4 { margin: 0; font-size: 0.85rem; color: #4A154B; font-weight: 800; letter-spacing: 0.1em; }
+    .ai-chip { background: #8B003F; color: white; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.05em; }
+  }
+}
+
+.audit-thinking {
+  display: flex; align-items: center; gap: 1rem; color: #8B003F; font-weight: 700; font-size: 0.85rem; padding: 0.5rem 0;
+  .pulse-ring { width: 14px; height: 14px; background: #8B003F; border-radius: 50%; animation: auditPulse 1.2s infinite; }
+}
+
+.audit-result {
+  background: white; border-radius: 12px; padding: 1rem; border: 1px solid rgba(139, 0, 63, 0.1);
+  pre { margin: 0; white-space: pre-wrap; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #4A154B; line-height: 1.6; font-weight: 500; }
+  .confidence-tag { margin-top: 1rem; font-size: 0.65rem; color: #10B981; font-weight: 800; text-transform: uppercase; border-top: 1px dashed #E2E8F0; padding-top: 0.75rem; display: block; text-align: right; }
+}
+
+@keyframes auditPulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 @media (max-width: 1200px) { .assessment-layout { grid-template-columns: 1fr; } .assessment-form-container { position: static; } }

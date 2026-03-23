@@ -37,16 +37,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(new ErrorResponse(404, "Not Found", ex.getMessage(), LocalDateTime.now()));
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(new ErrorResponse(400, "Bad Request", ex.getMessage(), LocalDateTime.now()));
     }
 
-    // Handles @Valid validation failures — returns field-level error messages
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -54,12 +55,15 @@ public class GlobalExceptionHandler {
             String field = ((FieldError) error).getField();
             errors.put(field, error.getDefaultMessage());
         });
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(errors);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(new ErrorResponse(500, "Internal Server Error", ex.getMessage(), LocalDateTime.now()));
     }
 }

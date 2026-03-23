@@ -41,207 +41,309 @@
               </div>
             </div>
 
-            <button class="btn-select" (click)="selectPlan(p)">Select Plan</button>
+            <div class="footer-actions">
+              @if (isPlanDisabled(p.policyId)) {
+                <button class="btn-select disabled" disabled>
+                  <span class="icon">✔️</span> Already Applied
+                </button>
+              } @else {
+                <button class="btn-select" (click)="selectPlan(p)">Select Plan</button>
+              }
+            </div>
           </div>
         }
       </div>
     }
   }
 
-  <!-- ════════════ STEP 2: APPLICATION FORM ════════════ -->
+  <!-- ════════════ STEP 2: APPLICATION FORM WIZARD ════════════ -->
   @if (step === 'FORM') {
     <div class="form-header">
-      <button class="btn-back" (click)="backToPlans()">← Back to Plans</button>
-      <span class="plan-pill">{{ selectedPlan?.title }}</span>
-      <h2>Request Policy</h2>
-      <p>Fill in your details. Our underwriter will review your application and send you a customized premium quote.</p>
+      <button class="btn-back" (click)="backToPlans()">← Back to Selection</button>
+      <div class="header-main">
+        <span class="plan-pill">{{ selectedPlan?.title }}</span>
+        <h2>Complete Application</h2>
+      </div>
+
+      <!-- STEP INDICATOR -->
+      <div class="step-stepper">
+        <div class="step-dot" [class.active]="formStep === 1" [class.done]="formStep > 1"><span>1</span><label>Policy Details</label></div>
+        <div class="step-line"></div>
+        <div class="step-dot" [class.active]="formStep === 2" [class.done]="formStep > 2"><span>2</span><label>Insured Members</label></div>
+        <div class="step-line"></div>
+        <div class="step-dot" [class.active]="formStep === 3" [class.done]="formStep > 3"><span>3</span><label>Medical Declaration</label></div>
+        <div class="step-line"></div>
+        <div class="step-dot" [class.active]="formStep === 4" [class.done]="formStep > 4"><span>4</span><label>Savings</label></div>
+        <div class="step-line"></div>
+        <div class="step-dot" [class.active]="formStep === 5" [class.done]="formStep > 5"><span>5</span><label>Review</label></div>
+      </div>
     </div>
 
-    <div class="app-form-card shadow-premium">
-      <!-- Nominee Section -->
-      <section class="form-section">
-        <h3>Nominee Details</h3>
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>Nominee Full Name *</label>
-            <input type="text" [(ngModel)]="formData.nomineeName" placeholder="e.g. Priya Sharma">
-          </div>
-          <div class="form-group">
-            <label>Relationship *</label>
-            <select [(ngModel)]="formData.nomineeRelationship">
-              <option value="">— Select —</option>
-              <option value="Spouse">Spouse</option>
-              <option value="Child">Child</option>
-              <option value="Parent">Parent</option>
-              <option value="Sibling">Sibling</option>
-            </select>
-          </div>
-        </div>
-      </section>
+    <div class="app-form-card shadow-premium mt-4">
 
-      <!-- Health Report Section -->
-      <section class="form-section">
-        <h3>Health Check Report</h3>
-        <p class="section-hint">Mandatory: Upload your recent health check report (PDF, JPG, PNG)</p>
-        <div class="upload-box" [class.has-file]="formData.healthReport">
-          <input type="file" id="healthReport" (change)="onFileSelected($event)" hidden>
-          <label for="healthReport" class="upload-label">
-            <span class="icon">📁</span>
-            @if (formData.healthReport) {
-              <span class="file-name">{{ formData.healthReport.name }}</span>
-            } @else {
-              <span>Choose File (No file chosen)</span>
-            }
-          </label>
-        </div>
-      </section>
-
-      <!-- Members Section -->
-      <section class="form-section">
-        <div class="section-header">
-          <h3>Members to Insure</h3>
-          <button class="btn-add-member" (click)='addMember()'>+ Add Member</button>
-        </div>
-        <p class="section-hint">Add all members (including yourself) who need to be covered under this policy.</p>
-
-        <div class="members-dynamic-list">
-          @for (m of formData.members; track $index) {
-            <div class="member-item-card">
-              <div class="member-card-header">
-                <h4>Member {{ $index + 1 }}</h4>
-                @if ($index > 0) {
-                  <button class="btn-remove" (click)="removeMember($index)">Remove</button>
-                }
-              </div>
-              
-              <div class="form-grid-3">
-                <div class="form-group">
-                  <label>Full Name *</label>
-                  <input type="text" [(ngModel)]="m.fullName" placeholder="Full name">
-                </div>
-                <div class="form-group">
-                  <label>Relationship *</label>
-                  <select [(ngModel)]="m.relationship">
-                    <option value="Self">Self</option>
-                    <option value="Spouse">Spouse</option>
-                    <option value="Child">Child</option>
-                    <option value="Parent">Parent</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Date of Birth *</label>
-                  <input type="date" [(ngModel)]="m.dateOfBirth" [max]="today">
-                </div>
-              </div>
-
-              <div class="form-grid-2 mt-3">
-                <div class="form-group">
-                  <label>Gender *</label>
-                  <select [(ngModel)]="m.gender">
-                    <option value="">— Select —</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Pre-existing Diseases / Conditions</label>
-                  <input type="text" [(ngModel)]="m.preExistingConditions" placeholder="e.g. Diabetes, Hypertension, None">
-                </div>
-              </div>
+      <!-- STEP 1: NOMINEE & INITIAL INFO -->
+      @if (formStep === 1) {
+        <section class="form-section fade-in">
+          <h3>Nominee & Support Details</h3>
+          <p>This is the person who will receive the benefits in accordance with policy terms.</p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Nominee Full Name *</label>
+              <input type="text" [(ngModel)]="formData.nomineeName" placeholder="e.g. Priya Sharma">
             </div>
-          }
-        </div>
-      </section>
-
-      <!-- ════════════ NEW: REWARDS & SAVINGS ════════════ -->
-      <section class="form-section rewards-section">
-        <div class="section-header">
-          <h3>🎁 Rewards & Savings</h3>
-          <span class="points-badge">Your Points: {{ userProfile?.userPoints || 0 }}</span>
-        </div>
-        <p class="section-hint">Select rewards you've earned from quizzes to apply to this policy.</p>
-
-        @if (availableRewards.length > 0) {
-          <div class="rewards-selection-grid">
-            @for (r of availableRewards; track r.userRewardId) {
-              <div class="reward-mini-card" 
-                   [class.selected]="formData.rewardIds.includes(r.userRewardId)"
-                   (click)="toggleReward(r.userRewardId)">
-                <div class="reward-info">
-                  <span class="type">{{ r.rewardType }}</span>
-                  <span class="value">{{ r.discountValue }}% OFF</span>
-                </div>
-                <div class="selection-indicator">
-                  {{ formData.rewardIds.includes(r.userRewardId) ? '✔️' : '+' }}
-                </div>
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="empty-rewards">
-            <p>No rewards available. <a routerLink="/quizzes" class="link">Play Quizzes</a> to earn points and redeem coupons!</p>
-          </div>
-        }
-
-        <!-- Automatic Discount Rules -->
-        <div class="discount-rules-info mt-4">
-          <h4>Automatic Discounts (Based on Effort)</h4>
-          <div class="rules-list">
-            @for (rule of discountRules; track rule.ruleId) {
-              <div class="rule-item" [class.achieved]="getRuleStatus(rule)">
-                <span class="status-icon">{{ getRuleStatus(rule) ? '✅' : '🔒' }}</span>
-                <div class="rule-text">
-                  <span class="rule-name">{{ rule.ruleName }} ({{ rule.discountPercentage }}% Off)</span>
-                  <p class="rule-desc">{{ rule.description }}</p>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- ════════════ PREVIEW BREAKDOWN ════════════ -->
-      @if (preview) {
-        <section class="form-section preview-section">
-          <h3>Premium Estimate</h3>
-          <div class="preview-card">
-            <div class="preview-row">
-              <span>Base Premium</span>
-              <span>₹{{ preview.basePremium | number }}</span>
+            <div class="form-group">
+              <label>Relationship *</label>
+              <select [(ngModel)]="formData.nomineeRelationship">
+                <option value="">— Select —</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Child">Child</option>
+                <option value="Parent">Parent</option>
+                <option value="Sibling">Sibling</option>
+              </select>
             </div>
-            @for (d of preview.appliedDiscounts; track $index) {
-              <div class="preview-row discount">
-                <span>{{ d.ruleName }} ({{ d.reason }})</span>
-                <span>-{{ d.discountPercentage }}%</span>
-              </div>
-            }
-            <div class="preview-row total">
-              <strong>Estimated Final Premium</strong>
-              <strong>₹{{ preview.finalPremium | number }}/yr</strong>
-            </div>
-            <p class="preview-note">* This is an estimate. Final premium will be confirmed by the underwriter after reviewing your health report and nominee details.</p>
+          </div>
+
+          <hr class="section-divider">
+
+          <h3>Health Status Proof</h3>
+          <p class="section-hint">Upload a recent full body checkup report or discharge summary (Max 5MB).</p>
+          <div class="upload-box" [class.has-file]="formData.healthReport">
+            <input type="file" id="healthReport" (change)="onFileSelected($event)" hidden>
+            <label for="healthReport" class="upload-label">
+              <span class="icon">📁</span>
+              @if (formData.healthReport) {
+                <span class="file-name">{{ formData.healthReport.name }}</span>
+              } @else {
+                <span>Select Document (PDF/Image)</span>
+              }
+            </label>
           </div>
         </section>
       }
 
-      <!-- Notification Messages -->
-      @if (successMessage) {
-        <div class="alert alert-success">
-          <span class="icon">✅</span> {{ successMessage }}
-        </div>
+      <!-- STEP 2: MEMBERS -->
+      @if (formStep === 2) {
+        <section class="form-section fade-in">
+          <div class="section-header">
+            <h3>Add Insured Parties</h3>
+            <button class="btn-add-member" (click)='addMember()'>+ Add Member</button>
+          </div>
+          <p class="section-hint">Insure yourself and your loved ones in one go.</p>
+  
+          <div class="members-dynamic-list">
+            @for (m of formData.members; track $index) {
+              <div class="member-item-card">
+                <div class="member-card-header">
+                  <h4>{{ $index === 0 ? 'Primary Member (You)' : 'Family Member ' + ($index + 1) }}</h4>
+                  @if ($index > 0) {
+                    <button class="link-remove" (click)="removeMember($index)">Remove member</button>
+                  }
+                </div>
+                
+                <div class="form-grid-3">
+                  <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" [(ngModel)]="m.fullName" placeholder="Full name">
+                  </div>
+                  <div class="form-group">
+                    <label>Relationship *</label>
+                    <select [(ngModel)]="m.relationship">
+                      <option value="Self">Self</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Child">Child</option>
+                      <option value="Parent">Parent</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Date of Birth *</label>
+                    <input type="date" [(ngModel)]="m.dateOfBirth" [max]="today">
+                  </div>
+                </div>
+  
+                <div class="form-grid-2 mt-3">
+                  <div class="form-group">
+                    <label>Gender *</label>
+                    <select [(ngModel)]="m.gender">
+                      <option value="">— Select —</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Pre-existing Conditions</label>
+                    <input type="text" [(ngModel)]="m.preExistingConditions" placeholder="None, or list details...">
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
       }
+
+      <!-- STEP 3: MEDICAL DECLARATION (HIGH REALISM) -->
+      @if (formStep === 3) {
+        <section class="form-section medical-declarations fade-in">
+          <h3>Health & Lifestyle Declarations</h3>
+          <p>Please answer accurately. These declarations are vital for underwriting.</p>
+
+          <div class="declaration-item">
+            <div class="d-text">
+              <strong>Hospitalization History</strong>
+              <p>Have you or any insured member been hospitalized in the last 12 months?</p>
+            </div>
+            <div class="d-toggle">
+              <button [class.active]="formData.declarations.hospitalizedLastYear" (click)="formData.declarations.hospitalizedLastYear = true">YES</button>
+              <button [class.active]="!formData.declarations.hospitalizedLastYear" (click)="formData.declarations.hospitalizedLastYear = false">NO</button>
+            </div>
+          </div>
+
+          <div class="declaration-item">
+            <div class="d-text">
+              <strong>Chronic Illnesses</strong>
+              <p>Is there any history of Diabetes, Hypertension, Heart issues or Cancer?</p>
+            </div>
+            <div class="d-toggle">
+              <button [class.active]="formData.declarations.chronicConditions" (click)="formData.declarations.chronicConditions = true">YES</button>
+              <button [class.active]="!formData.declarations.chronicConditions" (click)="formData.declarations.chronicConditions = false">NO</button>
+            </div>
+          </div>
+
+          <div class="declaration-item">
+            <div class="d-text">
+              <strong>Lifestyle Habits</strong>
+              <p>Do any members smoke or consume alcohol regularly?</p>
+            </div>
+            <div class="d-toggle">
+              <button [class.active]="formData.declarations.smokeOrAlcohol" (click)="formData.declarations.smokeOrAlcohol = true">YES</button>
+              <button [class.active]="!formData.declarations.smokeOrAlcohol" (click)="formData.declarations.smokeOrAlcohol = false">NO</button>
+            </div>
+          </div>
+
+          <div class="declaration-item">
+            <div class="d-text">
+              <strong>Surgical Procedures</strong>
+              <p>Is there any planned surgery or surgery history in the last 5 years?</p>
+            </div>
+            <div class="d-toggle">
+              <button [class.active]="formData.declarations.surgicalHistory" (click)="formData.declarations.surgicalHistory = true">YES</button>
+              <button [class.active]="!formData.declarations.surgicalHistory" (click)="formData.declarations.surgicalHistory = false">NO</button>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- STEP 4: REWARDS & SAVINGS -->
+      @if (formStep === 4) {
+        <section class="form-section rewards-section fade-in">
+          <div class="section-header">
+            <h3>🎁 Rewards & Savings</h3>
+          </div>
+          <p class="section-hint">Convert your learning achievements into actual savings on this plan.</p>
+  
+          @if (availableRewards.length > 0) {
+            <div class="rewards-selection-grid">
+              @for (r of availableRewards; track r.userRewardId) {
+                <div class="reward-mini-card" 
+                     [class.selected]="formData.rewardIds.includes(r.userRewardId)"
+                     (click)="toggleReward(r.userRewardId)">
+                  <div class="reward-info">
+                    <span class="type">{{ r.rewardType }}</span>
+                    <span class="value">{{ r.discountValue }}% OFF</span>
+                  </div>
+                  <div class="selection-indicator">
+                    {{ formData.rewardIds.includes(r.userRewardId) ? '✔️' : '+' }}
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-rewards">
+              <p>No rewards available. <a routerLink="/quizzes" class="link">Play Quizzes</a> to earn points!</p>
+            </div>
+          }
+  
+          <div class="discount-rules-info mt-4">
+            <h4>Loyalty & Elite Discounts (Auto-Applied)</h4>
+            <div class="rules-list">
+              @for (rule of discountRules; track rule.ruleId) {
+                <div class="rule-item" [class.achieved]="getRuleStatus(rule)">
+                  <span class="status-icon">{{ getRuleStatus(rule) ? '✨' : '🔒' }}</span>
+                  <div class="rule-text">
+                    <span class="rule-name">{{ rule.ruleName }}</span>
+                    <p class="rule-desc">{{ rule.discountPercentage }}% saving applied based on your account status.</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- STEP 5: FINAL REVIEW -->
+      @if (formStep === 5) {
+        <section class="form-section review-summary fade-in">
+          <h3>Final Review & Settlement Estimate</h3>
+          <p>Carefully review your information before final submission.</p>
+
+          <div class="review-grid">
+            <div class="review-block">
+              <h5>Policy Overview</h5>
+              <p><strong>Plan:</strong> {{ selectedPlan?.title }}</p>
+              <p><strong>Nominee:</strong> {{ formData.nomineeName }} ({{ formData.nomineeRelationship }})</p>
+              <p><strong>Document:</strong> {{ formData.healthReport ? 'Attached' : 'Not Provided' }}</p>
+            </div>
+            <div class="review-block">
+              <h5>Members Insured</h5>
+              <ul>
+                @for (m of formData.members; track $index) {
+                  <li>{{ m.fullName }} ({{ m.relationship }})</li>
+                }
+              </ul>
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          @if (preview) {
+            <div class="premium-assessment-card">
+              <div class="p-header">Estimated Annual Premium</div>
+              <div class="p-amount">₹{{ preview.finalPremium | number }}</div>
+              <div class="p-breakdown">
+                @for (d of preview.appliedDiscounts; track $index) {
+                  <div class="d-row"><span>{{ d.ruleName }}</span> <span>-{{ d.discountPercentage }}%</span></div>
+                }
+              </div>
+              <p class="p-notice">Final premium will be approved by Underwriter Alice after reviewing medical declarations.</p>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ERROR MESSAGE -->
       @if (errorMessage) {
-        <div class="alert alert-error">
+        <div class="alert alert-error slide-up">
           <span class="icon">⚠️</span> {{ errorMessage }}
         </div>
       }
 
-      <!-- Submit Footer -->
-      <div class="form-footer">
-        <button class="btn-submit-app" (click)="submitRequest()">
-          <span class="icon">🚀</span> Submit Policy Request
-        </button>
+      <!-- WIZARD NAVIGATION FOOTER -->
+      <div class="form-wizard-footer">
+        @if (formStep > 1) {
+          <button class="btn-prev" (click)="prevFormStep()">Previous Step</button>
+        } @else {
+          <div></div>
+        }
+
+        @if (formStep < 5) {
+          <button class="btn-next" (click)="nextFormStep()">
+            Next Step: {{ (formStep === 1 ? 'Insured Members' : formStep === 2 ? 'Health Questions' : formStep === 3 ? 'Savings' : 'Final Review') }} →
+          </button>
+        } @else {
+          <button class="btn-submit-final" (click)="submitRequest()" [disabled]="loading">
+            <span class="icon">📜</span> Confirm & Submit to Underwriter
+          </button>
+        }
       </div>
     </div>
   }

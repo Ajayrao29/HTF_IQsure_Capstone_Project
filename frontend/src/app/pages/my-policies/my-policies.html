@@ -66,6 +66,11 @@
               @if (p.discountApplied > 0 && p.status !== 'QUOTES_SENT') {
                 <span class="discount-applied">{{ p.discountApplied }}% discount</span>
               }
+              @if (p.status === 'ACTIVE') {
+                 <button class="btn-card-view" (click)="viewCertificate(p)">
+                   <span class="view-id-icon">🪪</span> Digital ID
+                 </button>
+              }
             </div>
           </div>
         </div>
@@ -131,6 +136,45 @@
         <p class="footer-note">A confirmation email has been sent to your registered address.</p>
         
         <button class="btn-done" (click)="showSuccessCard = false">Back to Dashboard</button>
+      </div>
+    </div>
+  }
+
+  <!-- 🪪 DIGITAL MEMBER CARD (PREMIUM WOW FACTOR) -->
+  @if (showCertificate && selectedPolicy) {
+    <div class="modal-overlay" (click)='showCertificate = false'>
+      <div class="digital-member-card fade-in" [class]="selectedPolicy.policyType" (click)="$event.stopPropagation()">
+        <div class="card-glass"></div>
+        <div class="card-inner">
+          <div class="p-card-top">
+            <span class="p-brand">IQsure 🛡️</span>
+            <span class="p-tier-badge">{{ selectedPolicy.policyTitle.includes('Gold') ? 'ELITE' : 'PLATINUM' }}</span>
+          </div>
+
+          <div class="p-card-middle">
+            <div class="p-user-v">
+              <span class="p-label">CARD HOLDER</span>
+              <strong class="p-user-name">{{ selectedPolicy.userName }}</strong>
+            </div>
+            <div class="p-policy-v">
+              <span class="p-label">INSURANCE ID</span>
+              <strong class="p-id-num">{{ getPolicyNumber(selectedPolicy.id) }}</strong>
+            </div>
+          </div>
+
+          <div class="p-card-footer">
+            <div class="f-item">
+              <span>PLAN TIER</span>
+              <strong>{{ selectedPolicy.policyTitle }}</strong>
+            </div>
+            <div class="f-item">
+              <span>VALID UNTIL</span>
+              <strong>{{ selectedPolicy.expiryDate ? (selectedPolicy.expiryDate | date:'mediumDate') : '03/2027'}}</strong>
+            </div>
+          </div>
+
+          <button class="btn-card-close" (click)="showCertificate = false">Close Access Pass</button>
+        </div>
       </div>
     </div>
   }

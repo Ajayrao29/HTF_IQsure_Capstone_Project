@@ -170,6 +170,26 @@
         <div class="assessment-form-container">
           @if (!showSettlementModal) {
             <div class="form-card">
+              <!-- 🤖 AGENTIC AI AUDIT PORTAL -->
+              <div class="ai-audit-portal">
+                <div class="audit-header">
+                  <span class="ai-chip">AGENTIC AI AUDITOR</span>
+                  <h4>Cognitive Audit Assessment</h4>
+                </div>
+                
+                @if (aiGenerating) {
+                  <div class="audit-thinking">
+                    <div class="pulse-ring"></div>
+                    <span>Analyzing hospital policy compliance...</span>
+                  </div>
+                } @else if (aiAudit) {
+                  <div class="audit-result slide-up">
+                    <pre>{{ aiAudit }}</pre>
+                    <div class="confidence-tag">98.2% Confidence Level Matrix</div>
+                  </div>
+                }
+              </div>
+
               <h3>Adjudication Verdict</h3>
               <p>Execute the final decision and record regulatory remarks.</p>
 

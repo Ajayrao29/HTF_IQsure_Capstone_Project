@@ -19,6 +19,8 @@ export class UnderwriterPendingComponent implements OnInit {
   quoteAmount: number | null = null;
   remarks = '';
   submitting = false;
+  analyzingAi = false;
+  aiResult: any = null;
   notification: { message: string, type: 'success' | 'error' } | null = null;
 
   constructor(private api: ApiService, private auth: AuthService) {}
@@ -43,8 +45,35 @@ export class UnderwriterPendingComponent implements OnInit {
 
   openQuoteModal(app: any): void {
     this.selectedApp = app;
-    this.quoteAmount = app.finalPremium; // Start with the price reflecting rewards/discounts
+    this.quoteAmount = app.finalPremium; 
     this.remarks = '';
+    this.aiResult = null; // Clear previous AI results
+  }
+
+  runAiAnalysis(): void {
+    if (!this.selectedApp) return;
+    this.analyzingAi = true;
+    this.api.getAiAnalysis(this.selectedApp.id).subscribe({
+      next: (res) => {
+        this.aiResult = res;
+        this.analyzingAi = false;
+        // Optionally prepend reasoning to remarks
+        if (!this.remarks) {
+          this.remarks = `[AI Analysis]: ${res.aiReasoningSummary}\n\n[Action]: ${res.personalRecommendation}`;
+        }
+      },
+      error: () => {
+        this.analyzingAi = false;
+        this.showNotification('AI analysis service currently unavailable.', 'error');
+      }
+    });
+  }
+
+  applyAiSuggestion(): void {
+    if (!this.aiResult) return;
+    this.quoteAmount = this.aiResult.suggestedQuoteAmount;
+    this.remarks = `${this.aiResult.underwritingMemo}\n\n[Verdict]: Adopted AI recommendation at ₹${this.aiResult.suggestedQuoteAmount}`;
+    this.showNotification('Actuarial recommendation adopted.', 'success');
   }
 
   submitQuote(): void {
@@ -66,11 +95,33 @@ export class UnderwriterPendingComponent implements OnInit {
     });
   }
 
+  rejectApplication(): void {
+    if (!this.selectedApp) return;
+    if (!this.remarks || this.remarks.length < 10) {
+      this.showNotification('Please provide a detailed rejection reason (min 10 chars).', 'error');
+      return;
+    }
+
+    this.submitting = true;
+    this.api.rejectPolicy(this.selectedApp.id, this.remarks).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.selectedApp = null;
+        this.showNotification('Application REJECTED and customer notified.', 'success');
+        this.loadPending();
+      },
+      error: () => {
+        this.submitting = false;
+        this.showNotification('Failed to process rejection. Try again.', 'error');
+      }
+    });
+  }
+
   showNotification(message: string, type: 'success' | 'error'): void {
     this.notification = { message, type };
     setTimeout(() => {
       this.notification = null;
-    }, 3000);
+    }, 4000);
   }
 
   getFileUrl(path: string): string {

@@ -10,11 +10,12 @@
  * FEATURES: User avatar with initials, profile dropdown, logout button
  * USES: AuthService (services/auth.service.ts), Router (for logout redirect)
  */
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -23,11 +24,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit {
   notifications: any[] = [];
   unreadCount = 0;
   showNotifications = false;
-  private pollInterval: any;
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
@@ -37,19 +37,23 @@ export class NavbarComponent implements OnInit, OnDestroy {
   constructor(
     public auth: AuthService, 
     private api: ApiService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
       this.loadNotifications();
-      // Poll for new notifications every 30 seconds
-      this.pollInterval = setInterval(() => this.loadNotifications(), 30000);
+      
+      // Subscribe to real-time notification stream
+      this.notificationService.notifications$.subscribe(notification => {
+        // Add new notification to the top of the list
+        this.notifications = [notification, ...this.notifications];
+        if (!notification.read && !notification.isRead) {
+          this.unreadCount++;
+        }
+      });
     }
-  }
-
-  ngOnDestroy() {
-    if (this.pollInterval) clearInterval(this.pollInterval);
   }
 
   loadNotifications() {
@@ -96,7 +100,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    if (this.pollInterval) clearInterval(this.pollInterval);
     this.auth.logout();
     this.router.navigate(['/login']);
   }

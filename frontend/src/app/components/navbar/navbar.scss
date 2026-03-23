@@ -184,6 +184,22 @@
   &:hover { background: rgba(233, 30, 99, 0.05); color: #E91E63; }
 }
 
+.profile-link {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1.25rem;
+  color: #4A154B;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: block;
+  text-decoration: none;
+  &:hover { background: rgba(233, 30, 99, 0.05); color: #E91E63; }
+}
+
 .nav-dropdown {
   position: relative;
   display: inline-block;

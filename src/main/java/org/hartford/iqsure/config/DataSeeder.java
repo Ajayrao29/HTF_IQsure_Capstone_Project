@@ -78,7 +78,7 @@ public class DataSeeder {
         // Seed Underwriter if not exists
         if (userRepository.findByEmail("underwriter@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
-                    .name("Alice Underwriter")
+                    .name("Underwriter1")
                     .email("underwriter@iqsure.com")
                     .password(passwordEncoder.encode("underwriter123"))
                     .role(User.Role.ROLE_UNDERWRITER)
@@ -93,7 +93,7 @@ public class DataSeeder {
         // Seed Claims Officer if not exists
         if (userRepository.findByEmail("bob@iqsure.com").isEmpty()) {
             userRepository.save(User.builder()
-                    .name("Bob Claims")
+                    .name("Claims1")
                     .email("bob@iqsure.com")
                     .password(passwordEncoder.encode("claims123"))
                     .role(User.Role.ROLE_CLAIMS_OFFICER)
@@ -289,6 +289,7 @@ public class DataSeeder {
         savePolicy("Family Health Plan", "Comprehensive family floater plan covering spouse and up to 3 children. Includes maternity and restoration benefit.", 20000.0, 1500000.0, 12, "18-65", "FAMILY", "2 months", true, false);
         savePolicy("Senior Citizen Plan", "Tailored plan for senior citizens aged 60-80 years. Covers pre-existing diseases after 2-year waiting period.", 25000.0, 800000.0, 12, "60-80", "SENIOR_CITIZEN", "24 months", false, true);
         savePolicy("Platinum Health Plan", "Ultimate individual plan with maximum ₹20 Lakh coverage, air ambulance, and personal accident cover.", 30000.0, 2000000.0, 12, "18-55", "INDIVIDUAL", "1 month", true, true);
+        savePolicy("Cyber Shield Protection", "Modern digital protection against identity theft, online fraud, and social media hacking. Includes 24/7 expert support.", 1200.0, 500000.0, 12, "13-75", "INDIVIDUAL", "Instant", false, false);
 
         policyRepository.flush(); // Ensure policies are in DB
         log.info("Health Insurance Policies seeded.");
@@ -414,7 +415,53 @@ public class DataSeeder {
                 "A special discount,Specific risks or conditions NOT covered by the policy,The date when the policy starts,A person who is not allowed to buy insurance",
                 1, "An exclusion is a provision within an insurance policy that eliminates coverage for certain types of risks or losses.");
 
-        log.info("3 Quizzes and their 5 questions each seeded successfully.");
+        // Quiz 4: Real-World Scenarios
+        org.hartford.iqsure.entity.Quiz scenarioQuiz = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
+                .title("Real-World Insurance Scenarios")
+                .category("HEALTH")
+                .difficulty(org.hartford.iqsure.entity.Quiz.Difficulty.HARD)
+                .build());
+
+        addQuestion(scenarioQuiz, "SCENARIO: You are on vacation and have a medical emergency in a foreign country. Does a standard local health policy cover you?", 
+                "Yes always,No unless it has International Coverage/Rider,Only if you pay in cash,Only if it's life-threatening",
+                1, "Standard health policies are usually domestic. International coverage typically requires a specific rider or a specialized travel insurance policy.");
+
+        addQuestion(scenarioQuiz, "SCENARIO: You find a small water leak in your ceiling that has been dripping for 6 months. Is this usually covered by 'Accidental Damage' property insurance?", 
+                "Yes,No (it's wear and tear/gradual damage),Only if the ceiling falls,Yes but only 50%",
+                1, "Most accidental damage policies exclude 'gradual damage' or 'wear and tear'. Sudden bursts are covered, but slow leaks over months are considered maintenance issues.");
+
+        addQuestion(scenarioQuiz, "SCENARIO: You are driving a friend's car and cause an accident. Whose insurance usually pays first?", 
+                "Your insurance,Your friend's insurance (The car's policy),The government,The police",
+                1, "In most jurisdictions, insurance follows the car, not the driver. The car owner's policy is typically the primary coverage.");
+
+        addQuestion(scenarioQuiz, "SCENARIO: You have a ₹5 Lakh health policy with a ₹50,000 deductible. You have a hospital bill of ₹40,000. How much will the insurer pay?", 
+                "₹40000,₹0 (Bill is below deductible),₹10000,₹50000",
+                1, "Since the bill is less than your deductible (the amount you must pay first), the insurance company pays nothing.");
+
+        addQuestion(scenarioQuiz, "SCENARIO: You upgrade your home's security with smart locks and cameras. Why should you tell your insurer?", 
+                "To show off,To lower your premium (Security discount),To pay more tax,To get a gift card",
+                1, "Higher security reduces risk, and many insurers offer 'Security Discounts' on home or property insurance premiums.");
+
+        // Quiz 5: Cyber Security & Digital Risks
+        org.hartford.iqsure.entity.Quiz cyberQuiz = quizRepository.save(org.hartford.iqsure.entity.Quiz.builder()
+                .title("Digital Safety & Cyber Risks")
+                .category("CYBER")
+                .difficulty(org.hartford.iqsure.entity.Quiz.Difficulty.MEDIUM)
+                .build());
+
+        addQuestion(cyberQuiz, "What is 'Phishing' in the digital world?", 
+                "A type of sport,An attempt to steal sensitive info via fake emails/links,A way to catch fish,A computer virus",
+                1, "Phishing is a cyber attack that uses disguised email as a weapon to trick the recipient into believing that the message is something they want or need.");
+
+        addQuestion(cyberQuiz, "Why is Two-Factor Authentication (2FA) important?", 
+                "It makes login slower,It adds an extra layer of security beyond just a password,It's only for banks,It changes your password every day",
+                1, "2FA requires two different forms of identification to access an account, making it much harder for hackers to break in.");
+
+        addQuestion(cyberQuiz, "What should you do if you receive an 'Urgent' email from your bank asking for your PIN?", 
+                "Reply immediately,Click the link to verify,Delete it and call your bank using their official number,Forward it to friends",
+                2, "Banks will NEVER ask for your PIN or password via email. This is a common scam tactic.");
+
+        log.info("5 Quizzes and their questions seeded successfully.");
     }
 
     private void addQuestion(org.hartford.iqsure.entity.Quiz quiz, String text, String options, int rightOptionIdx, String explanation) {

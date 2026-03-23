@@ -78,4 +78,9 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> createClaimsOfficer(@RequestBody org.hartford.iqsure.dto.request.UserRequestDTO dto) {
         return ResponseEntity.ok(userService.createClaimsOfficer(dto));
     }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserResponseDTO> updateProfile(@PathVariable Long userId, @RequestBody org.hartford.iqsure.dto.request.UserRequestDTO dto) {
+        return ResponseEntity.ok(userService.updateProfile(userId, dto));
+    }
 }

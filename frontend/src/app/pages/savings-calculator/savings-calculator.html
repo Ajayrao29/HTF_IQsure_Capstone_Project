@@ -9,14 +9,14 @@
   <div class="savings-hero">
     <div class="savings-card total">
       <div class="savings-icon">💵</div>
-      <div class="savings-amount">${{ totalSavings | number:'1.2-2' }}</div>
+      <div class="savings-amount">₹{{ totalSavings | number:'1.2-2' }}</div>
       <div class="savings-label">Total Saved</div>
       <div class="savings-desc">From {{ policies.length }} purchased policies</div>
     </div>
 
     <div class="savings-card potential">
       <div class="savings-icon">🎯</div>
-      <div class="savings-amount">${{ potentialSavings | number:'1.2-2' }}</div>
+      <div class="savings-amount">₹{{ potentialSavings | number:'1.2-2' }}</div>
       <div class="savings-label">Potential Savings</div>
       <div class="savings-desc">Available on all policies</div>
     </div>
@@ -29,11 +29,11 @@
         <div class="comparison-item">
           <div class="policy-name">{{ p.policyTitle }}</div>
           <div class="price-comparison">
-            <div class="original-price">${{ p.basePremium }}</div>
+            <div class="original-price">₹{{ p.basePremium }}</div>
             <div class="arrow">→</div>
-            <div class="final-price">${{ p.finalPremium }}</div>
+            <div class="final-price">₹{{ p.finalPremium }}</div>
           </div>
-          <div class="savings-badge">Saved ${{ p.savedAmount | number:'1.2-2' }} ({{ p.discountApplied }}%)</div>
+          <div class="savings-badge">Saved ₹{{ p.savedAmount | number:'1.2-2' }} ({{ p.discountApplied }}%)</div>
         </div>
       }
     </div>

@@ -48,6 +48,59 @@
     font-weight: 500;
   }
 
+  /* 🤖 AGENTIC AI: ONBOARDING BUBBLE */
+  .ai-onboarding-bubble {
+    background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 100%);
+    border: 2px solid rgba(139, 0, 63, 0.2);
+    padding: 1.25rem 1.75rem;
+    border-radius: 20px;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(139, 0, 63, 0.05);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 30px;
+      width: 20px;
+      height: 20px;
+      background: #FFE4E1;
+      border-right: 2px solid rgba(139, 0, 63, 0.2);
+      border-bottom: 2px solid rgba(139, 0, 63, 0.2);
+      transform: rotate(45deg);
+    }
+
+    .ai-avatar {
+      width: 45px;
+      height: 45px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 1.5px solid #8B003F;
+      box-shadow: 0 5px 15px rgba(139, 0, 63, 0.1);
+      animation: bounceSoft 2s infinite;
+    }
+
+    .ai-bubble-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #4A001F;
+      line-height: 1.4;
+    }
+  }
+
+  @keyframes bounceSoft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
   .error-msg {
     background: #FEF2F2;
     border: 1px solid #FCA5A5;

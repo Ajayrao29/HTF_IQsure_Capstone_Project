@@ -16,6 +16,11 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    @GetMapping(value = "/subscribe/user/{userId}", produces = org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE)
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter subscribe(@PathVariable Long userId) {
+        return notificationService.subscribe(userId);
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Notification>> getNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getNotificationsForUser(userId));

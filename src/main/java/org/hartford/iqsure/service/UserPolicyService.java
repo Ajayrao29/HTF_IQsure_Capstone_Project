@@ -47,6 +47,16 @@ public class UserPolicyService {
         Policy policy = policyRepository.findById(dto.getPolicyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Policy not found: " + dto.getPolicyId()));
 
+        // Check if user already has this policy in a non-rejected status
+        boolean alreadyHas = userPolicyRepository.findByUser_UserId(userId).stream()
+                .anyMatch(up -> up.getPolicy().getPolicyId().equals(dto.getPolicyId()) && 
+                          up.getStatus() != org.hartford.iqsure.entity.UserPolicy.PolicyStatus.REJECTED &&
+                          up.getStatus() != org.hartford.iqsure.entity.UserPolicy.PolicyStatus.EXPIRED);
+        
+        if (alreadyHas) {
+            throw new BadRequestException("You already have a pending or active application for " + policy.getTitle());
+        }
+
         if (!policy.getIsActive()) {
             throw new BadRequestException("Policy is not currently active: " + policy.getTitle());
         }

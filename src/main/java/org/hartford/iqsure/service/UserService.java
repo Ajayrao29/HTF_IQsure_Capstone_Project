@@ -44,6 +44,9 @@ public class UserService {
     private final QuizAttemptRepository attemptRepository; // Needed for leaderboard stats
     private final PasswordEncoder passwordEncoder;         // BCrypt hasher from SecurityConfig
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
+    private final NotificationService notificationService;
+    private final org.hartford.iqsure.repository.PasswordResetTokenRepository tokenRepository;
 
     // ── REGISTER: Create a new user account ──────────────────────────────
     // Called by: AuthController → POST /api/auth/register
@@ -150,15 +153,74 @@ public class UserService {
     }
 
     // ── UPDATE PROFILE ───────────────────────────────────────────────────
+    @Transactional
     public UserResponseDTO updateProfile(Long userId, UserRequestDTO dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        
         user.setName(dto.getName());
         user.setPhone(dto.getPhone());
+        user.setCity(dto.getCity());
+        user.setState(dto.getState());
+        user.setZipCode(dto.getZipCode());
+
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
+            notificationService.createNotification(userId, "Security Alert: Your password has been updated.", org.hartford.iqsure.entity.Notification.NotificationType.GENERAL, null, "/profile");
         }
-        return toDTO(userRepository.save(user));
+
+        user = userRepository.save(user);
+        notificationService.createNotification(userId, "Profile details updated successfully!", org.hartford.iqsure.entity.Notification.NotificationType.GENERAL, null, "/profile");
+        return toDTO(user);
+    }
+
+    // ── FORGOT PASSWORD ──────────────────────────────────────────────────
+    @Transactional
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email.trim().toLowerCase())
+                .orElseThrow(() -> new BadRequestException("No account found with that email address"));
+
+        // Generate 6-digit OTP
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+        
+        // Remove existing token if any
+        tokenRepository.findByUser(user).ifPresent(tokenRepository::delete);
+
+        // Store new token (expires in 10 mins)
+        org.hartford.iqsure.entity.PasswordResetToken token = org.hartford.iqsure.entity.PasswordResetToken.builder()
+                .token(otp)
+                .user(user)
+                .expiryDate(java.time.LocalDateTime.now().plusMinutes(10))
+                .build();
+        tokenRepository.save(token);
+
+        // Send Email
+        emailService.sendOtpEmail(email, otp);
+
+        // Send Push Notification (if logged in on another device/tab)
+        notificationService.createNotification(user.getUserId(), "A password reset request was initiated for your account. Use OTP: " + otp, org.hartford.iqsure.entity.Notification.NotificationType.GENERAL, null, "/reset-password");
+    }
+
+    // ── RESET PASSWORD ───────────────────────────────────────────────────
+    @Transactional
+    public void resetPassword(String otp, String newPassword) {
+        org.hartford.iqsure.entity.PasswordResetToken resetToken = tokenRepository.findByToken(otp)
+                .orElseThrow(() -> new BadRequestException("Invalid OTP"));
+
+        if (resetToken.isExpired()) {
+            tokenRepository.delete(resetToken);
+            throw new BadRequestException("OTP has expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Remove token after use
+        tokenRepository.delete(resetToken);
+
+        // Notify user about password change
+        notificationService.createNotification(user.getUserId(), "Your password has been reset successfully. You can now login with your new password.", org.hartford.iqsure.entity.Notification.NotificationType.GENERAL, null, "/login");
     }
 
     public void deleteUser(Long userId) {

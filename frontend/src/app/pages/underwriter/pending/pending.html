@@ -130,6 +130,99 @@
         <!-- ── Right Column: Decision Form ── -->
         <div class="assessment-form-container">
           <div class="form-card">
+            
+            <!-- AI ASSISTANT SECTION -->
+            <div class="ai-assistant-panel" [class.analyzed]="aiResult">
+              <div class="ai-header">
+                <div class="ai-title">
+                  <span class="ai-label">🤖 AI Cognitive Assistant</span>
+                  <span class="ai-subtitle">Agentic Underwriting Engine</span>
+                </div>
+                @if (aiResult) {
+                  <div class="badge-group">
+                    <span class="ai-badge risk" [class]="aiResult.riskLevel">{{ aiResult.riskLevel }} RISK</span>
+                    <span class="ai-badge load">+{{ aiResult.loadingPercentage }}% Loading</span>
+                  </div>
+                }
+              </div>
+
+              @if (!aiResult && !analyzingAi) {
+                <div class="ai-cta">
+                  <div class="ai-icon-pulse">✨</div>
+                  <p>Request AI reasoning for this medical profile.</p>
+                  <button class="btn-ai-sparkle" (click)="runAiAnalysis()">Run Risk Analysis</button>
+                </div>
+              }
+
+              @if (analyzingAi) {
+                <div class="ai-thinking">
+                  <div class="thinking-dots"><span></span><span></span><span></span></div>
+                  <p>Assessing loss-ratio & morbidity data...</p>
+                </div>
+              }
+
+              @if (aiResult) {
+                <div class="ai-result slide-up">
+                   <div class="ai-gauges">
+                      <div class="gauge-item">
+                        <span class="g-label">Confidence</span>
+                        <div class="conf-score">
+                          <div class="p-fill" [style.width]="aiResult.confidenceScore + '%'"></div>
+                        </div>
+                      </div>
+                      <div class="gauge-item">
+                        <span class="g-label">Premium Loading (Suggested)</span>
+                        <div class="load-score">
+                          <div class="p-fill" [style.width]="(aiResult.loadingPercentage * 2) + '%'"></div>
+                        </div>
+                      </div>
+                   </div>
+
+                   <div class="ai-reasoning">
+                      <h6>AI Logic Summary:</h6>
+                      <p>"{{ aiResult.aiReasoningSummary }}"</p>
+                   </div>
+
+                   <div class="ai-memo">
+                      <h6>Underwriting Memo:</h6>
+                      <p>{{ aiResult.underwritingMemo }}</p>
+                   </div>
+                   
+                   <div class="ai-factors">
+                     @if (aiResult.keyRiskFactors.length > 0) {
+                       <div class="factor-group warn">
+                         <div class="h-row">🚨 <h6>Adverse Risk Vectors</h6></div>
+                         <ul>
+                           @for (f of aiResult.keyRiskFactors; track f) { <li>{{ f }}</li> }
+                         </ul>
+                       </div>
+                     }
+                   </div>
+
+                   <div class="price-comparison">
+                      <div class="p-col">
+                         <span>Base Premium</span>
+                         <strong>₹{{ selectedApp.finalPremium | number }}</strong>
+                      </div>
+                      <div class="p-arrow">➔</div>
+                      <div class="p-col highlighted">
+                         <span>AI Suggested</span>
+                         <strong>₹{{ aiResult.suggestedQuoteAmount | number }}</strong>
+                      </div>
+                   </div>
+
+                   <div class="ai-actions">
+                      <button class="btn-apply-suggestion" (click)="applyAiSuggestion()">
+                         ⚡ Adopt Actuarial Recommendation
+                      </button>
+                      <p class="ai-disclaimer">Decisional Support Only. Underwriter discretion required.</p>
+                   </div>
+                </div>
+              }
+            </div>
+
+            <hr class="form-divider" />
+
             <h3>Assessment Verdict</h3>
             <p>Calculate the final risk-adjusted premium below.</p>
 
@@ -148,7 +241,10 @@
             </div>
 
             <div class="form-footer">
-              <button class="btn-cancel" (click)="selectedApp = null">Later</button>
+              <button class="btn-cancel" (click)="selectedApp = null">Back</button>
+              <button class="btn-reject" (click)="rejectApplication()" [disabled]="submitting">
+                 Decline 
+              </button>
               <button class="btn-submit" (click)="submitQuote()" [disabled]="!quoteAmount || submitting">
                 {{ submitting ? 'Processing...' : 'Approve & Send Quote' }}
               </button>

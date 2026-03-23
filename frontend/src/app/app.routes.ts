@@ -87,13 +87,19 @@ import { UnderwriterMyPoliciesComponent } from './pages/underwriter/my-policies/
 
 import { ClaimsOfficerDashboardComponent } from './pages/claims-officer/dashboard/dashboard';
 import { ClaimsOfficerClaimsComponent } from './pages/claims-officer/claims/claims';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password';
+import { ProfileComponent } from './pages/profile/profile';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'about', component: AboutComponent },
   { path: 'login',         component: LoginComponent },
   { path: 'register',      component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password',  component: ResetPasswordComponent },
   { path: 'dashboard',     component: DashboardComponent,   canActivate: [AuthGuard] },
+  { path: 'profile',       component: ProfileComponent,     canActivate: [AuthGuard] },
   { path: 'quizzes',       component: QuizzesComponent,     canActivate: [AuthGuard] },
   { path: 'take-quiz/:id', component: TakeQuizComponent,    canActivate: [AuthGuard] },
   { path: 'quiz-result',   component: QuizResultComponent,  canActivate: [AuthGuard] },

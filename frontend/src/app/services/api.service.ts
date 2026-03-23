@@ -47,10 +47,22 @@ export class ApiService {
     return this.http.post<any>(`${API}/api/auth/login`, data);
   }
 
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${API}/api/auth/forgot-password`, { email });
+  }
+
+  resetPassword(data: { otp: string, newPassword: any }): Observable<void> {
+    return this.http.post<void>(`${API}/api/auth/reset-password`, data);
+  }
+
   // ─── Users ────────────────────────────────────────────────────────────
   // → UserController.java → GET /api/v1/users/{userId}
   getProfile(userId: number): Observable<any> {
     return this.http.get<any>(`${API}/api/v1/users/${userId}`);
+  }
+
+  updateProfile(userId: number, data: any): Observable<any> {
+    return this.http.put<any>(`${API}/api/v1/users/${userId}`, data);
   }
 
   // → UserController.java → GET /api/v1/users
@@ -111,7 +123,7 @@ export class ApiService {
 
   processClaim(claimId: number, status: string, remarks: string, approvedAmount?: number): Observable<any> {
     const amountParam = approvedAmount !== undefined ? `&approvedAmount=${approvedAmount}` : '';
-    return this.http.put<any>(`${API}/api/v1/claims/${claimId}/process?status=${status}&remarks=${remarks}${amountParam}`, {});
+    return this.http.put<any>(`${API}/api/v1/claims/${claimId}/process?status=${status}&remarks=${encodeURIComponent(remarks)}${amountParam}`, {});
   }
 
   settleClaim(claimId: number, settlementAmount: number): Observable<any> {
@@ -132,11 +144,15 @@ export class ApiService {
   }
 
   sendQuote(userPolicyId: number, quoteAmount: number, remarks: string): Observable<any> {
-    return this.http.put<any>(`${API}/api/v1/admin/pipeline/policies/${userPolicyId}/quote?quoteAmount=${quoteAmount}&remarks=${remarks}`, {});
+    return this.http.put<any>(`${API}/api/v1/admin/pipeline/policies/${userPolicyId}/quote`, { quoteAmount, remarks });
   }
 
   activatePolicyByAdmin(userPolicyId: number): Observable<any> {
     return this.http.put<any>(`${API}/api/v1/admin/pipeline/policies/${userPolicyId}/activate`, {});
+  }
+
+  rejectPolicy(userPolicyId: number, remarks: string): Observable<any> {
+    return this.http.put<any>(`${API}/api/v1/admin/pipeline/policies/${userPolicyId}/reject`, { remarks });
   }
 
   getUnderwriterStats(underwriterId: number): Observable<any> {
@@ -146,6 +162,10 @@ export class ApiService {
   getUnderwriterPoliciesByStatus(underwriterId: number, status?: string): Observable<any[]> {
     const statusParam = status ? `&status=${status}` : '';
     return this.http.get<any[]>(`${API}/api/v1/admin/pipeline/underwriter/policies?underwriterId=${underwriterId}${statusParam}`);
+  }
+
+  getAiAnalysis(policyId: number): Observable<any> {
+    return this.http.get<any>(`${API}/api/v1/admin/pipeline/policies/${policyId}/ai-analysis`);
   }
 
   getClaimsOfficerStats(officerId: number): Observable<any> {

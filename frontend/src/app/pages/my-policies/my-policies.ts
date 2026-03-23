@@ -20,6 +20,17 @@ export class MyPoliciesComponent implements OnInit {
   selectedPolicy: any = null;
   paymentNotice: { message: string, type: 'success' | 'error' } | null = null;
   processing = false;
+  showCertificate = false;
+  
+  // 🛡️ MEMBER IDENTITY (AGENTIC EXPERIENCE)
+  viewCertificate(policy: any): void {
+    this.selectedPolicy = policy;
+    this.showCertificate = true;
+  }
+
+  getPolicyNumber(id: number): string {
+    return 'IQ-' + (1000 + id) + '-' + (100000 + id * 7).toString().substring(0, 4);
+  }
 
   constructor(private api: ApiService, private auth: AuthService) {}
   ngOnInit(): void { this.loadPolicies(); }
