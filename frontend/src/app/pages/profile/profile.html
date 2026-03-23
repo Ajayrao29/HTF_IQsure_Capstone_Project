@@ -1,0 +1,106 @@
+<div class="profile-container animated fadeIn">
+  <div class="profile-header">
+    <div class="profile-banner"></div>
+    <div class="profile-info-circle">
+      <div class="avatar-large">{{ getInitials() }}</div>
+      <div class="user-main">
+        <h1>{{ user.name }}</h1>
+        <p class="role-badge">{{ user.role?.replace('ROLE_', '') }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <!-- Feedback Messages -->
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+    <!-- Personal Info Card -->
+    <div class="profile-card">
+      <div class="card-header">
+        <h2>Personal Information</h2>
+        <button class="btn-icon" (click)="toggleEdit()">
+          {{ editMode ? 'Cancel' : '✏️ Edit' }}
+        </button>
+      </div>
+
+      <div class="card-content" *ngIf="!editMode">
+        <div class="info-row">
+          <label>Email</label>
+          <div class="value">{{ user.email }}</div>
+        </div>
+        <div class="info-row">
+          <label>Phone</label>
+          <div class="value">{{ user.phone || 'Not specified' }}</div>
+        </div>
+        <div class="info-row">
+          <label>City</label>
+          <div class="value">{{ user.city || 'Not specified' }}</div>
+        </div>
+        <div class="info-row">
+          <label>State</label>
+          <div class="value">{{ user.state || 'Not specified' }}</div>
+        </div>
+        <div class="info-row">
+          <label>Total Points Earned</label>
+          <div class="value points">{{ user.userPoints }} ⭐</div>
+        </div>
+      </div>
+
+      <form (ngSubmit)="saveProfile()" *ngIf="editMode" class="edit-form">
+        <div class="input-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" [(ngModel)]="user.name" required placeholder="Full Name">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" [(ngModel)]="user.phone" placeholder="Phone Number">
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" name="city" [(ngModel)]="user.city" placeholder="City">
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" name="state" [(ngModel)]="user.state" placeholder="State">
+          </div>
+          <div class="form-group">
+            <label>Zip Code</label>
+            <input type="text" name="zipCode" [(ngModel)]="user.zipCode" placeholder="Zip Code">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="loading">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Security & Password Card -->
+    <div class="profile-card">
+      <div class="card-header">
+        <h2>Change Password</h2>
+      </div>
+      <div class="card-content">
+        <p class="security-intro">Keep your account secure by using a strong password.</p>
+        <form (ngSubmit)="changePassword()" class="security-form shadow-form">
+          <div class="form-group">
+            <label>New Password</label>
+            <div class="input-with-icon">
+              <span class="icon">🔒</span>
+              <input type="password" name="newPass" [(ngModel)]="passwords.new" placeholder="Enter new password">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <div class="input-with-icon">
+              <span class="icon">🔁</span>
+              <input type="password" name="confirmPass" [(ngModel)]="passwords.confirm" placeholder="Confirm new password">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-outline" [disabled]="loading">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
