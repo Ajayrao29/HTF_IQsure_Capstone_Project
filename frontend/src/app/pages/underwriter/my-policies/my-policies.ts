@@ -3,6 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { UserPolicy } from '../../../models/models';
 
 @Component({
   selector: 'app-underwriter-my-policies',
@@ -12,7 +13,7 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./my-policies.scss']
 })
 export class UnderwriterMyPoliciesComponent implements OnInit {
-  policies: any[] = [];
+  policies: UserPolicy[] = [];
   loading = true;
 
   constructor(private api: ApiService, private auth: AuthService) {}
@@ -20,7 +21,7 @@ export class UnderwriterMyPoliciesComponent implements OnInit {
   ngOnInit(): void {
     const userId = this.auth.getUserId();
     if (userId) {
-      this.api.getUnderwriterPoliciesByStatus(userId).subscribe(apps => {
+      this.api.getUnderwriterPoliciesByStatus(userId).subscribe((apps: UserPolicy[]) => {
         // Show everything successfully assigned to them that is either SENT or ACTIVE
         this.policies = apps.filter(a => a.status !== 'UNDER_EVALUATION');
         this.loading = false;

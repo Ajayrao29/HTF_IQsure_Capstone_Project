@@ -245,14 +245,14 @@
             <div class="rewards-selection-grid">
               @for (r of availableRewards; track r.userRewardId) {
                 <div class="reward-mini-card" 
-                     [class.selected]="formData.rewardIds.includes(r.userRewardId)"
-                     (click)="toggleReward(r.userRewardId)">
+                     [class.selected]="formData.rewardIds.includes(r.userRewardId!)"
+                     (click)="toggleReward(r.userRewardId!)">
                   <div class="reward-info">
                     <span class="type">{{ r.rewardType }}</span>
                     <span class="value">{{ r.discountValue }}% OFF</span>
                   </div>
                   <div class="selection-indicator">
-                    {{ formData.rewardIds.includes(r.userRewardId) ? '✔️' : '+' }}
+                    {{ formData.rewardIds.includes(r.userRewardId!) ? '✔️' : '+' }}
                   </div>
                 </div>
               }

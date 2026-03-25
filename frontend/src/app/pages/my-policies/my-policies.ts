@@ -8,22 +8,23 @@ import { RouterLink } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { UserPolicy } from '../../models/models';
 
 @Component({ selector: 'app-my-policies', standalone: true, imports: [CommonModule, RouterLink, DecimalPipe], templateUrl: './my-policies.html', styleUrls: ['./my-policies.scss'] })
 export class MyPoliciesComponent implements OnInit {
-  policies: any[] = []; 
+  policies: UserPolicy[] = []; 
   loading = true;
   
   // UI States
   showPaymentConfirm = false;
   showSuccessCard = false;
-  selectedPolicy: any = null;
+  selectedPolicy: UserPolicy | null = null;
   paymentNotice: { message: string, type: 'success' | 'error' } | null = null;
   processing = false;
   showCertificate = false;
   
   // 🛡️ MEMBER IDENTITY (AGENTIC EXPERIENCE)
-  viewCertificate(policy: any): void {
+  viewCertificate(policy: UserPolicy): void {
     this.selectedPolicy = policy;
     this.showCertificate = true;
   }
@@ -76,7 +77,7 @@ export class MyPoliciesComponent implements OnInit {
         // Hide success card after 4 seconds
         setTimeout(() => this.showSuccessCard = false, 4000);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.processing = false;
         this.showNotification('Payment failed: ' + (err.error?.message || 'Transaction declined'), 'error');
       }

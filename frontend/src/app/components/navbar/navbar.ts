@@ -1,15 +1,3 @@
-/*
- * FILE: navbar.ts | LOCATION: frontend/src/app/components/navbar/
- * PURPOSE: Navigation bar component shown on all authenticated pages.
- *          Shows different navigation links for Users vs Admins.
- *          Template: navbar.html | Styles: navbar.scss
- *
- * FOR USERS: Dashboard, Quizzes, Policies, My Policies, Savings, Badges, Achievements, Rewards, Leaderboard
- * FOR ADMINS: Users, Quizzes, Policies, Badges, Rewards, Discount Rules
- *
- * FEATURES: User avatar with initials, profile dropdown, logout button
- * USES: AuthService (services/auth.service.ts), Router (for logout redirect)
- */
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -17,6 +5,10 @@ import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
 
+/**
+ * Main application navigation and notification center.
+ * Best Practice: Role-based navigation and centralized user state.
+ */
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -29,8 +21,8 @@ export class NavbarComponent implements OnInit {
   unreadCount = 0;
   showNotifications = false;
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
+  @HostListener('document:click')
+  onDocumentClick() {
     this.showNotifications = false;
   }
 
@@ -44,19 +36,12 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
       this.loadNotifications();
-      
-      // Subscribe to real-time notification stream
-      this.notificationService.notifications$.subscribe(notification => {
-        // Add new notification to the top of the list
-        this.notifications = [notification, ...this.notifications];
-        if (!notification.read && !notification.isRead) {
-          this.unreadCount++;
-        }
-      });
+      this.subscribeToRealtimeStream();
     }
   }
 
-  loadNotifications() {
+  /** Fetch notification history using the API */
+  private loadNotifications() {
     const userId = this.auth.getUserId();
     if (!userId) return;
 
@@ -64,6 +49,17 @@ export class NavbarComponent implements OnInit {
       next: (data) => {
         this.notifications = data;
         this.unreadCount = data.filter(n => !(n.read || n.isRead)).length;
+      },
+      error: (err) => console.error('Failed to load notifications:', err)
+    });
+  }
+
+  /** Subscribe to SSE stream for live updates via the shared NotificationService */
+  private subscribeToRealtimeStream() {
+    this.notificationService.notifications$.subscribe(notification => {
+      this.notifications = [notification, ...this.notifications];
+      if (!notification.read && !notification.isRead) {
+        this.unreadCount++;
       }
     });
   }
@@ -73,6 +69,7 @@ export class NavbarComponent implements OnInit {
     this.showNotifications = !this.showNotifications;
   }
 
+  /** Marks a single notification as read and navigates if targetUrl is present */
   handleNotificationClick(notification: any) {
     this.api.markNotificationAsRead(notification.id).subscribe();
     notification.read = true;
@@ -80,22 +77,21 @@ export class NavbarComponent implements OnInit {
     this.showNotifications = false;
 
     if (notification.targetUrl) {
-      if (notification.relatedId && !notification.targetUrl.includes('?')) {
-        // Append ID if needed, though targetUrl usually includes it or is a list page
-        this.router.navigate([notification.targetUrl]);
-      } else {
-        this.router.navigate([notification.targetUrl]);
-      }
+      this.router.navigate([notification.targetUrl]);
     }
   }
 
+  /** Bulk mark all unread notifications as read */
   markAllAsRead() {
     const userId = this.auth.getUserId();
     if (!userId) return;
 
-    this.api.markAllNotificationsAsRead(userId).subscribe(() => {
-      this.notifications.forEach(n => n.read = true);
-      this.unreadCount = 0;
+    this.api.markAllNotificationsAsRead(userId).subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.read = true);
+        this.unreadCount = 0;
+      },
+      error: (err) => console.error('Failed to clear notifications:', err)
     });
   }
 
@@ -112,9 +108,7 @@ export class NavbarComponent implements OnInit {
     return this.auth.getUser()?.email || '';
   }
 
-  get isAdmin(): boolean {
-    return this.auth.isAdmin();
-  }
+  get isAdmin(): boolean { return this.auth.isAdmin(); }
 
   get isUnderwriter(): boolean {
     return this.auth.getUser()?.role === 'ROLE_UNDERWRITER';
@@ -125,16 +119,16 @@ export class NavbarComponent implements OnInit {
   }
 
   get userPoints(): number {
-    return 0; // Fetched from API or user state in full implementation
+    return this.auth.getUser()?.userPoints || 0;
   }
 
+  /** Generates initials for the user profile circle */
   getInitials(): string {
     const name = this.userName;
     if (!name) return 'U';
     const parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
+    return parts.length >= 2 
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : name.substring(0, 2).toUpperCase();
   }
 }

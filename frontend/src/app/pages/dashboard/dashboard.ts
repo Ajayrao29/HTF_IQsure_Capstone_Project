@@ -1,19 +1,13 @@
-/*
- * FILE: dashboard.ts | LOCATION: pages/dashboard/
- * PURPOSE: Shared dashboard page (URL: /dashboard). Renders admin or user view based on role.
- *   ADMIN:  Shows platform stats (users, quizzes, policies, rewards), overview & quick actions.
- *   USER:   Shows personal progress: points, badges, recent quiz attempts, total savings.
- * TEMPLATE: dashboard.html | STYLES: dashboard.scss
- * CALLS: api.service.ts → multiple endpoints depending on role
- * BACKEND: UserController, BadgeController, AttemptController, UserPolicyController,
- *          QuizController, PolicyController, RewardController, DiscountRuleController
- */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { 
+  User, LeaderboardEntry, Quiz, Claim, Badge, 
+  AttemptResponse, UserPolicy, PremiumBreakdown 
+} from '../../models/models';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -25,27 +19,29 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
-  /* ── Shared ── */
+  /* ───── Shared ───── */
   loading = true;
   private destroy$ = new Subject<void>();
 
-  /* ── User-specific ── */
-  user: any = null;
-  myBadges: any[] = [];
-  myAttempts: any[] = [];
-  myPolicies: any[] = [];
-  totalSavings = 0;
+  /* ───── User-specific ───── */
+  user: User | null = null;
+  myBadges: Badge[] = [];
+  myAttempts: AttemptResponse[] = [];
+  myPolicies: UserPolicy[] = [];
+  totalSavings: number = 0;
+  
   userStats = {
     totalPolicies: 0,
     activePolicies: 0,
     awaitingQuote: 0,
     pendingClaims: 0
   };
-  aiInsight: string = '';
-  cognitiveLevel: string = 'STANDARD';
 
-  /* ── Admin-specific ── */
-  recentUsers: any[] = [];
+  aiInsight: string = '';
+  cognitiveLevel: 'STANDARD' | 'PRO' | 'ELITE' = 'STANDARD';
+
+  /* ───── Admin-specific ───── */
+  recentUsers: User[] = [];
   stats = {
     totalUsers: 0,
     totalAdmins: 0,
@@ -58,7 +54,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     discountRules: 0
   };
 
-  constructor(public auth: AuthService, private api: ApiService) {}
+  constructor(
+    public auth: AuthService, 
+    private api: ApiService
+  ) {}
 
   ngOnInit(): void {
     if (this.auth.isAdmin()) {
@@ -69,40 +68,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Best Practice: Unsubscribe from all observables to avoid memory leaks
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  /* ── Admin data loader ── */
+  /**
+   * Loads high-level platform stats for the admin view.
+   * Best Practice: Use forkJoin to fetch multiple related datasets concurrently.
+   */
   private loadAdminDashboard(): void {
     forkJoin({
       users: this.api.getAllUsers(),
       quizzes: this.api.getAllQuizzes(),
-      policies: this.api.getAllPolicies(),
-      rewards: this.api.getAllRewards(),
-      discountRules: this.api.getAllDiscountRules()
+      rewards: this.api.getAllRewards()
     }).pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ users, quizzes, policies, rewards, discountRules }) => {
-          this.stats.totalUsers     = users.length;
-          this.stats.totalAdmins    = users.filter((u: any) => u.role === 'ROLE_ADMIN').length;
-          this.stats.totalCustomers = users.filter((u: any) => u.role !== 'ROLE_ADMIN').length;
-          this.stats.totalQuizzes   = quizzes.length;
-          this.stats.totalPolicies  = policies.length;
-          this.stats.activePolicies = policies.filter((p: any) => p.active !== false).length;
-          this.stats.inactivePolicies = policies.filter((p: any) => p.active === false).length;
-          this.stats.totalRewards   = rewards.length;
-          this.stats.discountRules  = discountRules.length;
-          this.recentUsers = users.slice(-5).reverse();
+        next: ({ users, quizzes, rewards }) => {
+          this.stats.totalUsers = users.length;
+          this.stats.totalAdmins = users.filter(u => u.role === 'ROLE_ADMIN').length;
+          this.stats.totalCustomers = users.filter(u => u.role !== 'ROLE_ADMIN').length;
+          this.stats.totalQuizzes = quizzes.length;
+          this.stats.totalRewards = rewards.length;
+          this.recentUsers = [...users].reverse().slice(0, 5);
           this.loading = false;
         },
-        error: () => { this.loading = false; }
+        error: (err) => {
+          console.error('Failed to load admin stats:', err);
+          this.loading = false;
+        }
       });
   }
 
-  /* ── User data loader ── */
+  /**
+   * Loads personal portfolio data for the customer view.
+   * Best Practice: Consolidate data into a single view model for the UI.
+   */
   private loadUserDashboard(): void {
     const userId = this.auth.getUserId()!;
+    
     forkJoin({
       profile: this.api.getProfile(userId),
       badges: this.api.getBadgesByUser(userId),
@@ -114,41 +118,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: ({ profile, badges, attempts, policies, claims }) => {
           this.user = profile;
           this.myBadges = badges;
-          this.myAttempts = attempts.slice(0, 5);
-          this.myPolicies = policies.slice(0, 3); // Top 3 most recent
-          this.totalSavings = policies.reduce((sum: number, pol: any) => sum + (pol.savedAmount || 0), 0);
+          this.myAttempts = [...attempts].reverse().slice(0, 5);
+          this.myPolicies = policies;
+          this.totalSavings = policies.reduce((sum, p) => sum + (p.totalClaimedAmount || 0), 0);
           
-          this.userStats.totalPolicies = policies.length;
-          this.userStats.activePolicies = policies.filter((p: any) => p.status === 'ACTIVE').length;
-          this.userStats.awaitingQuote = policies.filter((p: any) => ['PENDING', 'UNDER_EVALUATION', 'QUOTES_SENT'].includes(p.status)).length;
-          this.userStats.pendingClaims = claims.filter((c: any) => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
+          this.updateMetrics(policies, claims);
+          this.generateAiInsights(profile);
           
-          /* 🤖 AGENTIC AI: COGNITIVE ANALYSIS & RISK MITIGATION FORECAST */
-          this.cognitiveLevel = profile.userPoints >= 500 ? 'ELITE' : profile.userPoints >= 200 ? 'PRO' : 'STANDARD';
-          
-          // Actuarial-based risk mitigation calculation
-          const riskFactor = profile.userPoints * 150; // Points mapped to potential surgery/ER avoidance value
-          const safetyPct = Math.min(98, (profile.userPoints / 10));
-
-          this.aiInsight = profile.userPoints >= 500 ? 
-            `Superior Cognitive Status! Your projected liability mitigation is ₹${riskFactor.toLocaleString()}. You've reached a 98th-percentile safety quotient.` :
-            `You've identified ₹${riskFactor.toLocaleString()} in potential hazards. Earning ${500 - profile.userPoints} more points will unlock the 'ELITE' 15% discount tier.`;
-
           this.loading = false;
         },
-        error: () => { this.loading = false; }
+        error: (err) => {
+          console.error('Failed to load user dashboard:', err);
+          this.loading = false;
+        }
       });
   }
 
-  get recentAttempts(): any[] { return this.myAttempts; }
+  private updateMetrics(policies: UserPolicy[], claims: Claim[]): void {
+    this.userStats.totalPolicies = policies.length;
+    this.userStats.activePolicies = policies.filter(p => p.status === 'ACTIVE').length;
+    this.userStats.awaitingQuote = policies.filter(p => p.status === 'PENDING_UNDERWRITING').length;
+    this.userStats.pendingClaims = claims.filter(c => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
+  }
+
+  /**
+   * SIMULATED AI AGENT: Predictive risk analysis based on user quiz performance.
+   */
+  private generateAiInsights(profile: User): void {
+    const points = profile.userPoints || 0;
+    this.cognitiveLevel = points >= 500 ? 'ELITE' : points >= 200 ? 'PRO' : 'STANDARD';
+    
+    // Actuarial hazard mitigation calculation
+    const riskMitigationValue = points * 150; 
+
+    if (points >= 500) {
+      this.aiInsight = `Superior Cognitive Status! Your projected liability mitigation is ₹${riskMitigationValue.toLocaleString()}. You've reached a 98th-percentile safety quotient.`;
+    } else {
+      const remaining = 500 - points;
+      this.aiInsight = `Hazard Alert: You've identified ₹${riskMitigationValue.toLocaleString()} in potential risks. Earning ${remaining} more points will unlock the 'ELITE' priority settlement status.`;
+    }
+  }
+
+  get recentAttempts(): AttemptResponse[] {
+    return this.myAttempts;
+  }
 
   shareAchievement(): void {
-    const text = `I've earned ${this.user?.userPoints} points on IQsure! Join me in maximizing savings and learning about insurance.`;
+    if (!this.user) return;
+    
+    const text = `I've earned ${this.user.userPoints} points on IQsure! Join me in maximizing health savings.`;
     if (navigator.share) {
       navigator.share({ title: 'IQsure Achievement', text });
     } else {
       navigator.clipboard.writeText(text);
-      alert('Achievement copied to clipboard!');
+      alert('Achievement link copied!');
     }
   }
 }

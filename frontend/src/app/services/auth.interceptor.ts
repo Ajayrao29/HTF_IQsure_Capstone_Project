@@ -1,38 +1,49 @@
-/*
- * FILE: auth.interceptor.ts | LOCATION: frontend/src/app/services/
- * PURPOSE: HTTP Interceptor that automatically attaches the Bearer token
- *          to EVERY outgoing HTTP request. This way, page components don't
- *          need to manually add the Authorization header each time.
- *
- * HOW IT WORKS:
- *   1. Angular's HttpClient sends a request
- *   2. This interceptor catches it BEFORE it goes out
- *   3. Gets the token from AuthService (services/auth.service.ts)
- *   4. If token exists → clones the request and adds "Authorization: Bearer <token>" header
- *   5. Passes the request on to the backend
- *
- * REGISTERED IN: app.config.ts → provideHttpClient(withInterceptors([authInterceptor]))
- */
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
 
-import { AuthService } from './auth.service';  // → services/auth.service.ts
-
-// Functional interceptor (Angular 17+ style — no class needed)
+/**
+ * Global HTTP Interceptor for Authentication and Error Handling.
+ * 1. Attaches Bearer Token if user is logged in.
+ * 2. Catches global HTTP errors for logging/debugging.
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // Get the auth service to access the stored token
   const auth = inject(AuthService);
   const token = auth.getToken();
 
   let requestToForward = req;
 
-  // If a token exists, clone the request and add the Authorization header
+  // Best Practice: Automatically attach JWT token to all requests
   if (token) {
     requestToForward = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
   }
 
-  // Pass the request on
-  return next(requestToForward);
+  // Best Practice: Centralized error handling for all API calls
+  return next(requestToForward).pipe(
+    catchError((error: HttpErrorResponse) => {
+      let errorMessage = 'An unknown error occurred!';
+      
+      if (error.error instanceof ErrorEvent) {
+        // Client-side error (e.g., network issue)
+        errorMessage = `Network Error: ${error.error.message}`;
+      } else {
+        // Server-side error (e.g., 401, 500)
+        errorMessage = `Server Error [${error.status}]: ${error.message}`;
+        
+        // Log sensitive status codes for debugging
+        if (error.status === 401) {
+          console.warn('Unauthorized request - session may have expired.');
+          // Optional: auth.logout() if you want to force re-login on 401
+        }
+      }
+
+      console.error('🌐 HTTP Global Error:', errorMessage, error);
+      
+      // Pass the error back to the component so it can show a specific message
+      return throwError(() => error);
+    })
+  );
 };

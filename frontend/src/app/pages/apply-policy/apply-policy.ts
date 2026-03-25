@@ -4,8 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
-import { Policy, InsuredMember } from '../../models/models';
+import { 
+  Policy, InsuredMember, User, UserPolicy, 
+  Reward, DiscountRule, PremiumBreakdown 
+} from '../../models/models';
 
+/**
+ * Multi-step form component for active policy application and purchase.
+ * Best Practice: Typed forms and reactive state management.
+ */
 @Component({
   selector: 'app-apply-policy',
   standalone: true,
@@ -17,10 +24,10 @@ export class ApplyPolicyComponent implements OnInit {
   today: string = new Date().toISOString().split('T')[0];
   plans: Policy[] = [];
   filteredPlans: Policy[] = [];
-  userPolicies: any[] = [];
+  userPolicies: UserPolicy[] = [];
   loading = true;
   
-  // Step navigation
+  // UX State navigation
   step: 'PLANS' | 'FORM' = 'PLANS';
   formStep: number = 1; // 1: Nominee, 2: Members, 3: Medical, 4: Rewards, 5: Review
   selectedPlan: Policy | null = null;
@@ -29,7 +36,7 @@ export class ApplyPolicyComponent implements OnInit {
     nomineeName: '',
     nomineeRelationship: '',
     healthReport: null as File | null,
-    members: [] as any[],
+    members: [] as InsuredMember[],
     rewardIds: [] as number[],
     declarations: {
       hospitalizedLastYear: false,
@@ -39,10 +46,10 @@ export class ApplyPolicyComponent implements OnInit {
     }
   };
 
-  availableRewards: any[] = [];
-  discountRules: any[] = [];
-  userProfile: any = null;
-  preview: any = null;
+  availableRewards: Reward[] = [];
+  discountRules: DiscountRule[] = [];
+  userProfile: User | null = null;
+  preview: PremiumBreakdown | null = null;
   loadingPreview = false;
   successMessage = '';
   errorMessage = '';
@@ -57,68 +64,78 @@ export class ApplyPolicyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadPlans();
+    this.loadCatalog();
     this.loadUserData();
-    this.route.queryParams.subscribe(params => {
-      const pid = params['policyId'];
-      if (pid) {
-        // Handle pre-selected rewards from query params if any
-        const rids = params['rewardIds'];
-        if (rids) {
-          this.formData.rewardIds = Array.isArray(rids) ? rids.map(Number) : [Number(rids)];
-        }
-
-        const checkPlans = setInterval(() => {
-          if (!this.loading && this.plans.length > 0) {
-            const plan = this.plans.find(p => p.policyId == pid);
-            if (plan) {
-              this.selectPlan(plan);
-              this.calculatePreview();
-            }
-            clearInterval(checkPlans);
-          }
-        }, 100);
-      }
-    });
+    this.handleQueryParams();
   }
 
-  loadUserData(): void {
-    const userId = this.auth.getUserId()!;
-    this.api.getAvailableRewardsForUser(userId).subscribe(r => this.availableRewards = r);
-    this.api.getAllDiscountRules().subscribe(rules => this.discountRules = rules.filter((r: any) => r.isActive));
-    this.api.getProfile(userId).subscribe(u => this.userProfile = u);
-    this.api.getUserPolicies(userId).subscribe(p => this.userPolicies = p);
-  }
-
-  loadPlans(): void {
+  /** Fetch available plans/policies */
+  private loadCatalog(): void {
     this.api.getActivePolicies().subscribe({
       next: (data) => {
         this.plans = data;
         this.filteredPlans = data;
         this.loading = false;
       },
-      error: () => this.loading = false
+      error: (err) => {
+        console.error('Failed to load portfolio:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  /** Load personalized user data for rewards and eligibility */
+  private loadUserData(): void {
+    const userId = this.auth.getUserId()!;
+    this.api.getAvailableRewardsForUser(userId).subscribe(r => this.availableRewards = r);
+    this.api.getAllDiscountRules().subscribe(rules => this.discountRules = rules.filter(r => r.isActive));
+    this.api.getProfile(userId).subscribe(u => this.userProfile = u);
+    this.api.getUserPolicies(userId).subscribe(p => this.userPolicies = p);
+  }
+
+  /** Handle direct navigation via links (e.g., from Dashboard) */
+  private handleQueryParams(): void {
+    this.route.queryParams.subscribe(params => {
+      const pid = params['policyId'];
+      if (!pid) return;
+
+      const rids = params['rewardIds'];
+      if (rids) {
+        this.formData.rewardIds = Array.isArray(rids) ? rids.map(Number) : [Number(rids)];
+      }
+
+      // Wait for catalog to load before selecting plan
+      const checkInterval = setInterval(() => {
+        if (!this.loading && this.plans.length > 0) {
+          const plan = this.plans.find(p => p.policyId == pid);
+          if (plan) {
+            this.selectPlan(plan);
+          }
+          clearInterval(checkInterval);
+        }
+      }, 100);
     });
   }
 
   filterPlans(category: string): void {
     this.activeCategory = category;
-    if (category === 'ALL') {
-      this.filteredPlans = this.plans;
-    } else {
-      this.filteredPlans = this.plans.filter(p => p.policyType === category);
-    }
+    this.filteredPlans = category === 'ALL' 
+      ? this.plans 
+      : this.plans.filter(p => p.policyType === category);
   }
 
+  /** Check if user already holds or is applying for this exact policy */
   isPlanDisabled(policyId: number): boolean {
     return this.userPolicies.some(p => p.policyId === policyId && 
-      (p.status === 'PENDING_UNDERWRITING' || p.status === 'UNDER_EVALUATION' || p.status === 'QUOTES_SENT' || p.status === 'ACTIVE'));
+      ['PENDING_UNDERWRITING', 'UNDER_EVALUATION', 'QUOTES_SENT', 'ACTIVE'].includes(p.status));
   }
 
+  /** Initiate the application flow for a specific plan */
   selectPlan(plan: Policy): void {
     if (this.isPlanDisabled(plan.policyId)) return;
     this.selectedPlan = plan;
     this.step = 'FORM';
+    
     // Add "Self" as first member by default
     const user = this.auth.getUser();
     this.formData.members = [{
@@ -152,7 +169,9 @@ export class ApplyPolicyComponent implements OnInit {
   }
 
   onFileSelected(event: any): void {
-    this.formData.healthReport = event.target.files[0];
+    if (event.target.files.length > 0) {
+      this.formData.healthReport = event.target.files[0];
+    }
   }
 
   nextFormStep(): void {
@@ -170,7 +189,7 @@ export class ApplyPolicyComponent implements OnInit {
     }
   }
 
-  validateCurrentStep(): boolean {
+  private validateCurrentStep(): boolean {
     if (this.formStep === 1) {
       if (!this.formData.nomineeName || !this.formData.nomineeRelationship) {
         this.errorMessage = 'Please provide nominee details.';
@@ -196,13 +215,14 @@ export class ApplyPolicyComponent implements OnInit {
   toggleReward(rewardId: number): void {
     const idx = this.formData.rewardIds.indexOf(rewardId);
     if (idx >= 0) {
-      this.formData.rewardIds = []; // Toggle off
+      this.formData.rewardIds = []; 
     } else {
-      this.formData.rewardIds = [rewardId]; // Replace with new one (only one allowed)
+      this.formData.rewardIds = [rewardId]; // Select one premium reward
     }
     this.calculatePreview();
   }
 
+  /** Calculate actuarial premium preview based on current data */
   calculatePreview(): void {
     if (!this.selectedPlan) return;
     this.loadingPreview = true;
@@ -215,7 +235,8 @@ export class ApplyPolicyComponent implements OnInit {
     });
   }
 
-  getRuleStatus(rule: any): boolean {
+  /** Check if user currently meets a specific discount criteria */
+  getRuleStatus(rule: DiscountRule): boolean {
     if (!this.userProfile || !this.preview) return false;
     const meetsPoints = !rule.minUserPoints || this.userProfile.userPoints >= rule.minUserPoints;
     const meetsScore = !rule.minQuizScorePercent || this.preview.bestQuizScorePercent >= rule.minQuizScorePercent;
@@ -223,6 +244,7 @@ export class ApplyPolicyComponent implements OnInit {
     return meetsPoints && meetsScore && meetsBadges;
   }
 
+  /** Final form submission with file upload handling */
   submitRequest(): void {
     if (!this.selectedPlan) return;
     
@@ -230,15 +252,10 @@ export class ApplyPolicyComponent implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
 
-    // If there's a file, upload it first
     if (this.formData.healthReport) {
       this.api.uploadFile(this.formData.healthReport).subscribe({
-        next: (resp) => {
-          this.executePurchase(userId, resp.filePath);
-        },
-        error: (err) => {
-          this.errorMessage = 'File upload failed: ' + (err.error?.message || 'Check connection');
-        }
+        next: (resp) => this.executePurchase(userId, resp.filePath),
+        error: (err) => this.errorMessage = 'File upload failed: ' + (err.error?.message || 'Check connection')
       });
     } else {
       this.executePurchase(userId, '');

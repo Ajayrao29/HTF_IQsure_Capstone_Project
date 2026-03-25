@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { UserPolicy } from '../../../models/models';
 
 @Component({
   selector: 'app-underwriter-pending',
@@ -13,7 +14,7 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./pending.scss']
 })
 export class UnderwriterPendingComponent implements OnInit {
-  applications: any[] = [];
+  applications: UserPolicy[] = [];
   loading = true;
   selectedApp: any = null;
   quoteAmount: number | null = null;
@@ -34,7 +35,7 @@ export class UnderwriterPendingComponent implements OnInit {
     this.notification = null;
     const userId = this.auth.getUserId();
     if (userId) {
-      this.api.getUnderwriterPoliciesByStatus(userId, 'UNDER_EVALUATION').subscribe(apps => {
+      this.api.getUnderwriterPoliciesByStatus(userId, 'UNDER_EVALUATION').subscribe((apps: UserPolicy[]) => {
         this.applications = apps;
         this.loading = false;
       });

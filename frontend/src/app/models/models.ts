@@ -26,7 +26,7 @@
 
 // Returned after login/register → stored in localStorage by AuthService
 export interface AuthResponse { 
-  token: string; tokenType: string; userId: number; name: string; email: string; role: string; 
+  token: string; tokenType: string; userId: number; name: string; email: string; role: string; userPoints?: number;
   licenseNumber?: string;
   employeeId?: string;
   department?: string;
@@ -58,10 +58,10 @@ export interface QuestionReport { questionText: string; selectedAnswer: string; 
 export interface AttemptResponse { attemptId: number; userId: number; quizId: number; quizTitle: string; score: number; totalQuestions: number; percentage: number; pointsEarned: number; attemptDate: string; newBadgesUnlocked: Badge[]; questions?: QuestionReport[]; }
 
 // Badge info → displayed on Badges page, Admin Badge Management
-export interface Badge { badgeId: number; name: string; description: string; reqPoints: number; }
+export interface Badge { badgeId: number; name: string; description: string; reqPoints: number; icon?: string; }
 
 // Reward info → displayed on Rewards page, Admin Reward Management
-export interface Reward { rewardId: number; rewardType: string; discountValue: number; expiryDate: string; }
+export interface Reward { rewardId: number; rewardType: string; discountValue: number; expiryDate: string; userRewardId?: number; }
 
 // Insurance policy info → displayed on Policies page, Admin Policy Management
 export interface Policy { 
@@ -79,7 +79,7 @@ export interface Policy {
 export interface UserPolicy { 
   id: number; userId: number; userName: string; policyId: number; policyTitle: string; 
   policyType: string; basePremium: number; coverageAmount: number; durationMonths: number; 
-  finalPremium: number; discountApplied: number; purchaseDate: string; status: string; 
+  finalPremium: number; discountApplied: number; purchaseDate: string; expiryDate?: string; status: string; 
   savedAmount: number; 
   assignedUnderwriterId?: number; assignedUnderwriterName?: string; assignedAt?: string;
   quoteAmount?: number; underwriterRemarks?: string; totalClaimedAmount?: number;

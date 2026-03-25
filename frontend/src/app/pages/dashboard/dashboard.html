@@ -126,7 +126,7 @@
 
       <div class="recent-users-list" *ngIf="recentUsers.length > 0; else noUsers">
         <div class="recent-user-row" *ngFor="let u of recentUsers">
-          <div class="user-avatar">{{ u.name?.charAt(0) || '?' }}</div>
+          <div class="user-avatar">{{ u.name.charAt(0) || '?' }}</div>
           <div class="user-info">
             <div class="user-name">{{ u.name }}</div>
             <div class="user-email">{{ u.email }}</div>
